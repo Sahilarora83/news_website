@@ -1946,6 +1946,22 @@
           left: auto;
           right: 0;
         }
+        .more-wrapper {
+          position: relative;
+          z-index: 4;
+        }
+        .more-menu {
+          position: fixed;
+          top: 114px;
+          right: 8px;
+          left: auto;
+          min-width: 180px;
+          max-height: calc(100vh - 130px);
+          overflow-y: auto;
+        }
+        .more-wrapper.open .more-menu {
+          transform: translateY(0);
+        }
         .nav-search-panel {
           display: none;
         }
