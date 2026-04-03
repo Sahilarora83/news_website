@@ -1,0 +1,3569 @@
+<!doctype html>
+<html lang="hi">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>प्रथम गेंडा NEWS - सच आईने की तरह...</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      :root {
+        --au-red: #D11F26;
+        --au-nav-bg: #212121;
+        --overlay-bg: rgba(0,0,0,0.5);
+        --sidebar-text: #333333;
+        --sidebar-icon: #7d7d7d;
+        --border-light: #f1f1f1;
+      }
+      body { font-family: 'Hind', 'Noto Sans Devanagari', sans-serif; background: #fff; color: #333; margin: 0; padding: 0; }
+
+      /* Header Branding */
+      .header-branding {
+        width: 100%;
+        background: #fff;
+        border-bottom: 1px solid #ececec;
+      }
+      .top-inner {
+        max-width: 1240px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 28px;
+        padding: 16px 15px 14px;
+      }
+      .logo-text-wrapper {
+        text-align: left;
+        line-height: 1;
+        text-decoration: none;
+        display: inline-grid;
+        justify-items: start;
+        flex-shrink: 0;
+      }
+      .logo-mainline {
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+      }
+      .logo-primary {
+        font-family: 'Noto Serif Devanagari', serif;
+        font-size: 3.25rem;
+        font-weight: 800;
+        color: #d21920;
+        margin: 0;
+        letter-spacing: -1.4px;
+        line-height: 0.96;
+        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+      }
+      .logo-news-box {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        align-self: flex-end;
+        min-height: 38px;
+        padding: 0 12px;
+        background: #111;
+        color: #fff;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 800;
+        font-size: 1.4rem;
+        border-radius: 2px;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+      .logo-divider {
+        width: 142px;
+        height: 2px;
+        margin: 10px 0 8px;
+        background: linear-gradient(90deg, transparent 0%, #d21920 16%, #d21920 84%, transparent 100%);
+      }
+      .logo-tagline {
+        display: block;
+        font-size: 0.82rem;
+        color: #3d3d3d;
+        font-weight: 500;
+        margin-top: 0;
+      }
+      .mobile-topbar {
+        display: none;
+        background: #fff;
+        border-bottom: 1px solid #e9e9e9;
+        position: relative;
+      }
+      .mobile-topbar-inner {
+        max-width: 1240px;
+        margin: 0 auto;
+        min-height: 58px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 10px;
+      }
+      .mobile-icon-btn {
+        width: 36px;
+        height: 36px;
+        border: 0;
+        background: transparent;
+        color: #222;
+        font-size: 1.6rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+      .mobile-logo {
+        flex: 1 1 auto;
+        min-width: 0;
+        text-decoration: none;
+        display: inline-flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 4px;
+      }
+      .mobile-logo-top {
+        display: inline-flex;
+        align-items: flex-end;
+        gap: 8px;
+      }
+      .mobile-logo-text {
+        display: inline-block;
+        color: #d11f26;
+        font-family: 'Noto Serif Devanagari', serif;
+        font-size: 1.78rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.9px;
+        white-space: nowrap;
+      }
+      .mobile-logo-news {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 28px;
+        padding: 0 9px;
+        border-radius: 2px;
+        background: #111;
+        color: #fff;
+        font-family: 'Poppins', sans-serif;
+        font-size: 1rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+      .mobile-logo-line {
+        width: 84px;
+        height: 2px;
+        background: linear-gradient(90deg, #d11f26 0%, rgba(209, 31, 38, 0.2) 100%);
+      }
+      .mobile-logo-tagline {
+        font-size: 0.68rem;
+        color: #3c3c3c;
+        line-height: 1;
+        font-weight: 500;
+      }
+      .mobile-city-btn {
+        min-height: 58px;
+        border: 0;
+        background: transparent;
+        color: #222;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0 12px;
+        border-left: 1px solid #ececec;
+        border-right: 1px solid #ececec;
+        font-size: 0.98rem;
+        font-weight: 500;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+      .mobile-searchbar {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 8px;
+        background: #fff;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        z-index: 3;
+      }
+      .mobile-topbar.search-open .mobile-searchbar {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+      }
+      .mobile-searchbar input {
+        flex: 1;
+        min-width: 0;
+        height: 42px;
+        border: 1px solid #dfdfdf;
+        outline: none;
+        padding: 0 12px;
+        font-size: 0.98rem;
+        font-family: inherit;
+        color: #333;
+      }
+      .mobile-searchbar input::placeholder {
+        color: #7a7a7a;
+      }
+      .mobile-bottom-nav {
+        display: none;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 72px;
+        background: linear-gradient(180deg, #3d4246 0%, #34393d 100%);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        box-shadow: 0 -8px 18px rgba(0, 0, 0, 0.22);
+        z-index: 1800;
+      }
+      .mobile-bottom-link {
+        flex: 1 1 0;
+        min-width: 0;
+        color: #fff;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        font-size: 0.76rem;
+        font-weight: 600;
+        line-height: 1;
+        transition: background 0.18s ease, color 0.18s ease;
+      }
+      .mobile-bottom-link i {
+        font-size: 1.32rem;
+      }
+      .mobile-bottom-link.active {
+        background: #e32027;
+      }
+      .mobile-bottom-link span {
+        display: block;
+        transform: translateY(1px);
+      }
+      .mobile-bottom-premium {
+        flex: 0 0 86px;
+        position: relative;
+      }
+      .mobile-bottom-premium::before {
+        content: "";
+        position: absolute;
+        inset: 8px 12px 10px;
+        border-radius: 999px;
+        background: radial-gradient(circle at top, rgba(255,255,255,0.08), transparent 65%);
+        pointer-events: none;
+      }
+      .mobile-premium-badge {
+        width: 62px;
+        height: 62px;
+        filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.3));
+        transform: translateY(-8px);
+      }
+
+      /* Amar Ujala style header nav */
+      .au-navbar {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: #373c40;
+        color: #fff;
+        border-bottom: 1px solid #2f3336;
+      }
+      .nav-inner {
+        max-width: 1240px;
+        width: 100%;
+        margin: 0 auto;
+        display: flex;
+        align-items: stretch;
+        min-height: 50px;
+        position: relative;
+      }
+      .nav-main {
+        display: flex;
+        align-items: stretch;
+        min-width: 0;
+      }
+      .nav-control,
+      .nav-btn,
+      .nav-brand-badge,
+      .location-btn,
+      .search-btn-trigger {
+        border: 0;
+        background: transparent;
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 50px;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .nav-control {
+        width: 58px;
+        border-right: 1px solid #52575b;
+        font-size: 1.45rem;
+        cursor: pointer;
+      }
+      .nav-btn {
+        padding: 0 18px;
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+      .btn-home {
+        background: #de1f27;
+      }
+      .nav-btn:hover,
+      .nav-control:hover,
+      .nav-brand-badge:hover,
+      .location-btn:hover,
+      .search-btn-trigger:hover {
+        background: #42484d;
+      }
+      .btn-home:hover {
+        background: #de1f27;
+      }
+      .nav-brand-badge {
+        width: 68px;
+        position: relative;
+        background: linear-gradient(180deg, #151515 0%, #282828 100%);
+        color: #f2bd20;
+        font-family: 'Noto Serif Devanagari', serif;
+        font-weight: 700;
+        font-size: 1.65rem;
+      }
+      .badge-crown {
+        position: absolute;
+        top: 4px;
+        right: 7px;
+        font-size: 0.92rem;
+        color: #f6b41d;
+      }
+      .badge-text {
+        transform: translateY(2px);
+        letter-spacing: -1px;
+      }
+      .more-wrapper {
+        position: relative;
+      }
+      .more-btn {
+        cursor: pointer;
+      }
+      .more-dots {
+        margin-left: 6px;
+        font-size: 0.84rem;
+        letter-spacing: 0.12em;
+      }
+      .more-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        min-width: 220px;
+        max-height: 360px;
+        background: #fff;
+        color: #111;
+        border: 1px solid #e4e4e4;
+        box-shadow: 0 14px 26px rgba(0, 0, 0, 0.12);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: #cfcfcf transparent;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(8px);
+        transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+        z-index: 1010;
+      }
+      .more-menu::-webkit-scrollbar {
+        width: 8px;
+      }
+      .more-menu::-webkit-scrollbar-thumb {
+        background: #d1d1d1;
+        border-radius: 999px;
+      }
+      .more-wrapper.open .more-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+      .more-menu a {
+        display: block;
+        padding: 12px 14px;
+        font-size: 0.95rem;
+        font-weight: 400;
+        color: #111;
+        text-decoration: none;
+        border-bottom: 1px solid #f0f0f0;
+      }
+      .more-menu a:last-child {
+        border-bottom: 0;
+      }
+      .more-menu a:hover {
+        background: #f8f8f8;
+      }
+      .nav-right {
+        margin-left: auto;
+        display: flex;
+        align-items: stretch;
+        position: relative;
+        z-index: 2;
+      }
+      .location-btn {
+        cursor: pointer;
+        gap: 10px;
+        padding: 0 22px;
+        border-left: 1px solid #52575b;
+        font-size: 0.96rem;
+        font-weight: 600;
+      }
+      .search-btn-trigger {
+        cursor: pointer;
+        width: 62px;
+        border-left: 1px solid #52575b;
+        font-size: 1.5rem;
+      }
+      .nav-search-panel {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: min(470px, 100%);
+        height: 50px;
+        display: flex;
+        align-items: stretch;
+        background: #fff;
+        box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateX(16px);
+        transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+        z-index: 4;
+      }
+      .search-panel-menu {
+        display: none;
+        width: 54px;
+        border: 0;
+        background: transparent;
+        color: #2a2a2a;
+        font-size: 1.55rem;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .au-navbar.search-open .nav-search-panel {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateX(0);
+      }
+      .nav-search-panel input {
+        flex: 1;
+        border: 0;
+        outline: none;
+        padding: 0 14px;
+        font-size: 0.96rem;
+        font-family: inherit;
+        color: #333;
+        font-weight: 400;
+      }
+      .nav-search-panel input::placeholder {
+        color: #666;
+      }
+      .search-close-btn {
+        width: 64px;
+        border: 0;
+        background: #373c40;
+        color: #fff;
+        font-size: 1.45rem;
+        cursor: pointer;
+      }
+
+      /* Amar Ujala style sidebar */
+      .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: min(444px, calc(100vw - 56px));
+        max-width: 100%;
+        background: #fff;
+        z-index: 2000;
+        transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+        overflow-y: auto;
+        transform: translateX(-100%);
+        box-shadow: 12px 0 28px rgba(0, 0, 0, 0.18);
+        scrollbar-width: thin;
+        scrollbar-color: #d2d2d2 transparent;
+      }
+      .sidebar.active { transform: translateX(0); }
+      .sidebar::-webkit-scrollbar { width: 8px; }
+      .sidebar::-webkit-scrollbar-thumb { background: #d2d2d2; border-radius: 999px; }
+
+      .sb-header {
+        background: #f7f7f7;
+        border-bottom: 1px solid #ececec;
+      }
+      .sb-topbar {
+        display: flex;
+        align-items: center;
+        height: 74px;
+        padding: 0 22px;
+      }
+      .sb-back-btn {
+        cursor: pointer;
+        border: 0;
+        background: transparent;
+        padding: 0;
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: #2d2d2d;
+      }
+      .sb-back-btn:hover { color: #111; }
+      .sb-user-row {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 4px 28px 20px;
+      }
+      .sb-user-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: #fff;
+        border: 1px solid #ebebeb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #d6d6d6;
+        font-size: 4rem;
+        overflow: hidden;
+      }
+      .sb-user-avatar i { transform: translateY(2px); }
+      .sb-user-name {
+        font-weight: 500;
+        font-size: 1.1rem;
+        color: #101010;
+        letter-spacing: 0;
+      }
+
+      .sb-menu {
+        background: #fff;
+        padding-bottom: 18px;
+      }
+      .sb-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-height: 60px;
+        padding: 0 22px 0 24px;
+        text-decoration: none;
+        color: #151515;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.98rem;
+        font-weight: 400;
+        transition: background 0.15s ease;
+      }
+      .sb-item:hover { background: #fafafa; }
+      .sb-item-text { flex: 1; }
+      .sb-icon-box {
+        margin-left: auto;
+        min-width: auto;
+        color: #707070;
+        font-size: 1.45rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .sb-item-feature { font-weight: 500; }
+      .gold-crown { color: #f2b500 !important; font-size: 1.2rem !important; }
+
+      .follow-pill {
+        margin-left: auto;
+        min-width: 90px;
+        border: 1px solid #dddddd;
+        padding: 7px 16px 6px;
+        border-radius: 999px;
+        font-size: 0.88rem;
+        color: #aeaeae;
+        font-weight: 400;
+        background: #fff;
+        line-height: 1;
+        text-align: center;
+      }
+      .follow-pill:hover {
+        background: #f7f7f7;
+        color: #8f8f8f;
+        border-color: #d5d5d5;
+      }
+
+      /* Trending */
+      .trending-bar {
+        background: #fff;
+        border-bottom: 1px solid #ececec;
+      }
+      .trending-inner {
+        max-width: 1240px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        min-height: 50px;
+        padding: 0 15px;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      .trending-inner::-webkit-scrollbar {
+        display: none;
+      }
+      .trending-tag {
+        color: #111;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 1.28rem;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+      .trending-link {
+        color: #1c1c1c;
+        text-decoration: none;
+        font-size: 0.92rem;
+        font-weight: 400;
+      }
+      .trending-link:hover {
+        color: var(--au-red);
+      }
+
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background: var(--overlay-bg);
+        opacity: 0;
+        visibility: hidden;
+        transition: 0.3s;
+        z-index: 1500;
+      }
+      .overlay.active { opacity: 1; visibility: visible; }
+
+      .cookie-banner {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 2200;
+        background: #fff;
+        border-top: 1px solid #e6e6e6;
+        box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.12);
+        transform: translateY(100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: transform 0.32s ease, opacity 0.32s ease, visibility 0.32s ease;
+      }
+      .cookie-banner.active {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+      }
+      .cookie-banner-inner {
+        max-width: 1240px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 16px;
+      }
+      .cookie-banner-text {
+        flex: 1;
+        font-size: 0.94rem;
+        line-height: 1.5;
+        color: #222;
+      }
+      .cookie-banner-text a {
+        color: #111;
+        text-decoration: none;
+      }
+      .cookie-banner-text a:hover {
+        text-decoration: underline;
+      }
+      .cookie-banner-btn {
+        border: 0;
+        background: #111;
+        color: #fff;
+        font-size: 0.92rem;
+        font-weight: 700;
+        line-height: 1;
+        padding: 8px 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+      .cookie-banner-btn:hover {
+        background: #000;
+      }
+
+      .city-drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: min(370px, 100vw);
+        background: #fff;
+        z-index: 2050;
+        transform: translateX(100%);
+        transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+        box-shadow: -12px 0 28px rgba(0, 0, 0, 0.18);
+        overflow-y: auto;
+      }
+      .city-drawer.active {
+        transform: translateX(0);
+      }
+      .city-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 76px;
+        padding: 0 22px 0 24px;
+        border-bottom: 1px solid #ededed;
+      }
+      .city-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #141414;
+      }
+      .city-close {
+        border: 0;
+        background: transparent;
+        color: #111;
+        cursor: pointer;
+        font-size: 2rem;
+        line-height: 1;
+        padding: 0;
+      }
+      .city-search {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 58px;
+        padding: 0 22px 0 24px;
+        border-bottom: 1px solid #ededed;
+      }
+      .city-search input {
+        flex: 1;
+        border: 0;
+        outline: none;
+        font-size: 0.94rem;
+        color: #333;
+        font-family: inherit;
+        font-weight: 400;
+      }
+      .city-search input::placeholder {
+        color: #a0a0a0;
+      }
+      .city-search i {
+        font-size: 1.6rem;
+        color: #7f7f7f;
+      }
+      .city-section-title {
+        padding: 18px 24px 16px;
+        border-bottom: 1px solid #ededed;
+        font-size: 0.98rem;
+        font-weight: 700;
+        color: #242424;
+      }
+      .city-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        min-height: 54px;
+        padding: 0 24px;
+        border-bottom: 1px solid #f1f1f1;
+        font-size: 0.96rem;
+        color: #171717;
+        font-weight: 400;
+      }
+      .city-item:last-child {
+        border-bottom: 0;
+      }
+      .city-follow {
+        min-width: 88px;
+        border: 1px solid #dddddd;
+        background: #fff;
+        border-radius: 999px;
+        padding: 6px 12px;
+        color: #b1b1b1;
+        font-size: 0.86rem;
+        text-align: center;
+        font-weight: 400;
+      }
+      .state-group {
+        border-bottom: 1px solid #f1f1f1;
+      }
+      .state-group summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        min-height: 54px;
+        padding: 0 24px;
+        list-style: none;
+        cursor: pointer;
+        color: #191919;
+        font-size: 0.96rem;
+      }
+      .state-group summary::-webkit-details-marker {
+        display: none;
+      }
+      .state-plus {
+        font-size: 2rem;
+        line-height: 1;
+        transition: transform 0.18s ease;
+      }
+      .state-group[open] .state-plus {
+        transform: rotate(45deg);
+      }
+      .state-cities {
+        padding: 0 0 14px;
+      }
+      .state-city {
+        display: block;
+        padding: 0 24px 10px 38px;
+        text-decoration: none;
+        color: #666;
+        font-size: 0.88rem;
+      }
+      .state-city:hover {
+        color: var(--au-red);
+      }
+
+      .homepage-layout {
+        max-width: 1240px;
+        margin: 22px auto 60px;
+        padding: 0 15px;
+        display: grid;
+        grid-template-columns: 300px minmax(0, 1fr) 360px;
+        gap: 28px;
+        align-items: start;
+      }
+      .news-panel {
+        min-width: 0;
+        align-self: stretch;
+      }
+      .latest-panel,
+      .center-panel {
+        padding-right: 26px;
+        border-right: 1px solid #1d1d1d;
+      }
+      .breaking-panel {
+        padding-left: 8px;
+      }
+      .panel-heading {
+        margin: 0 0 20px;
+        color: #111;
+        font-size: 2rem;
+        line-height: 1;
+        font-weight: 800;
+      }
+      .panel-heading.breaking {
+        display: inline-block;
+        padding: 4px 10px 3px;
+        background: #f0171f;
+        color: #fff;
+        font-size: 1.55rem;
+      }
+      .latest-list,
+      .breaking-list {
+        display: grid;
+        gap: 0;
+      }
+      .latest-item,
+      .breaking-item,
+      .center-list-item {
+        border-bottom: 1px solid #ececec;
+      }
+      .latest-item {
+        position: relative;
+        padding: 0 28px 18px 22px;
+        margin-bottom: 18px;
+      }
+      .latest-item:last-child,
+      .breaking-item:last-child,
+      .center-list-item:last-child {
+        border-bottom: 0;
+        margin-bottom: 0;
+      }
+      .latest-item::before {
+        content: "#";
+        position: absolute;
+        left: 0;
+        top: 2px;
+        color: #ef2424;
+        font-size: 1.15rem;
+      }
+      .story-title {
+        margin: 0;
+        color: #1a1a1a;
+        font-size: 1.12rem;
+        line-height: 1.55;
+        font-weight: 500;
+      }
+      .story-title a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .story-title a:hover {
+        color: var(--au-red);
+      }
+      .story-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 12px;
+        font-size: 0.86rem;
+        text-transform: uppercase;
+      }
+      .story-category {
+        color: #ef2424;
+        font-weight: 600;
+      }
+      .story-time {
+        color: #8f8f8f;
+      }
+      .bookmark-btn {
+        position: absolute;
+        right: 0;
+        bottom: 18px;
+        border: 0;
+        background: transparent;
+        color: #727272;
+        font-size: 1.1rem;
+        cursor: pointer;
+      }
+      .bookmark-btn:hover {
+        color: #111;
+      }
+
+      .center-hero {
+        background: #fff;
+      }
+      .center-hero-media {
+        position: relative;
+        overflow: hidden;
+      }
+      .center-hero-media img {
+        display: block;
+        width: 100%;
+        height: 370px;
+        object-fit: cover;
+      }
+      .hero-tag {
+        position: absolute;
+        left: 14px;
+        top: 0;
+        background: #111;
+        color: #fff;
+        font-size: 0.82rem;
+        font-weight: 700;
+        padding: 5px 12px 4px;
+      }
+      .center-hero-copy {
+        padding: 20px 0 10px;
+      }
+      .center-hero-title {
+        margin: 0;
+        color: #141414;
+        font-size: 2.8rem;
+        line-height: 1.28;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+      .center-feed {
+        margin-top: 8px;
+      }
+      .center-list-item {
+        position: relative;
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr);
+        gap: 20px;
+        padding: 18px 30px 18px 0;
+      }
+      .center-thumb {
+        width: 150px;
+        height: 90px;
+        object-fit: cover;
+        display: block;
+      }
+      .center-list-item .bookmark-btn,
+      .breaking-item .bookmark-btn {
+        bottom: 18px;
+      }
+
+      .breaking-item {
+        position: relative;
+        display: grid;
+        grid-template-columns: 152px minmax(0, 1fr);
+        gap: 16px;
+        padding: 18px 28px 18px 0;
+      }
+      .breaking-thumb-wrap {
+        position: relative;
+      }
+      .breaking-thumb {
+        display: block;
+        width: 152px;
+        height: 84px;
+        object-fit: cover;
+      }
+      .breaking-thumb.video::after {
+        content: "\f04b";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: #ff2a2a;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        box-shadow: 0 8px 18px rgba(255, 42, 42, 0.35);
+      }
+
+      .section-ending-line,
+      .election-divider {
+        grid-column: 1 / -1;
+        position: relative;
+        height: 16px;
+        background:
+          linear-gradient(#050505, #050505) top / 100% 6px no-repeat,
+          linear-gradient(#bcbcbc, #bcbcbc) 0 11px / 100% 1px no-repeat;
+      }
+      .section-ending-line {
+        margin-top: 20px;
+        margin-bottom: 26px;
+      }
+      .election-section {
+        grid-column: 1 / -1;
+        margin-top: 0;
+        padding-top: 0;
+      }
+      .election-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 28px;
+      }
+      .election-title-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: #111;
+        text-decoration: none;
+      }
+      .election-title {
+        margin: 0;
+        font-size: 2.2rem;
+        line-height: 1.1;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+      .election-title-link i {
+        font-size: 1.65rem;
+      }
+      .election-tabs {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .election-tab {
+        min-width: 116px;
+        padding: 11px 24px 10px;
+        border: 1px solid #f04a3e;
+        border-radius: 999px;
+        background: #fff;
+        color: #222;
+        text-align: center;
+        text-decoration: none;
+        font-size: 0.98rem;
+        font-weight: 500;
+        line-height: 1;
+        transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+      }
+      .election-tab:hover {
+        border-color: #d11f26;
+        color: #d11f26;
+      }
+      .election-tab.active {
+        background: #e12b20;
+        border-color: #e12b20;
+        color: #fff;
+      }
+      .election-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0;
+      }
+      .election-card {
+        min-width: 0;
+      }
+      .election-card + .election-card {
+        border-left: 1px solid #1d1d1d;
+        padding-left: 24px;
+        margin-left: 24px;
+      }
+      .election-card-media {
+        position: relative;
+        overflow: hidden;
+      }
+      .election-card-image {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+      }
+      .election-card-banner {
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        bottom: 0;
+        background: rgba(231, 43, 35, 0.96);
+        color: #fff;
+        padding: 10px 14px 8px;
+        text-align: center;
+        font-size: 0.98rem;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+      .election-card-headline {
+        margin: 18px 0 0;
+        color: #181818;
+        font-size: 1.08rem;
+        line-height: 1.52;
+        font-weight: 500;
+      }
+      .election-card-headline a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .election-card-headline a:hover {
+        color: var(--au-red);
+      }
+      .election-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 14px;
+      }
+      .election-card-footer .story-category {
+        font-size: 0.95rem;
+      }
+      .election-card-footer .bookmark-btn {
+        position: static;
+        color: #787878;
+        font-size: 1.12rem;
+      }
+      .election-divider {
+        margin-top: 32px;
+      }
+
+      .city-news-section,
+      .feature-section {
+        grid-column: 1 / -1;
+      }
+      .city-news-section {
+        margin-top: 38px;
+      }
+      .city-news-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        margin-bottom: 26px;
+        text-align: center;
+      }
+      .city-news-title {
+        margin: 0;
+        color: #111;
+        font-size: 2.3rem;
+        line-height: 1.1;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+      .city-pin-btn {
+        border: 0;
+        border-radius: 999px;
+        background: #050505;
+        color: #fff;
+        font-family: inherit;
+        font-size: 1.02rem;
+        font-weight: 500;
+        line-height: 1;
+        padding: 15px 30px 14px;
+        cursor: pointer;
+      }
+      .city-pills {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 34px;
+      }
+      .city-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 18px;
+        border-radius: 999px;
+        background: #fff;
+        color: #1d1d1d;
+        border: 1px solid #ededed;
+        box-shadow: 0 5px 14px rgba(0, 0, 0, 0.07);
+        text-decoration: none;
+        font-size: 0.98rem;
+        font-weight: 600;
+      }
+      .city-pill.active {
+        background: #e22a1f;
+        border-color: #e22a1f;
+        color: #fff;
+        box-shadow: none;
+      }
+      .city-news-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 38px 42px;
+      }
+      .city-news-card {
+        display: grid;
+        grid-template-columns: 156px minmax(0, 1fr);
+        gap: 16px;
+        align-items: start;
+        min-width: 0;
+      }
+      .city-news-image {
+        display: block;
+        width: 156px;
+        height: 88px;
+        object-fit: cover;
+        border-radius: 2px;
+      }
+      .city-news-card .story-title {
+        font-size: 1.08rem;
+        line-height: 1.5;
+        font-weight: 500;
+      }
+      .city-news-card .story-meta {
+        margin-top: 12px;
+      }
+      .city-news-card .story-category {
+        font-size: 0.95rem;
+      }
+      .city-news-card:hover .story-title a {
+        color: var(--au-red);
+      }
+      .city-news-more {
+        display: flex;
+        justify-content: center;
+        margin-top: 34px;
+      }
+      .city-news-more-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-width: 140px;
+        min-height: 38px;
+        padding: 0 24px;
+        border-radius: 999px;
+        background: #e22a1f;
+        color: #fff;
+        text-decoration: none;
+        font-size: 0.98rem;
+        font-weight: 700;
+        line-height: 1;
+      }
+      .city-news-more-btn i {
+        font-size: 1rem;
+      }
+
+      .feature-section {
+        margin-top: 38px;
+      }
+      .feature-section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 24px;
+      }
+      .feature-section-header a {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: #111;
+        text-decoration: none;
+      }
+      .feature-section-title {
+        margin: 0;
+        font-size: 2rem;
+        line-height: 1.1;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+      .feature-section-header i {
+        font-size: 1.5rem;
+      }
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0;
+      }
+      .feature-card {
+        min-width: 0;
+      }
+      .feature-card + .feature-card {
+        border-left: 1px solid #1d1d1d;
+        padding-left: 24px;
+        margin-left: 24px;
+      }
+      .feature-image {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+      }
+      .feature-headline {
+        margin: 18px 0 0;
+        color: #181818;
+        font-size: 1.08rem;
+        line-height: 1.52;
+        font-weight: 500;
+      }
+      .feature-headline a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .feature-headline a:hover {
+        color: var(--au-red);
+      }
+      .feature-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 14px;
+      }
+      .feature-footer .story-category {
+        font-size: 0.95rem;
+      }
+      .feature-footer .bookmark-btn {
+        position: static;
+        color: #787878;
+        font-size: 1.12rem;
+      }
+      .feature-tagline {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .feature-tagline .fa-gem {
+        color: #1a9ce6;
+        font-size: 1rem;
+      }
+      .site-footer {
+        background: #262626;
+        color: #fff;
+        margin-top: 48px;
+      }
+      .site-footer-inner {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 38px 15px 24px;
+      }
+      .site-footer-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 1.5fr 0.9fr;
+        gap: 34px;
+      }
+      .site-footer-title {
+        margin: 0 0 18px;
+        font-size: 1.65rem;
+        font-weight: 800;
+        line-height: 1.1;
+      }
+      .site-footer-links {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px 28px;
+      }
+      .site-footer-links a,
+      .site-footer-meta a {
+        color: rgba(255, 255, 255, 0.88);
+        text-decoration: none;
+        font-size: 1rem;
+        line-height: 1.45;
+      }
+      .site-footer-links a:hover,
+      .site-footer-meta a:hover {
+        color: #fff;
+      }
+      .site-footer-meta {
+        display: grid;
+        gap: 12px;
+      }
+      .site-footer-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 28px;
+        padding-top: 22px;
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+      }
+      .site-footer-brand-mark {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 38% 38%, #ffd34d 0 34%, #ff5a24 35% 68%, #c81b25 69% 100%);
+      }
+      .site-footer-brand-text {
+        font-family: 'Noto Serif Devanagari', serif;
+        font-size: 2rem;
+        font-weight: 800;
+      }
+      .site-footer-bottom {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-top: 18px;
+        padding-top: 18px;
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+      }
+      .site-footer-copy {
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 0.96rem;
+      }
+      .site-footer-badges {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .site-footer-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 38px;
+        padding: 0 14px;
+        border-radius: 8px;
+        background: #111;
+        color: #fff;
+        text-decoration: none;
+        font-size: 0.88rem;
+        font-weight: 600;
+      }
+
+      .main-column {
+        max-width: 1240px;
+        margin: 60px auto;
+        padding: 0 15px;
+        text-align: center;
+        color: #bbb;
+      }
+      .homepage-layout > h2,
+      .homepage-layout > p {
+        display: none;
+      }
+
+      @media (max-width: 1080px) {
+        .homepage-layout {
+          grid-template-columns: 260px minmax(0, 1fr) 300px;
+          gap: 22px;
+        }
+        .city-news-grid,
+        .feature-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 28px 0;
+        }
+        .city-news-grid {
+          gap: 32px 30px;
+        }
+        .feature-card:nth-child(2n + 1) {
+          border-left: 0;
+          padding-left: 0;
+          margin-left: 0;
+        }
+        .city-news-title {
+          font-size: 1.95rem;
+        }
+        .feature-section-title {
+          font-size: 1.82rem;
+        }
+        .election-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 26px 0;
+        }
+        .election-card:nth-child(3) {
+          border-left: 0;
+          padding-left: 0;
+          margin-left: 0;
+        }
+        .election-title {
+          font-size: 1.95rem;
+        }
+        .election-tab {
+          min-width: 104px;
+          padding-inline: 20px;
+        }
+        .center-hero-title {
+          font-size: 2.3rem;
+        }
+        .breaking-item,
+        .center-list-item {
+          grid-template-columns: 120px minmax(0, 1fr);
+        }
+        .breaking-thumb,
+        .center-thumb {
+          width: 120px;
+        }
+        .breaking-thumb {
+          height: 76px;
+        }
+        .center-thumb {
+          height: 78px;
+        }
+        .top-inner {
+          gap: 18px;
+        }
+        .logo-primary {
+          font-size: 3rem;
+        }
+        .nav-btn {
+          padding: 0 14px;
+          font-size: 0.9rem;
+        }
+        .location-btn {
+          padding: 0 16px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        html {
+          font-size: 16px;
+          -webkit-text-size-adjust: 100%;
+        }
+        body {
+          padding-bottom: 72px;
+          overflow-x: hidden;
+        }
+        .homepage-layout {
+          grid-template-columns: 1fr;
+          gap: 28px;
+          margin: 18px auto 36px;
+          padding: 0 12px;
+        }
+        .homepage-layout,
+        .city-news-section,
+        .feature-section,
+        .election-section {
+          width: 100%;
+          max-width: 100%;
+        }
+        .section-ending-line,
+        .election-divider {
+          width: 100%;
+        }
+        .cookie-banner {
+          bottom: 72px;
+        }
+        .mobile-bottom-nav {
+          display: flex;
+        }
+        .city-news-section,
+        .feature-section {
+          grid-column: auto;
+          margin-top: 28px;
+        }
+        .city-news-header {
+          flex-direction: column;
+          gap: 14px;
+          margin-bottom: 18px;
+        }
+        .city-news-title {
+          font-size: 1.5rem;
+          text-align: left;
+          width: 100%;
+        }
+        .city-pin-btn {
+          align-self: flex-start;
+          padding: 10px 18px 9px;
+          font-size: 0.88rem;
+        }
+        .city-pills {
+          justify-content: flex-start;
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          padding-bottom: 4px;
+          gap: 10px;
+          margin-bottom: 22px;
+          scrollbar-width: none;
+        }
+        .city-pills::-webkit-scrollbar {
+          display: none;
+        }
+        .city-pill {
+          flex: 0 0 auto;
+          min-height: 38px;
+          padding: 0 14px;
+          font-size: 0.92rem;
+        }
+        .city-news-grid,
+        .feature-grid {
+          grid-template-columns: 1fr;
+          gap: 24px;
+        }
+        .city-news-card {
+          grid-template-columns: 112px minmax(0, 1fr);
+          gap: 14px;
+          padding-bottom: 16px;
+          border-bottom: 1px solid #ededed;
+        }
+        .city-news-image {
+          width: 112px;
+          height: 74px;
+        }
+        .city-news-card .story-title {
+          font-size: 0.95rem;
+          line-height: 1.42;
+        }
+        .election-card,
+        .feature-card {
+          display: grid;
+          grid-template-columns: 112px minmax(0, 1fr);
+          gap: 14px;
+          align-items: start;
+        }
+        .election-grid,
+        .feature-grid {
+          gap: 0;
+        }
+        .election-card-media,
+        .feature-image {
+          width: 112px;
+        }
+        .election-card-image,
+        .feature-image {
+          width: 112px;
+          height: 74px;
+          aspect-ratio: auto;
+        }
+        .election-card-banner {
+          display: none;
+        }
+        .election-header {
+          margin-bottom: 18px;
+        }
+        .election-card-headline,
+        .feature-headline {
+          margin-top: 0;
+          font-size: 0.95rem;
+          line-height: 1.42;
+        }
+        .election-card-footer,
+        .feature-footer {
+          margin-top: 10px;
+        }
+        .bookmark-btn {
+          display: none;
+        }
+        .election-card,
+        .feature-card,
+        .city-news-card,
+        .center-list-item,
+        .breaking-item {
+          width: 100%;
+          max-width: 100%;
+        }
+        .center-hero {
+          display: none;
+        }
+        .center-feed {
+          margin-top: 0;
+        }
+        .center-list-item,
+        .breaking-item {
+          grid-template-columns: 112px minmax(0, 1fr);
+          gap: 14px;
+          padding: 14px 0;
+        }
+        .center-thumb,
+        .breaking-thumb {
+          width: 112px;
+          height: 74px;
+        }
+        .latest-item {
+          padding: 0 0 14px 18px;
+          margin-bottom: 14px;
+        }
+        .story-title {
+          font-size: 0.98rem;
+          line-height: 1.42;
+        }
+        .feature-card {
+          padding-bottom: 16px;
+          border-bottom: 1px solid #ededed;
+        }
+        .feature-card + .feature-card,
+        .feature-card:nth-child(2n + 1) {
+          border-left: 0;
+          border-top: 0;
+          padding-left: 0;
+          padding-top: 0;
+          margin-left: 0;
+        }
+        .feature-section-header {
+          margin-bottom: 18px;
+        }
+        .feature-section-title {
+          font-size: 1.42rem;
+        }
+        .story-meta {
+          gap: 8px;
+          font-size: 0.8rem;
+        }
+        .story-category {
+          font-size: 0.8rem;
+        }
+        .site-footer-inner {
+          padding: 30px 14px 96px;
+        }
+        .site-footer-grid {
+          grid-template-columns: 1fr;
+          gap: 24px;
+        }
+        .site-footer-title {
+          font-size: 1.4rem;
+          margin-bottom: 14px;
+        }
+        .site-footer-links {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+        .site-footer-bottom {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .section-ending-line {
+          grid-column: auto;
+          margin-top: 14px;
+          margin-bottom: 22px;
+        }
+        .election-section {
+          grid-column: auto;
+          margin-top: 0;
+          padding-top: 0;
+          order: 4;
+        }
+        .election-header {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 18px;
+          margin-bottom: 22px;
+        }
+        .election-title {
+          font-size: 1.85rem;
+        }
+        .election-tabs {
+          justify-content: flex-start;
+          gap: 12px;
+        }
+        .election-grid {
+          grid-template-columns: 1fr;
+          gap: 24px;
+        }
+        .election-card + .election-card,
+        .election-card:nth-child(3) {
+          border-left: 0;
+          border-top: 1px solid #1d1d1d;
+          padding-left: 0;
+          padding-top: 24px;
+          margin-left: 0;
+        }
+        .election-divider {
+          margin-top: 26px;
+        }
+        .latest-panel,
+        .center-panel,
+        .breaking-panel {
+          padding-right: 0;
+          padding-left: 0;
+          border-right: 0;
+        }
+        .news-panel.latest-panel {
+          order: 2;
+        }
+        .news-panel.center-panel {
+          order: 1;
+        }
+        .news-panel.breaking-panel {
+          order: 3;
+        }
+        .panel-heading {
+          font-size: 1.7rem;
+          margin-bottom: 16px;
+        }
+        .panel-heading.breaking {
+          font-size: 1.3rem;
+        }
+        .center-hero-media img {
+          height: 230px;
+        }
+        .center-hero-title {
+          font-size: 2rem;
+        }
+        .latest-item,
+        .breaking-item,
+        .center-list-item {
+          padding-right: 26px;
+        }
+        .header-branding {
+          display: none;
+        }
+        .mobile-topbar {
+          display: block;
+          position: sticky;
+          top: 0;
+          z-index: 1002;
+          background: #fff;
+          border-bottom: 1px solid #e5e5e5;
+        }
+        .mobile-topbar-inner {
+          min-height: 62px;
+          padding: 0 12px;
+          gap: 8px;
+        }
+        .mobile-icon-btn {
+          width: 38px;
+          height: 38px;
+          font-size: 1.75rem;
+          color: #222;
+        }
+        .mobile-logo {
+          flex: 1 1 auto;
+          max-width: none;
+        }
+        .mobile-logo-top {
+          gap: 6px;
+        }
+        .mobile-logo-text {
+          font-size: 1.45rem;
+          letter-spacing: -0.6px;
+        }
+        .mobile-logo-news {
+          min-height: 24px;
+          padding: 0 8px;
+          font-size: 0.9rem;
+        }
+        .mobile-logo-line {
+          width: 72px;
+          height: 2px;
+        }
+        .mobile-city-btn {
+          min-height: 62px;
+          padding: 0 10px !important;
+          font-size: 0.96rem !important;
+          font-weight: 500;
+          gap: 5px !important;
+          border-left: 1px solid #ececec;
+          border-right: 1px solid #ececec;
+        }
+        .au-navbar {
+          top: 62px;
+          background: #3b4044;
+        }
+        .au-navbar.search-open {
+          z-index: 1205;
+        }
+        .nav-inner {
+          overflow: visible;
+          min-height: 52px;
+        }
+        .nav-control,
+        .nav-right {
+          display: none;
+        }
+        .nav-main {
+          min-width: 0;
+          width: 100%;
+          overflow-x: auto;
+          scrollbar-width: none;
+        }
+        .nav-main::-webkit-scrollbar {
+          display: none;
+        }
+        .nav-btn,
+        .nav-brand-badge {
+          flex: 0 0 auto;
+          min-height: 52px;
+        }
+        .nav-btn {
+          padding: 0 14px;
+          font-size: 0.95rem;
+          font-weight: 600;
+        }
+        .nav-brand-badge {
+          width: 66px;
+          font-size: 1.6rem;
+        }
+        .more-menu {
+          left: auto;
+          right: 0;
+        }
+        .nav-search-panel {
+          display: none;
+        }
+        .trending-inner {
+          gap: 10px;
+          min-height: auto;
+          padding: 10px 12px;
+        }
+        .trending-tag {
+          display: none;
+        }
+        .trending-link {
+          flex: 0 0 auto;
+          border: 1px solid #8d8d8d;
+          border-radius: 999px;
+          padding: 7px 16px 6px;
+          background: #fff;
+          line-height: 1;
+        }
+        .sidebar { width: 100vw; }
+        .sb-topbar { height: 64px; padding: 0 18px; }
+        .sb-user-row { padding: 0 20px 18px; }
+        .sb-user-avatar { width: 60px; height: 60px; font-size: 3.4rem; }
+        .sb-user-name { font-size: 1.08rem; }
+        .sb-item { min-height: 56px; padding: 0 18px 0 20px; font-size: 1rem; }
+        .follow-pill { min-width: 84px; padding: 6px 12px; font-size: 0.86rem; }
+        .city-drawer { width: 100vw; }
+        .main-column { margin: 28px auto 36px; }
+        .cookie-banner-inner {
+          align-items: flex-start;
+          padding: 12px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .homepage-layout {
+          padding: 0 10px;
+        }
+        .panel-heading,
+        .feature-section-title,
+        .election-title,
+        .city-news-title {
+          font-size: 1.34rem;
+          line-height: 1.2;
+        }
+        .city-news-title {
+          font-size: 1.34rem;
+        }
+        .city-pill {
+          font-size: 0.8rem;
+          min-height: 34px;
+          padding: 0 12px;
+        }
+        .city-news-card {
+          grid-template-columns: 92px minmax(0, 1fr);
+          gap: 10px;
+        }
+        .city-news-image {
+          width: 92px;
+          height: 62px;
+        }
+        .election-card,
+        .feature-card {
+          grid-template-columns: 92px minmax(0, 1fr);
+          gap: 10px;
+        }
+        .election-card-media,
+        .feature-image,
+        .election-card-image {
+          width: 92px;
+          height: 62px;
+        }
+        .city-news-card .story-title,
+        .feature-headline {
+          font-size: 0.88rem;
+        }
+        .election-card-headline {
+          font-size: 0.88rem;
+        }
+        .feature-section-title {
+          font-size: 1.34rem;
+        }
+        .center-list-item,
+        .breaking-item {
+          grid-template-columns: 92px minmax(0, 1fr);
+          gap: 10px;
+        }
+        .center-thumb,
+        .breaking-thumb {
+          width: 92px;
+          height: 62px;
+        }
+        .story-title {
+          font-size: 0.9rem;
+        }
+        .election-title {
+          font-size: 1.62rem;
+        }
+        .election-title-link i {
+          font-size: 1.35rem;
+        }
+        .election-tab {
+          min-width: 0;
+          padding: 10px 18px 9px;
+          font-size: 0.9rem;
+        }
+        .election-card-banner {
+          left: 12px;
+          right: 12px;
+          padding: 8px 12px 7px;
+          font-size: 0.88rem;
+        }
+        .election-card-headline {
+          font-size: 1rem;
+        }
+        .center-hero-media img {
+          height: 210px;
+        }
+        .center-hero-title {
+          font-size: 1.72rem;
+          line-height: 1.36;
+        }
+        .breaking-item,
+        .center-list-item {
+          grid-template-columns: 110px minmax(0, 1fr);
+          gap: 14px;
+        }
+        .breaking-thumb,
+        .center-thumb {
+          width: 110px;
+        }
+        .breaking-thumb {
+          height: 74px;
+        }
+        .center-thumb {
+          height: 74px;
+        }
+        .story-title {
+          font-size: 1rem;
+        }
+        .mobile-topbar-inner {
+          padding: 0 8px;
+          gap: 6px;
+        }
+        .mobile-logo {
+          gap: 2px;
+        }
+        .mobile-logo-text {
+          font-size: 1.34rem;
+          letter-spacing: -0.7px;
+        }
+        .mobile-logo-line {
+          width: 46px;
+        }
+        .mobile-city-btn {
+          padding: 0 8px;
+          font-size: 0.84rem;
+          gap: 4px;
+        }
+        .nav-btn {
+          padding: 0 14px;
+          font-size: 0.88rem;
+        }
+        .nav-brand-badge {
+          width: 58px;
+        }
+        .trending-inner {
+          padding: 8px 10px;
+        }
+        .trending-link {
+          padding: 7px 14px 6px;
+          font-size: 0.88rem;
+        }
+      }
+
+      @media (max-width: 390px) {
+        .homepage-layout {
+          padding: 0 10px;
+        }
+        .mobile-bottom-nav {
+          height: 68px;
+        }
+        .mobile-bottom-link {
+          font-size: 0.74rem;
+          gap: 3px;
+        }
+        .mobile-bottom-link i {
+          font-size: 1.2rem;
+        }
+        .mobile-bottom-premium {
+          flex-basis: 80px;
+        }
+        .mobile-premium-badge {
+          width: 58px;
+          height: 58px;
+        }
+        .panel-heading {
+          font-size: 1.5rem;
+        }
+        .center-hero-title {
+          font-size: 1.54rem;
+        }
+        .breaking-item,
+        .center-list-item {
+          grid-template-columns: 98px minmax(0, 1fr);
+          gap: 12px;
+        }
+        .breaking-thumb,
+        .center-thumb {
+          width: 98px;
+        }
+        .breaking-thumb,
+        .center-thumb {
+          height: 66px;
+        }
+        .mobile-topbar-inner {
+          gap: 4px;
+          padding: 0 8px;
+        }
+        .mobile-icon-btn {
+          width: 34px;
+          height: 34px;
+          font-size: 1.5rem;
+        }
+        .mobile-logo {
+          gap: 2px;
+        }
+        .mobile-logo-top {
+          gap: 5px;
+        }
+        .mobile-logo-text {
+          font-size: 1.22rem;
+          letter-spacing: -0.35px;
+        }
+        .mobile-logo-news {
+          min-height: 21px;
+          padding: 0 6px;
+          font-size: 0.78rem;
+        }
+        .mobile-logo-line {
+          width: 58px;
+        }
+        .mobile-logo-tagline {
+          font-size: 0.58rem;
+        }
+        .mobile-city-btn {
+          min-height: 62px;
+          min-width: auto;
+          padding: 0 8px;
+          border-right: 1px solid #ececec;
+          font-size: 0.82rem;
+          gap: 4px;
+        }
+        .mobile-city-btn span {
+          display: inline;
+        }
+        .mobile-searchbar {
+          gap: 4px;
+          padding: 0 4px;
+        }
+        .mobile-searchbar input {
+          height: 40px;
+          padding: 0 10px;
+          font-size: 0.92rem;
+        }
+        .cookie-banner-inner {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+        .cookie-banner-btn {
+          align-self: flex-start;
+        }
+      }
+
+      @media (max-width: 768px) {
+        html,
+        body {
+          width: 100vw !important;
+          max-width: 100vw !important;
+          overflow-x: hidden !important;
+        }
+        body {
+          padding-bottom: 66px !important;
+        }
+        .header-branding,
+        .mobile-topbar,
+        .au-navbar,
+        .trending-bar,
+        .homepage-layout,
+        .site-footer,
+        .site-footer-inner,
+        .nav-inner,
+        .trending-inner,
+        .mobile-topbar-inner {
+          width: 100% !important;
+          max-width: 100% !important;
+          min-width: 0 !important;
+        }
+        .homepage-layout {
+          display: flex !important;
+          flex-direction: column !important;
+          margin: 16px 0 28px !important;
+          padding: 0 12px !important;
+        }
+        .homepage-layout > *,
+        .news-panel,
+        .election-section,
+        .city-news-section,
+        .feature-section,
+        .section-ending-line,
+        .election-divider {
+          display: block !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          min-width: 0 !important;
+        }
+        .latest-panel,
+        .center-panel,
+        .breaking-panel {
+          border-right: 0 !important;
+          padding: 0 !important;
+          margin: 0 0 24px !important;
+        }
+        .news-panel.center-panel {
+          order: 1 !important;
+        }
+        .news-panel.breaking-panel {
+          order: 2 !important;
+        }
+        .news-panel.latest-panel {
+          order: 3 !important;
+          display: none !important;
+        }
+        .section-ending-line {
+          order: 4 !important;
+        }
+        .election-section {
+          order: 5 !important;
+        }
+        .city-news-section {
+          order: 6 !important;
+        }
+        .feature-section[aria-label="बिजनेस"] {
+          order: 7 !important;
+        }
+        .feature-section[aria-label="संपादकीय"] {
+          order: 8 !important;
+        }
+        .election-grid,
+        .city-news-grid,
+        .feature-grid,
+        .latest-list,
+        .breaking-list,
+        .center-feed {
+          display: block !important;
+          width: 100% !important;
+        }
+        .latest-item,
+        .breaking-item,
+        .center-list-item,
+        .city-news-card,
+        .feature-card,
+        .election-card {
+          display: grid !important;
+          grid-template-columns: 96px minmax(0, 1fr) !important;
+          gap: 12px !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          min-width: 0 !important;
+          padding: 12px 0 !important;
+          margin: 0 !important;
+          border: 0 !important;
+          border-bottom: 1px solid #ececec !important;
+          align-items: start !important;
+        }
+        .center-list-item > div,
+        .breaking-item > div,
+        .city-news-card > div,
+        .feature-card > div,
+        .election-card > div,
+        .center-hero-copy {
+          min-width: 0 !important;
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+        .latest-item::before {
+          left: 0 !important;
+          top: 12px !important;
+        }
+        .latest-item {
+          padding-left: 18px !important;
+        }
+        .breaking-thumb,
+        .center-thumb,
+        .city-news-image,
+        .feature-image,
+        .election-card-image {
+          width: 96px !important;
+          height: 64px !important;
+          max-width: 96px !important;
+          object-fit: cover !important;
+        }
+        .election-card-media {
+          width: 96px !important;
+        }
+        .center-hero {
+          display: block !important;
+          margin-bottom: 14px !important;
+        }
+        .center-hero-media img {
+          display: block !important;
+          width: 100% !important;
+          height: auto !important;
+          aspect-ratio: 16 / 10 !important;
+          object-fit: cover !important;
+        }
+        .center-hero-copy {
+          padding: 14px 0 10px !important;
+        }
+        .center-hero-title {
+          margin: 0 !important;
+          font-size: 1.55rem !important;
+          line-height: 1.22 !important;
+          overflow-wrap: anywhere !important;
+          word-break: break-word !important;
+          max-width: 100% !important;
+        }
+        .hero-tag {
+          display: inline-block !important;
+        }
+        .election-card-banner {
+          display: none !important;
+        }
+        .story-title,
+        .city-news-card .story-title,
+        .feature-headline,
+        .election-card-headline {
+          margin: 0 !important;
+          font-size: 0.92rem !important;
+          line-height: 1.42 !important;
+          font-weight: 500 !important;
+          overflow-wrap: anywhere !important;
+          word-break: break-word !important;
+          max-width: 100% !important;
+        }
+        .story-meta,
+        .feature-footer,
+        .election-card-footer {
+          margin-top: 8px !important;
+          gap: 8px !important;
+        }
+        .bookmark-btn {
+          display: none !important;
+        }
+        .panel-heading,
+        .feature-section-title,
+        .election-title,
+        .city-news-title {
+          width: 100% !important;
+          margin: 0 0 14px !important;
+          font-size: 1.34rem !important;
+          line-height: 1.18 !important;
+          text-align: left !important;
+        }
+        .city-news-header,
+        .election-header,
+        .feature-section-header {
+          display: block !important;
+          margin-bottom: 16px !important;
+        }
+        .city-pin-btn {
+          display: inline-flex !important;
+          margin-top: 0 !important;
+          padding: 9px 14px !important;
+          font-size: 0.82rem !important;
+        }
+        .city-pills,
+        .election-tabs {
+          display: flex !important;
+          flex-wrap: nowrap !important;
+          overflow-x: auto !important;
+          gap: 8px !important;
+          padding: 0 0 6px !important;
+          margin: 0 0 16px !important;
+          scrollbar-width: none !important;
+        }
+        .city-pills::-webkit-scrollbar,
+        .election-tabs::-webkit-scrollbar {
+          display: none !important;
+        }
+        .city-pill,
+        .election-tab {
+          flex: 0 0 auto !important;
+          min-height: 34px !important;
+          padding: 0 12px !important;
+          font-size: 0.78rem !important;
+        }
+        .section-ending-line,
+        .election-divider {
+          margin: 18px 0 !important;
+        }
+        .homepage-layout > .section-ending-line:first-of-type {
+          display: none !important;
+        }
+        .election-section + .section-ending-line,
+        .city-news-section + .section-ending-line,
+        .feature-section + .section-ending-line {
+          margin: 8px 0 !important;
+        }
+        .feature-section[aria-label="बिजनेस"] + .section-ending-line {
+          display: none !important;
+        }
+        .site-footer {
+          margin-top: 30px !important;
+          overflow: hidden !important;
+        }
+        .site-footer-inner {
+          padding: 20px 12px 72px !important;
+        }
+        .site-footer-grid {
+          display: block !important;
+        }
+        .site-footer-grid > section {
+          margin-bottom: 20px !important;
+        }
+        .site-footer-title {
+          font-size: 1.2rem !important;
+          margin-bottom: 12px !important;
+        }
+        .site-footer-links {
+          display: grid !important;
+          grid-template-columns: 1fr !important;
+          gap: 8px !important;
+        }
+        .site-footer-bottom {
+          padding-bottom: 0 !important;
+          margin-bottom: 0 !important;
+        }
+        .mobile-city-btn {
+          min-height: 58px !important;
+          padding: 0 10px !important;
+          font-size: 0.92rem !important;
+          gap: 6px !important;
+          white-space: nowrap !important;
+        }
+        .mobile-city-btn span {
+          display: inline !important;
+        }
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding-bottom: 70px !important;
+        }
+        .mobile-topbar {
+          padding-top: env(safe-area-inset-top) !important;
+        }
+        .homepage-layout,
+        .news-panel,
+        .center-feed,
+        .breaking-list,
+        .election-grid,
+        .city-news-grid,
+        .feature-grid,
+        .site-footer,
+        .site-footer-inner {
+          width: 100% !important;
+          max-width: 100% !important;
+          overflow-x: hidden !important;
+        }
+        .center-list-item,
+        .breaking-item,
+        .city-news-card,
+        .feature-card,
+        .election-card {
+          width: 100% !important;
+          box-sizing: border-box !important;
+          margin-bottom: 12px !important;
+          padding: 10px 0 !important;
+        }
+        .center-list-item > div,
+        .breaking-item > div,
+        .city-news-card > div,
+        .feature-card > div,
+        .election-card > div,
+        .latest-item,
+        .latest-item > .story-title,
+        .latest-item > .story-meta {
+          min-width: 0 !important;
+          max-width: 100% !important;
+        }
+        .center-hero-media img,
+        .center-thumb,
+        .breaking-thumb,
+        .city-news-image,
+        .feature-image,
+        .election-card-image {
+          width: 100% !important;
+          max-width: 100% !important;
+          height: auto !important;
+          object-fit: cover !important;
+        }
+        .center-list-item,
+        .breaking-item,
+        .city-news-card,
+        .feature-card,
+        .election-card {
+          grid-template-columns: 92px minmax(0, 1fr) !important;
+          gap: 10px !important;
+        }
+        .center-thumb,
+        .breaking-thumb,
+        .city-news-image,
+        .feature-image,
+        .election-card-image,
+        .election-card-media {
+          width: 92px !important;
+          max-width: 92px !important;
+        }
+        .center-hero-title {
+          font-size: 18px !important;
+          line-height: 1.35 !important;
+        }
+        .story-title,
+        .city-news-card .story-title,
+        .feature-headline,
+        .election-card-headline,
+        .panel-heading,
+        .feature-section-title,
+        .election-title,
+        .city-news-title {
+          font-size: 14px !important;
+          line-height: 1.45 !important;
+        }
+        .panel-heading,
+        .feature-section-title,
+        .election-title,
+        .city-news-title {
+          font-weight: 700 !important;
+          margin-bottom: 12px !important;
+        }
+        .story-meta,
+        .feature-footer,
+        .election-card-footer {
+          font-size: 12px !important;
+        }
+        .city-pill,
+        .election-tab,
+        .nav-btn,
+        .mobile-bottom-link,
+        .mobile-city-btn,
+        .cookie-banner-btn {
+          padding-top: 10px !important;
+          padding-bottom: 10px !important;
+        }
+        .city-pill,
+        .election-tab {
+          padding-left: 12px !important;
+          padding-right: 12px !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="cookie-banner" id="cookieBanner" role="dialog" aria-label="Cookie consent">
+      <div class="cookie-banner-inner">
+        <div class="cookie-banner-text">
+          This website uses cookies or similar technologies to enhance your browsing experience and provide personalized recommendations. By continuing to use our website, you agree to our
+          <a href="#">Privacy Policy</a> and <a href="#">Cookie Policy</a>.
+        </div>
+        <button class="cookie-banner-btn" id="cookieBannerOk" type="button">OK</button>
+      </div>
+    </div>
+
+    <div class="mobile-topbar">
+      <div class="mobile-topbar-inner">
+        <button class="mobile-icon-btn js-open-sidebar" type="button" aria-label="Open menu">
+          <i class="fas fa-bars"></i>
+        </button>
+        <a href="index.html" class="mobile-logo">
+          <span class="mobile-logo-top">
+            <span class="mobile-logo-text">प्रथम गेंडा</span>
+            <span class="mobile-logo-news">NEWS</span>
+          </span>
+          <span class="mobile-logo-line"></span>
+          <span class="mobile-logo-tagline">सच आईने की तरह...</span>
+        </a>
+        <button class="mobile-city-btn js-open-city" type="button" aria-label="Open city drawer">
+          <span>मेरा शहर</span>
+          <i class="fas fa-location-dot"></i>
+        </button>
+        <button class="mobile-icon-btn js-open-search" type="button" aria-label="Open search">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+      <div class="mobile-searchbar" id="mobileSearchbar">
+        <button class="mobile-icon-btn js-open-sidebar" type="button" aria-label="Open menu">
+          <i class="fas fa-bars"></i>
+        </button>
+        <input id="mobileSearchInput" type="text" placeholder="search" />
+        <button class="mobile-icon-btn" id="mobileSearchClose" type="button" aria-label="Close search">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+
+    <nav class="mobile-bottom-nav" aria-label="Mobile quick links">
+      <a class="mobile-bottom-link active" href="index.html" aria-current="page">
+        <i class="fas fa-house"></i>
+        <span>होम</span>
+      </a>
+      <a class="mobile-bottom-link" href="#">
+        <i class="fas fa-circle-play"></i>
+        <span>वीडियो</span>
+      </a>
+      <a class="mobile-bottom-link mobile-bottom-premium" href="#" aria-label="Premium">
+        <svg class="mobile-premium-badge" viewBox="0 0 64 64" role="img" aria-hidden="true">
+          <defs>
+            <linearGradient id="pgRing" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#2fe0ff" />
+              <stop offset="1" stop-color="#0d7df1" />
+            </linearGradient>
+            <radialGradient id="pgCore" cx="0.35" cy="0.28" r="0.9">
+              <stop offset="0" stop-color="#372213" />
+              <stop offset="0.62" stop-color="#16120d" />
+              <stop offset="1" stop-color="#050505" />
+            </radialGradient>
+            <linearGradient id="pgGold" x1="22" y1="18" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#ffd768" />
+              <stop offset="1" stop-color="#ff9f1f" />
+            </linearGradient>
+          </defs>
+          <circle cx="32" cy="32" r="30" fill="url(#pgRing)" />
+          <circle cx="32" cy="32" r="26" fill="url(#pgCore)" />
+          <path d="M24 14l4 5 4-7 4 7 4-5 1 10H23z" fill="url(#pgGold)" />
+          <text x="32" y="41" text-anchor="middle" fill="url(#pgGold)" font-size="24" font-weight="800" font-family="Poppins, Arial, sans-serif">PG</text>
+        </svg>
+      </a>
+      <a class="mobile-bottom-link" href="#">
+        <i class="fas fa-camera"></i>
+        <span>फोटो</span>
+      </a>
+      <a class="mobile-bottom-link" href="#">
+        <i class="fas fa-newspaper"></i>
+        <span>ई-पेपर</span>
+      </a>
+    </nav>
+
+    <aside class="city-drawer" id="cityDrawer" aria-label="Choose your city">
+      <div class="city-header">
+        <div class="city-title">अपना शहर चुनें</div>
+        <button class="city-close" id="closeCityDrawer" type="button" aria-label="Close city drawer">&times;</button>
+      </div>
+      <label class="city-search">
+        <input id="citySearchInput" type="text" placeholder="search by city name..." />
+        <i class="fas fa-search"></i>
+      </label>
+
+      <div class="city-section-title">Top Cities</div>
+      <div class="city-item"><span>लखनऊ</span><span class="city-follow">Follow</span></div>
+      <div class="city-item"><span>दिल्ली-एनसीआर</span><span class="city-follow">Follow</span></div>
+      <div class="city-item"><span>देहरादून</span><span class="city-follow">Follow</span></div>
+      <div class="city-item"><span>शिमला</span><span class="city-follow">Follow</span></div>
+      <div class="city-item"><span>चंडीगढ़</span><span class="city-follow">Follow</span></div>
+      <div class="city-item"><span>जम्मू</span><span class="city-follow">Follow</span></div>
+      <div class="city-item"><span>गोरखपुर</span><span class="city-follow">Follow</span></div>
+
+      <div class="city-section-title">States</div>
+      <details class="state-group">
+        <summary><span>उत्तर प्रदेश</span><span class="state-plus">+</span></summary>
+        <div class="state-cities">
+          <a href="#" class="state-city">लखनऊ</a>
+          <a href="#" class="state-city">गोरखपुर</a>
+          <a href="#" class="state-city">वाराणसी</a>
+        </div>
+      </details>
+      <details class="state-group">
+        <summary><span>दिल्ली</span><span class="state-plus">+</span></summary>
+        <div class="state-cities">
+          <a href="#" class="state-city">दिल्ली-एनसीआर</a>
+          <a href="#" class="state-city">नई दिल्ली</a>
+        </div>
+      </details>
+      <details class="state-group">
+        <summary><span>उत्तराखंड</span><span class="state-plus">+</span></summary>
+        <div class="state-cities">
+          <a href="#" class="state-city">देहरादून</a>
+          <a href="#" class="state-city">हरिद्वार</a>
+          <a href="#" class="state-city">हल्द्वानी</a>
+        </div>
+      </details>
+      <details class="state-group">
+        <summary><span>हिमाचल प्रदेश</span><span class="state-plus">+</span></summary>
+        <div class="state-cities">
+          <a href="#" class="state-city">शिमला</a>
+          <a href="#" class="state-city">धर्मशाला</a>
+        </div>
+      </details>
+      <details class="state-group">
+        <summary><span>मध्य प्रदेश</span><span class="state-plus">+</span></summary>
+        <div class="state-cities">
+          <a href="#" class="state-city">भोपाल</a>
+          <a href="#" class="state-city">इंदौर</a>
+        </div>
+      </details>
+    </aside>
+
+    <!-- 1:1 REBUILT SIDEBAR -->
+    <div class="sidebar" id="leftSidebar">
+       <div class="sb-header">
+          <div class="sb-topbar">
+            <button class="sb-back-btn" id="closeLeft" type="button" aria-label="Close sidebar">
+              <i class="fas fa-arrow-left"></i>
+            </button>
+          </div>
+          <div class="sb-user-row">
+            <div class="sb-user-avatar"><i class="fas fa-user-circle"></i></div>
+            <div class="sb-user-name">Login or Signup</div>
+          </div>
+       </div>
+       <div class="sb-menu">
+          <a href="#" class="sb-item sb-item-feature">
+            <span class="sb-item-text">प्रथम गेंडा विशेष</span>
+            <span class="sb-icon-box"><i class="fas fa-crown gold-crown"></i></span>
+          </a>
+          <a href="#" class="sb-item">
+            <span class="sb-item-text">ई-पेपर</span>
+            <span class="sb-icon-box"><i class="far fa-file-alt"></i></span>
+          </a>
+          <a href="#" class="sb-item" id="sidebarCityTrigger">
+            <span class="sb-item-text">अपना शहर चुनें</span>
+            <span class="sb-icon-box"><i class="fas fa-location-dot"></i></span>
+          </a>
+          <a href="#" class="sb-item">
+            <span class="sb-item-text">न्यूज़ ब्रीफ</span>
+            <span class="sb-icon-box"><i class="far fa-newspaper"></i></span>
+          </a>
+          <a href="#" class="sb-item">
+            <span class="sb-item-text">शॉर्ट वीडियोज</span>
+            <span class="sb-icon-box"><i class="fas fa-film"></i></span>
+          </a>
+
+          <a href="#" class="sb-item"><span class="sb-item-text">देश</span><span class="follow-pill">Follow</span></a>
+          <a href="#" class="sb-item"><span class="sb-item-text">दुनिया</span><span class="follow-pill">Follow</span></a>
+          <a href="#" class="sb-item"><span class="sb-item-text">मनोरंजन</span><span class="follow-pill">Follow</span></a>
+          <a href="#" class="sb-item"><span class="sb-item-text">क्रिकेट</span><span class="follow-pill">Follow</span></a>
+          <a href="#" class="sb-item"><span class="sb-item-text">कारोबार</span><span class="follow-pill">Follow</span></a>
+          <a href="#" class="sb-item"><span class="sb-item-text">नौकरी</span><span class="follow-pill">Follow</span></a>
+          <a href="#" class="sb-item"><span class="sb-item-text">शिक्षा</span><span class="follow-pill">Follow</span></a>
+          <a href="#" class="sb-item"><span class="sb-item-text">टेक्नोलॉजी</span><span class="follow-pill">Follow</span></a>
+          <a href="#" class="sb-item"><span class="sb-item-text">ऑटो</span><span class="follow-pill">Follow</span></a>
+          <a href="#" class="sb-item"><span class="sb-item-text">ज्योतिष</span><span class="follow-pill">Follow</span></a>
+          <a href="#" class="sb-item"><span class="sb-item-text">खेल</span><span class="follow-pill">Follow</span></a>
+          <a href="#" class="sb-item"><span class="sb-item-text">हेल्थ एंड फिटनेस</span><span class="follow-pill">Follow</span></a>
+          <a href="#" class="sb-item"><span class="sb-item-text">फैशन</span><span class="follow-pill">Follow</span></a>
+          <a href="#" class="sb-item"><span class="sb-item-text">शक्ति</span><span class="follow-pill">Follow</span></a>
+          <a href="#" class="sb-item"><span class="sb-item-text">आस्था</span><span class="follow-pill">Follow</span></a>
+          <a href="#" class="sb-item"><span class="sb-item-text">बॉलीवुड</span><span class="follow-pill">Follow</span></a>
+       </div>
+    </div>
+
+    <!-- 1. Header Branding -->
+    <header class="header-branding">
+      <div class="top-inner">
+        <a href="index.html" class="logo-text-wrapper">
+          <div class="logo-mainline">
+            <div class="logo-primary">प्रथम गेंडा</div>
+            <div class="logo-news-box">NEWS</div>
+          </div>
+          <div class="logo-divider"></div>
+          <div class="logo-tagline">सच आईने की तरह...</div>
+        </a>
+      </div>
+    </header>
+
+    <!-- 2. Rebuilt Nav Bar (Fixed Alignment) -->
+    <nav class="au-navbar" id="mainNav">
+      <div class="nav-inner">
+        <div class="nav-main">
+          <button class="nav-control js-open-sidebar" id="hamburgerBtn" type="button" aria-label="Open menu">
+            <i class="fas fa-bars"></i>
+          </button>
+          <a href="index.html" class="nav-btn btn-home">होम</a>
+          <a href="#" class="nav-brand-badge" aria-label="प्रथम गेंडा विशेष">
+            <i class="fas fa-crown badge-crown"></i>
+            <span class="badge-text">PG</span>
+          </a>
+          <a href="#" class="nav-btn">देश</a>
+          <a href="#" class="nav-btn">शहर और राज्य</a>
+          <a href="#" class="nav-btn">चुनाव</a>
+          <a href="#" class="nav-btn">कारोबार</a>
+          <a href="#" class="nav-btn">मनोरंजन</a>
+          <div class="more-wrapper" id="moreMenuWrapper">
+            <button class="nav-btn more-btn" id="moreBtn" type="button" aria-expanded="false">
+              More<span class="more-dots">•••</span>
+            </button>
+            <div class="more-menu" id="moreMenu">
+              <a href="#">क्रिकेट</a>
+              <a href="#">ज्योतिष</a>
+              <a href="#">क्विज़</a>
+              <a href="#">टेक</a>
+              <a href="#">ऑटो</a>
+              <a href="#">विशेष</a>
+              <a href="#">शॉर्ट वीडियोज</a>
+              <a href="#">आवाज</a>
+              <a href="#">फोटो गैलरी</a>
+              <a href="#">हेल्थ</a>
+              <a href="#">फैशन</a>
+              <a href="#">धर्म</a>
+              <a href="#">दुनिया</a>
+              <a href="#">शब्द खोज</a>
+              <a href="#">नौकरी</a>
+              <a href="#">शिक्षा</a>
+              <a href="#">राशिफल</a>
+              <a href="#">ई-पेपर</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-right">
+          <button class="location-btn js-open-city" id="locationBtn" type="button">
+            <i class="fas fa-location-dot"></i>
+            <span>मेरा शहर</span>
+          </button>
+          <button class="search-btn-trigger js-open-search" id="searchBtn" type="button" aria-label="Open search">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+
+        <div class="nav-search-panel" id="navSearchPanel">
+          <button class="search-panel-menu js-open-sidebar" type="button" aria-label="Open menu">
+            <i class="fas fa-bars"></i>
+          </button>
+          <input id="navSearchInput" type="text" placeholder="Search" />
+          <button class="search-close-btn" id="closeSearch" type="button" aria-label="Close search">
+            <i class="fas fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- 3. Trending -->
+    <div class="trending-bar">
+      <div class="trending-inner">
+        <div class="trending-tag"><i class="fas fa-hashtag"></i></div>
+        <a href="#" class="trending-link">आईपीएल 2026</a>
+        <a href="#" class="trending-link">रसोई गैस</a>
+        <a href="#" class="trending-link">ईरान युद्ध</a>
+        <a href="#" class="trending-link">विधानसभा चुनाव 2026</a>
+        <a href="#" class="trending-link">सक्षम यूपी</a>
+        <a href="#" class="trending-link">जनगणना</a>
+      </div>
+    </div>
+
+    <main class="homepage-layout">
+      <aside class="news-panel latest-panel" aria-label="ताजा खबरें">
+        <h2 class="panel-heading">ताजा खबरें</h2>
+        <div class="latest-list">
+          <article class="latest-item">
+            <h3 class="story-title"><a href="#">अमेठी में चोरों ने घर से उड़ाई 25 हजार की नकदी और लाखों के गहने, जांच शुरू</a></h3>
+            <div class="story-meta">
+              <span class="story-category">उत्तर प्रदेश</span>
+            </div>
+            <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+          </article>
+          <article class="latest-item">
+            <h3 class="story-title"><a href="#">चंपावत में 10 रुपये का लालच देकर नाबालिग से दुष्कर्म का प्रयास, आरोपी को जेल भेजा</a></h3>
+            <div class="story-meta">
+              <span class="story-category">उत्तराखंड</span>
+            </div>
+            <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+          </article>
+          <article class="latest-item">
+            <h3 class="story-title"><a href="#">मिर्जापुर में पानी बढ़ने से गंगा नदी में डूबा पीपा पुल, हरसिंगपुर-विंध्याचल के बीच बाधित आवागमन</a></h3>
+            <div class="story-meta">
+              <span class="story-category">उत्तर प्रदेश</span>
+            </div>
+            <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+          </article>
+          <article class="latest-item">
+            <h3 class="story-title"><a href="#">गंगा एक्सप्रेस-वे के पास जमीन है तो हो जाएं तैयार, औद्योगिक गलियारों के दूसरे फेज की रफ्तार तेज</a></h3>
+            <div class="story-meta">
+              <span class="story-category">उत्तर प्रदेश</span>
+            </div>
+            <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+          </article>
+          <article class="latest-item">
+            <h3 class="story-title"><a href="#">मधेपुरा के सभी 13 प्रखंडों में बनेंगे मॉडल स्कूल, स्टूडेंट्स को मिलेगी आधुनिक शिक्षा</a></h3>
+            <div class="story-meta">
+              <span class="story-category">बिहार</span>
+            </div>
+            <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+          </article>
+          <article class="latest-item">
+            <h3 class="story-title"><a href="#">IAF Agniveer Answer Key 2026 जारी, 5 अप्रैल तक दर्ज कर सकेंगे ऑब्जेक्शन</a></h3>
+            <div class="story-meta">
+              <span class="story-category">न्यूज़</span>
+            </div>
+            <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+          </article>
+        </div>
+      </aside>
+
+      <section class="news-panel center-panel" aria-label="मुख्य समाचार">
+        <article class="center-hero">
+          <div class="center-hero-media">
+            <span class="hero-tag">Hindi News</span>
+            <img src="https://picsum.photos/seed/hero-defense-news/980/560" alt="मुख्य समाचार" />
+          </div>
+          <div class="center-hero-copy">
+            <h1 class="center-hero-title">समुद्र में बढ़ी भारत की ताकत, INS तारागिरी और INS अरिदमन नौसेना में शामिल; पढ़ें खासियत</h1>
+            <div class="story-meta">
+              <span class="story-category">न्यूज़</span>
+              <span class="story-time">एक घंटा पहले</span>
+            </div>
+          </div>
+        </article>
+
+        <div class="center-feed">
+          <article class="center-list-item">
+            <img class="center-thumb" src="https://picsum.photos/seed/iran-world/320/190" alt="ईरान पर खबर" />
+            <div>
+              <h3 class="story-title"><a href="#">'ट्रंप से नहीं हो पा रहा, खुद ही समाप्त करो युद्ध', ईरान के पूर्व विदेश मंत्री ने दी सलाह</a></h3>
+              <div class="story-meta">
+                <span class="story-category">वर्ल्ड</span>
+                <span class="story-time">एक घंटा पहले</span>
+              </div>
+            </div>
+            <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+          </article>
+          <article class="center-list-item">
+            <img class="center-thumb" src="https://picsum.photos/seed/tamilnadu-politics/320/190" alt="राजनीति खबर" />
+            <div>
+              <h3 class="story-title"><a href="#">तमिलनाडु विधानसभा चुनाव के लिए BJP ने जारी की 27 उम्मीदवारों की लिस्ट, कई चेहरों को मिला मौका</a></h3>
+              <div class="story-meta">
+                <span class="story-category">राजनीति</span>
+                <span class="story-time">26 मिनट पहले</span>
+              </div>
+            </div>
+            <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+          </article>
+          <article class="center-list-item">
+            <img class="center-thumb" src="https://picsum.photos/seed/jansamvad-bihar/320/190" alt="बिहार खबर" />
+            <div>
+              <h3 class="story-title"><a href="#">पिता की मौत, चाचा बीमार... अब खुदकुशी की बात! जनसंवाद में रो पड़ा सैनिक, डिप्टी सीएम ने दिया भरोसा</a></h3>
+              <div class="story-meta">
+                <span class="story-category">बिहार</span>
+                <span class="story-time">एक घंटा पहले</span>
+              </div>
+            </div>
+            <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+          </article>
+          <article class="center-list-item">
+            <img class="center-thumb" src="https://picsum.photos/seed/ghaziabad-fire/320/190" alt="गाजियाबाद खबर" />
+            <div>
+              <h3 class="story-title"><a href="#">गाजियाबाद में एक्सटेंशन की सोसायटी फ्लैट में लगी आग, पूरे इलाके में फैला धुएं का गुबार</a></h3>
+              <div class="story-meta">
+                <span class="story-category">उत्तर प्रदेश</span>
+                <span class="story-time">40 मिनट पहले</span>
+              </div>
+            </div>
+            <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+          </article>
+          <article class="center-list-item">
+            <img class="center-thumb" src="https://picsum.photos/seed/ipl-batting/320/190" alt="खेल खबर" />
+            <div>
+              <h3 class="story-title"><a href="#">PSL मैच के बाद फैली बड़ी चर्चा, सोशल मीडिया पर वायरल हुआ खिलाड़ियों का मजेदार वीडियो</a></h3>
+              <div class="story-meta">
+                <span class="story-category">क्रिकेट</span>
+                <span class="story-time">59 मिनट पहले</span>
+              </div>
+            </div>
+            <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+          </article>
+        </div>
+      </section>
+
+      <aside class="news-panel breaking-panel" aria-label="ब्रेकिंग न्यूज़">
+        <h2 class="panel-heading breaking">ब्रेकिंग न्यूज़</h2>
+        <div class="breaking-list">
+          <article class="breaking-item">
+            <div class="breaking-thumb-wrap">
+              <img class="breaking-thumb" src="https://picsum.photos/seed/punjab-police/320/180" alt="पंजाब खबर" />
+            </div>
+            <div>
+              <h3 class="story-title"><a href="#">अमृतसर में बड़ी आतंकी साजिश नाकाम; आईईडी सहित व्यक्ति गिरफ्तार, पाकिस्तान से जुड़े तार खंगाल रही पुलिस</a></h3>
+              <div class="story-meta">
+                <span class="story-category">पंजाब</span>
+              </div>
+            </div>
+            <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+          </article>
+          <article class="breaking-item">
+            <div class="breaking-thumb-wrap">
+              <img class="breaking-thumb" src="https://picsum.photos/seed/delhi-video/320/180" alt="दिल्ली खबर" />
+            </div>
+            <div>
+              <h3 class="story-title"><a href="#">'खामोश करवाया गया हूं, हारा नहीं हूं', डिप्टी लीडर पद से हटाए जाने के बाद आया बड़ा सियासी संदेश</a></h3>
+              <div class="story-meta">
+                <span class="story-category">दिल्ली</span>
+              </div>
+            </div>
+            <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+          </article>
+          <article class="breaking-item">
+            <div class="breaking-thumb-wrap">
+              <img class="breaking-thumb" src="https://picsum.photos/seed/barabanki-bus/320/180" alt="बाराबंकी खबर" />
+            </div>
+            <div>
+              <h3 class="story-title"><a href="#">बाराबंकी में पूर्वांचल एक्सप्रेसवे पर तेज रफ्तार डबल डेकर बस पलटी, 70 यात्रियों में 11 घायल</a></h3>
+              <div class="story-meta">
+                <span class="story-category">उत्तर प्रदेश</span>
+              </div>
+            </div>
+            <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+          </article>
+        </div>
+      </aside>
+      <div class="section-ending-line" aria-hidden="true"></div>
+      <section class="election-section" aria-label="विधानसभा चुनाव 2026">
+        <div class="election-header">
+          <a class="election-title-link" href="#">
+            <h2 class="election-title">विधानसभा चुनाव 2026</h2>
+            <i class="far fa-circle-right" aria-hidden="true"></i>
+          </a>
+
+          <div class="election-tabs" aria-label="Election states">
+            <a class="election-tab active" href="#">पश्चिम बंगाल</a>
+            <a class="election-tab" href="#">तमिलनाडु</a>
+            <a class="election-tab" href="#">असम</a>
+            <a class="election-tab" href="#">केरल</a>
+            <a class="election-tab" href="#">पुडुचेरी</a>
+          </div>
+        </div>
+
+        <div class="election-grid">
+          <article class="election-card">
+            <div class="election-card-media">
+              <img class="election-card-image" src="https://picsum.photos/seed/west-bengal-rally/520/320" alt="बंगाल चुनाव 2026" />
+              <span class="election-card-banner">अमित शाह पर TMC का तंज</span>
+            </div>
+            <h3 class="election-card-headline"><a href="#">बंगाल चुनाव 2026 : 'हमारी टोली डिशेज का स्वाद लोगे ना भूलें', अमित शाह पर टीएमसी का तंज</a></h3>
+            <div class="election-card-footer">
+              <span class="story-category">KOLKATA</span>
+              <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+            </div>
+          </article>
+
+          <article class="election-card">
+            <div class="election-card-media">
+              <img class="election-card-image" src="https://picsum.photos/seed/mamata-rally/520/320" alt="ममता बनर्जी" />
+              <span class="election-card-banner">ममता का बीजेपी और चुनाव आयोग पर हमला</span>
+            </div>
+            <h3 class="election-card-headline"><a href="#">मालदा घटना पर सीएम ममता बनर्जी का बड़ा आरोप, बोलीं- भाजपा बंगाल में राष्ट्रपति शासन की रच रही साजिश</a></h3>
+            <div class="election-card-footer">
+              <span class="story-category">MALDA</span>
+              <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+            </div>
+          </article>
+
+          <article class="election-card">
+            <div class="election-card-media">
+              <img class="election-card-image" src="https://picsum.photos/seed/bengal-voter-list/520/320" alt="मतदाता सूची" />
+            </div>
+            <h3 class="election-card-headline"><a href="#">बंगाल में आरटीआई पूर्वक सूची जारी, अब तक 52 लाख से अधिक मामलों का निपटारा</a></h3>
+            <div class="election-card-footer">
+              <span class="story-category">KOLKATA</span>
+              <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+            </div>
+          </article>
+
+          <article class="election-card">
+            <div class="election-card-media">
+              <img class="election-card-image" src="https://picsum.photos/seed/west-bengal-voters/520/320" alt="पश्चिम बंगाल वोटर" />
+            </div>
+            <h3 class="election-card-headline"><a href="#">विधानसभा चुनाव : उत्तर बंगाल का 'M फैक्टर' तय करेगा सत्ता का रुख ?</a></h3>
+            <div class="election-card-footer">
+              <span class="story-category">KOLKATA</span>
+              <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+            </div>
+          </article>
+        </div>
+
+        <div class="election-divider" aria-hidden="true"></div>
+      </section>
+
+      <section class="city-news-section" aria-label="खबरें आपके शहर की">
+        <div class="city-news-header">
+          <h2 class="city-news-title">खबरें आपके शहर की</h2>
+          <button class="city-pin-btn" type="button">अपने शहर को पिन करें</button>
+        </div>
+
+        <div class="city-pills" aria-label="Cities filter">
+          <a class="city-pill active" href="#">उत्तर प्रदेश</a>
+          <a class="city-pill" href="#">बिहार</a>
+          <a class="city-pill" href="#">दिल्ली</a>
+          <a class="city-pill" href="#">पंजाब</a>
+          <a class="city-pill" href="#">हरियाणा</a>
+          <a class="city-pill" href="#">उत्तराखंड</a>
+          <a class="city-pill" href="#">झारखंड</a>
+          <a class="city-pill" href="#">हिमाचल प्रदेश</a>
+          <a class="city-pill" href="#">जम्मू-कश्मीर</a>
+          <a class="city-pill" href="#">पश्चिम बंगाल</a>
+          <a class="city-pill" href="#">ओडिशा</a>
+          <a class="city-pill" href="#">महाराष्ट्र</a>
+          <a class="city-pill" href="#">गुजरात</a>
+          <a class="city-pill" href="#">राजस्थान</a>
+        </div>
+
+        <div class="city-news-grid">
+          <article class="city-news-card">
+            <img class="city-news-image" src="https://picsum.photos/seed/shahjahanpur-dm/320/190" alt="शाहजहांपुर खबर" />
+            <div>
+              <h3 class="story-title"><a href="#">हूटर बजाकर DM को दिखाया रौब, पुलिस से की धक्का-मुक्की; अब 'VIP' कार सवार सलाखों के पीछे</a></h3>
+              <div class="story-meta">
+                <span class="story-category">SHAHJAHANPUR</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="city-news-card">
+            <img class="city-news-image" src="https://picsum.photos/seed/meerut-ganga/320/190" alt="मेरठ खबर" />
+            <div>
+              <h3 class="story-title"><a href="#">मेरठ के मखदूमपुर में चार किशोर गंगा में डूबे</a></h3>
+              <div class="story-meta">
+                <span class="story-category">MEERUT-CITY</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="city-news-card">
+            <img class="city-news-image" src="https://picsum.photos/seed/ambedkarnagar-trauma/320/190" alt="अंबेडकरनगर खबर" />
+            <div>
+              <h3 class="story-title"><a href="#">चार साल के इंतजार के बाद अंबेडकरनगर में शुरू होगा ट्रॉमा सेंटर, मरीजों को इलाज के लिए नहीं भटकना पड़ेगा लखनऊ</a></h3>
+              <div class="story-meta">
+                <span class="story-category">AMBEDKARNAGAR</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="city-news-card">
+            <img class="city-news-image" src="https://picsum.photos/seed/ballia-school/320/190" alt="बलिया खबर" />
+            <div>
+              <h3 class="story-title"><a href="#">बलिया में स्कूल में बड़ी गड़बड़ी, 34 विद्यालयों की लापरवाही से 1106 छात्रों का रिजल्ट फंसने का खतरा</a></h3>
+              <div class="story-meta">
+                <span class="story-category">BALLIA</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="city-news-card">
+            <img class="city-news-image" src="https://picsum.photos/seed/shahjahanpur-case/320/190" alt="शाहजहांपुर महिला केस" />
+            <div>
+              <h3 class="story-title"><a href="#">शाहजहांपुर में महिला की संदिग्ध परिस्थितियों में मौत, परिजनों ने लगाया हत्या का आरोप</a></h3>
+              <div class="story-meta">
+                <span class="story-category">SHAHJAHANPUR</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="city-news-card">
+            <img class="city-news-image" src="https://picsum.photos/seed/prayagraj-jail/320/190" alt="प्रयागराज जेल खबर" />
+            <div>
+              <h3 class="story-title"><a href="#">प्रयागराज के दरियादिल चिकित्सक, जुर्माने की रकम जमा करके नैनी सेंट्रल जेल से तीन बंदियों को कराया रिहा</a></h3>
+              <div class="story-meta">
+                <span class="story-category">PRAYAGRAJ</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="city-news-card">
+            <img class="city-news-image" src="https://picsum.photos/seed/bahraich-woman/320/190" alt="बहराइच खबर" />
+            <div>
+              <h3 class="story-title"><a href="#">यूपी में घर जाने को राजी नहीं हुई पत्नी तो बाइक में बांधकर घसीटा, महिला की हालत गंभीर; पति गिरफ्तार</a></h3>
+              <div class="story-meta">
+                <span class="story-category">BAHRAICH</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="city-news-card">
+            <img class="city-news-image" src="https://picsum.photos/seed/ayodhya-fraud/320/190" alt="अयोध्या खबर" />
+            <div>
+              <h3 class="story-title"><a href="#">बुर्का पहनकर प्रेमी-प्रेमिका ने नकली तमंचे की मदद से आभूषण व्यापारी को लूटा, दोनों गिरफ्तार</a></h3>
+              <div class="story-meta">
+                <span class="story-category">AYODHYA</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="city-news-card">
+            <img class="city-news-image" src="https://picsum.photos/seed/ghaziabad-fire-colony/320/190" alt="गाजियाबाद आग" />
+            <div>
+              <h3 class="story-title"><a href="#">लोनी की गुलाब वाटिका कॉलोनी में लगी आग, कमरे में चारपाई पर सो रही बुजुर्ग महिला की दर्दनाक मौत</a></h3>
+              <div class="story-meta">
+                <span class="story-category">GHAZIABAD</span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="city-news-more">
+          <a class="city-news-more-btn" href="#">
+            <span>और पढ़ें</span>
+            <i class="fas fa-arrow-right" aria-hidden="true"></i>
+          </a>
+        </div>
+      </section>
+
+      <div class="section-ending-line" aria-hidden="true"></div>
+
+      <section class="feature-section" aria-label="बिजनेस">
+        <div class="feature-section-header">
+          <a href="#">
+            <h2 class="feature-section-title">बिजनेस</h2>
+            <i class="far fa-circle-right" aria-hidden="true"></i>
+          </a>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature-card">
+            <img class="feature-image" src="https://picsum.photos/seed/finance-meeting/520/320" alt="बिजनेस बैठक" />
+            <h3 class="feature-headline"><a href="#">2 लाख करोड़ का राहत पैकेज, ईरान युद्ध के चलते 'कोरोना काल' जैसी क्रेडिट स्कीम लाने की तैयारी में भारत सरकार</a></h3>
+            <div class="feature-footer">
+              <span class="story-category">BUSINESS</span>
+              <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <img class="feature-image" src="https://picsum.photos/seed/tata-ceo/520/320" alt="टाटा बैठक" />
+            <h3 class="feature-headline"><a href="#">'तैयार रहो…', ईरान युद्ध के बीच एक्शन मोड में TATA ग्रुप, 30 CEOs के साथ अचानक एन. चंद्रशेखरन की बड़ी बैठक</a></h3>
+            <div class="feature-footer">
+              <span class="story-category">BUSINESS</span>
+              <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <img class="feature-image" src="https://picsum.photos/seed/oil-ship/520/320" alt="तेल जहाज" />
+            <h3 class="feature-headline"><a href="#">भारत आते-आते चीन की तरफ क्यों चला गया ईरान से आ रहा जहाज? लदे हैं 600000 बैरल तेल, 4 अप्रैल को होनी थी डिलीवरी</a></h3>
+            <div class="feature-footer">
+              <span class="story-category">BUSINESS</span>
+              <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <img class="feature-image" src="https://picsum.photos/seed/hdfc-bank/520/320" alt="एचडीएफसी बैंक" />
+            <h3 class="feature-headline"><a href="#">'गलती करके 5 साल तक चुप रहा HDFC Bank', भारत के सबसे बड़े बैंक पर दुबई सरकार के गंभीर आरोप</a></h3>
+            <div class="feature-footer">
+              <span class="story-category">BUSINESS</span>
+              <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <div class="section-ending-line" aria-hidden="true"></div>
+
+      <section class="feature-section" aria-label="संपादकीय">
+        <div class="feature-section-header">
+          <a href="#">
+            <h2 class="feature-section-title">संपादकीय</h2>
+            <i class="far fa-circle-right" aria-hidden="true"></i>
+          </a>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature-card">
+            <img class="feature-image" src="https://picsum.photos/seed/editorial-bengal/520/320" alt="संपादकीय बंगाल" />
+            <h3 class="feature-headline"><a href="#">विचार : बंगाल में मुस्लिम मतों का इम्तहान</a></h3>
+            <div class="feature-footer">
+              <span class="feature-tagline">
+                <span class="story-category">EDITORIAL</span>
+                <i class="fas fa-gem" aria-hidden="true"></i>
+              </span>
+              <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <img class="feature-image" src="https://picsum.photos/seed/editorial-law/520/320" alt="संपादकीय कानून" />
+            <h3 class="feature-headline"><a href="#">विचार : जरूरी था ट्रांसजेंडर कानून में बदलाव</a></h3>
+            <div class="feature-footer">
+              <span class="feature-tagline">
+                <span class="story-category">EDITORIAL</span>
+                <i class="fas fa-gem" aria-hidden="true"></i>
+              </span>
+              <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <img class="feature-image" src="https://picsum.photos/seed/editorial-books/520/320" alt="संपादकीय शोध" />
+            <h3 class="feature-headline"><a href="#">विचार : शोध पत्रिकाओं की गुणवत्ता पर सवाल</a></h3>
+            <div class="feature-footer">
+              <span class="feature-tagline">
+                <span class="story-category">EDITORIAL</span>
+                <i class="fas fa-gem" aria-hidden="true"></i>
+              </span>
+              <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+            </div>
+          </article>
+
+          <article class="feature-card">
+            <img class="feature-image" src="https://picsum.photos/seed/editorial-india-saudi/520/320" alt="संपादकीय भारत और खाड़ी" />
+            <h3 class="feature-headline"><a href="#">विचार : परस्पर निर्भर भारत और खाड़ी देश</a></h3>
+            <div class="feature-footer">
+              <span class="feature-tagline">
+                <span class="story-category">EDITORIAL</span>
+                <i class="fas fa-gem" aria-hidden="true"></i>
+              </span>
+              <button class="bookmark-btn" type="button" aria-label="Save story"><i class="far fa-bookmark"></i></button>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer" aria-label="Site footer">
+      <div class="site-footer-inner">
+        <div class="site-footer-grid">
+          <section>
+            <h2 class="site-footer-title">हमारे नेटवर्क</h2>
+            <div class="site-footer-links">
+              <a href="#">Hindi News</a>
+              <a href="#">Jagran Josh</a>
+              <a href="#">Her Zindagi</a>
+              <a href="#">Onlymyhealth</a>
+              <a href="#">Jagran TV</a>
+              <a href="#">Inextlive</a>
+              <a href="#">Naidunia</a>
+              <a href="#">Jagran Play</a>
+            </div>
+          </section>
+
+          <section>
+            <h2 class="site-footer-title">जरूरी लिंक</h2>
+            <div class="site-footer-links">
+              <a href="#">About Us</a>
+              <a href="#">Contact Us</a>
+              <a href="#">Advertise With Us</a>
+              <a href="#">Privacy Policy</a>
+              <a href="#">Cookie Policy</a>
+              <a href="#">Disclaimer</a>
+              <a href="#">Sitemap</a>
+              <a href="#">E-Paper</a>
+            </div>
+          </section>
+
+          <section>
+            <h2 class="site-footer-title">ऐप और अपडेट</h2>
+            <div class="site-footer-meta">
+              <a href="#">लेटेस्ट खबरें सीधे मोबाइल पर पाएं</a>
+              <a href="#">अपने शहर की खबरें फॉलो करें</a>
+              <a href="#">वीडियो, फोटो और ई-पेपर एक्सेस करें</a>
+            </div>
+          </section>
+        </div>
+
+        <div class="site-footer-brand">
+          <div class="site-footer-brand-mark" aria-hidden="true"></div>
+          <div class="site-footer-brand-text">प्रथम गेंडा</div>
+        </div>
+
+        <div class="site-footer-bottom">
+          <div class="site-footer-copy">Copyright © 2026 Pratham Genda Digital Network.</div>
+          <div class="site-footer-badges">
+            <a class="site-footer-badge" href="#"><i class="fab fa-apple"></i><span>App Store</span></a>
+            <a class="site-footer-badge" href="#"><i class="fab fa-google-play"></i><span>Google Play</span></a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      const overlay = document.getElementById('overlay');
+      const cookieBanner = document.getElementById('cookieBanner');
+      const cookieBannerOk = document.getElementById('cookieBannerOk');
+      const leftSidebar = document.getElementById('leftSidebar');
+      const cityDrawer = document.getElementById('cityDrawer');
+      const mobileTopbar = document.querySelector('.mobile-topbar');
+      const closeLeft = document.getElementById('closeLeft');
+      const sidebarCityTrigger = document.getElementById('sidebarCityTrigger');
+      const closeCityDrawer = document.getElementById('closeCityDrawer');
+      const mainNav = document.getElementById('mainNav');
+      const moreMenuWrapper = document.getElementById('moreMenuWrapper');
+      const moreBtn = document.getElementById('moreBtn');
+      const sidebarButtons = document.querySelectorAll('.js-open-sidebar');
+      const cityButtons = document.querySelectorAll('.js-open-city');
+      const searchButtons = document.querySelectorAll('.js-open-search');
+      const navSearchPanel = document.getElementById('navSearchPanel');
+      const navSearchInput = document.getElementById('navSearchInput');
+      const closeSearch = document.getElementById('closeSearch');
+      const mobileSearchInput = document.getElementById('mobileSearchInput');
+      const mobileSearchClose = document.getElementById('mobileSearchClose');
+      const cookieBannerStorageKey = 'pratham_genda_cookie_banner_dismissed';
+
+      function syncOverlayState() {
+        const shouldShowOverlay =
+          leftSidebar.classList.contains('active') || cityDrawer.classList.contains('active');
+
+        overlay.classList.toggle('active', shouldShowOverlay);
+        document.body.style.overflow = shouldShowOverlay ? 'hidden' : '';
+      }
+
+      function closeDrawers() {
+        leftSidebar.classList.remove('active');
+        cityDrawer.classList.remove('active');
+        syncOverlayState();
+      }
+
+      function openSidebar() {
+        closeSearchPanel();
+        closeMoreMenu();
+        cityDrawer.classList.remove('active');
+        leftSidebar.classList.add('active');
+        syncOverlayState();
+      }
+
+      function openCityDrawer() {
+        closeSearchPanel();
+        closeMoreMenu();
+        leftSidebar.classList.remove('active');
+        cityDrawer.classList.add('active');
+        syncOverlayState();
+      }
+
+      function closeMoreMenu() {
+        moreMenuWrapper.classList.remove('open');
+        moreBtn.setAttribute('aria-expanded', 'false');
+      }
+
+      function toggleMoreMenu() {
+        const willOpen = !moreMenuWrapper.classList.contains('open');
+        closeSearchPanel();
+        moreMenuWrapper.classList.toggle('open', willOpen);
+        moreBtn.setAttribute('aria-expanded', String(willOpen));
+      }
+
+      function closeSearchPanel() {
+        mainNav.classList.remove('search-open');
+        mobileTopbar.classList.remove('search-open');
+      }
+
+      function openSearchPanel() {
+        closeMoreMenu();
+        if (window.innerWidth <= 768) {
+          mobileTopbar.classList.add('search-open');
+          requestAnimationFrame(() => mobileSearchInput.focus());
+          return;
+        }
+
+        mainNav.classList.add('search-open');
+        requestAnimationFrame(() => navSearchInput.focus());
+      }
+
+      function showCookieBanner() {
+        if (localStorage.getItem(cookieBannerStorageKey) === '1') {
+          return;
+        }
+
+        window.setTimeout(() => {
+          cookieBanner.classList.add('active');
+        }, 450);
+      }
+
+      function hideCookieBanner() {
+        cookieBanner.classList.remove('active');
+        localStorage.setItem(cookieBannerStorageKey, '1');
+      }
+
+      sidebarButtons.forEach((button) => {
+        button.addEventListener('click', openSidebar);
+      });
+      closeLeft.addEventListener('click', closeDrawers);
+      cityButtons.forEach((button) => {
+        button.addEventListener('click', openCityDrawer);
+      });
+      sidebarCityTrigger.addEventListener('click', (event) => {
+        event.preventDefault();
+        openCityDrawer();
+      });
+      closeCityDrawer.addEventListener('click', closeDrawers);
+      overlay.addEventListener('click', closeDrawers);
+
+      moreBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        toggleMoreMenu();
+      });
+
+      searchButtons.forEach((button) => {
+        button.addEventListener('click', openSearchPanel);
+      });
+      closeSearch.addEventListener('click', closeSearchPanel);
+      mobileSearchClose.addEventListener('click', closeSearchPanel);
+      cookieBannerOk.addEventListener('click', hideCookieBanner);
+
+      document.addEventListener('click', (event) => {
+        if (!moreMenuWrapper.contains(event.target)) {
+          closeMoreMenu();
+        }
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeDrawers();
+          closeMoreMenu();
+          closeSearchPanel();
+        }
+      });
+
+      showCookieBanner();
+    </script>
+  </body>
+</html>
