@@ -2,12 +2,58 @@ import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { constants as fsConstants } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import { createDefaultStoreData } from './default-data.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const runtimeDirectory = join(__dirname, '.runtime');
 const runtimeFile = join(runtimeDirectory, 'cms-data.json');
+
+const PASSWORD_HASH_KEY_LEN = 64;
+const PASSWORD_SALT_BYTES = 16;
+const PASSWORD_HASH_COST = 16384;
+
+function normalizePasswordHash(value) {
+  const parts = String(value || '').split('$');
+  return parts.length === 6 ? parts : null;
+}
+
+function hashPassword(password) {
+  const rawPassword = String(password || '');
+  const salt = randomBytes(PASSWORD_SALT_BYTES).toString('base64url');
+  const derivedKey = scryptSync(rawPassword, salt, PASSWORD_HASH_KEY_LEN, {
+    N: PASSWORD_HASH_COST,
+    r: 8,
+    p: 1,
+  });
+
+  return `scrypt$${PASSWORD_HASH_COST}$8$1$${salt}$${derivedKey.toString('base64url')}`;
+}
+
+function isHashedPassword(value) {
+  return Boolean(normalizePasswordHash(value));
+}
+
+function verifyPassword(storedPassword, password) {
+  const parts = normalizePasswordHash(storedPassword);
+  const rawPassword = String(password || '');
+
+  if (!parts) {
+    return String(storedPassword) === rawPassword;
+  }
+
+  const [, cost, r, p, salt, storedHash] = parts;
+  const derivedKey = scryptSync(rawPassword, salt, PASSWORD_HASH_KEY_LEN, {
+    N: Number(cost) || PASSWORD_HASH_COST,
+    r: Number(r) || 8,
+    p: Number(p) || 1,
+  });
+
+  const storedBuffer = Buffer.from(storedHash, 'base64url');
+  const derivedBuffer = Buffer.from(derivedKey);
+  return storedBuffer.length === derivedBuffer.length && timingSafeEqual(storedBuffer, derivedBuffer);
+}
 
 const slotLabelToConfigKey = {
   latest: 'latest',
@@ -132,6 +178,29 @@ function sanitizeLoadedData(data) {
 
     if (nextArticles.length !== data.articles.length) {
       data.articles = nextArticles;
+      changed = true;
+    }
+  }
+
+  if (Array.isArray(data.users)) {
+    for (const user of data.users) {
+      if (user && typeof user.password === 'string' && !isHashedPassword(user.password)) {
+        user.password = hashPassword(user.password);
+        changed = true;
+      }
+    }
+  }
+
+  if (!Array.isArray(data.passwordResetTokens)) {
+    data.passwordResetTokens = [];
+    changed = true;
+  } else {
+    const now = Date.now();
+    const validTokens = data.passwordResetTokens.filter(
+      (entry) => entry && entry.token && Number(entry.expiresAt) > now,
+    );
+    if (validTokens.length !== data.passwordResetTokens.length) {
+      data.passwordResetTokens = validTokens;
       changed = true;
     }
   }
@@ -759,7 +828,7 @@ export async function createUser(payload = {}) {
       id: nextNumericId(data.users),
       username,
       email,
-      password,
+      password: hashPassword(password),
       role,
       assignedCityId,
     };
@@ -804,7 +873,7 @@ export async function updateUser(userId, payload = {}) {
     user.role = nextRole || user.role;
     user.assignedCityId = nextAssignedCityId;
     if (payload.password) {
-      user.password = String(payload.password).trim();
+      user.password = hashPassword(String(payload.password).trim());
     }
 
     return deepClone(user);
@@ -839,6 +908,63 @@ export async function deleteUser(userId) {
 
     data.users = data.users.filter((item) => Number(item.id) !== Number(userId));
     return { id: Number(userId) };
+  });
+}
+
+export async function requestPasswordReset(identity) {
+  return updateData(async (data) => {
+    const normalizedIdentity = String(identity || '').trim().toLowerCase();
+    const user = data.users.find(
+      (item) =>
+        item.username.toLowerCase() === normalizedIdentity || item.email.toLowerCase() === normalizedIdentity,
+    );
+
+    if (!user) {
+      return { message: 'If that account exists, password reset instructions have been sent.' };
+    }
+
+    data.passwordResetTokens = Array.isArray(data.passwordResetTokens) ? data.passwordResetTokens : [];
+    data.passwordResetTokens = data.passwordResetTokens.filter((entry) => Number(entry.userId) !== Number(user.id));
+
+    const token = randomBytes(24).toString('hex');
+    const expiresAt = Date.now() + 1000 * 60 * 60;
+    data.passwordResetTokens.push({ token, userId: user.id, expiresAt });
+
+    return {
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      },
+    };
+  });
+}
+
+export async function resetPassword(token, password) {
+  return updateData(async (data) => {
+    const normalizedToken = String(token || '').trim();
+    const entry = (Array.isArray(data.passwordResetTokens) ? data.passwordResetTokens : []).find(
+      (item) => item.token === normalizedToken,
+    );
+
+    if (!entry || Number(entry.expiresAt) <= Date.now()) {
+      throw new Error('Invalid or expired password reset token.');
+    }
+
+    const user = data.users.find((item) => Number(item.id) === Number(entry.userId));
+    if (!user) {
+      throw new Error('Invalid password reset request.');
+    }
+
+    user.password = hashPassword(String(password || '').trim());
+    data.passwordResetTokens = data.passwordResetTokens.filter((item) => item.token !== normalizedToken);
+
+    return {
+      id: user.id,
+      username: user.username,
+      role: user.role,
+    };
   });
 }
 
@@ -1062,10 +1188,15 @@ export async function authenticateUserRecord(identity, password) {
   const user = data.users.find(
     (item) =>
       (item.username.toLowerCase() === normalizedIdentity || item.email.toLowerCase() === normalizedIdentity) &&
-      item.password === normalizedPassword,
+      verifyPassword(item.password, normalizedPassword),
   );
 
   if (!user) return null;
+
+  if (!isHashedPassword(user.password)) {
+    user.password = hashPassword(normalizedPassword);
+    await persist(data);
+  }
 
   return deepClone(user);
 }

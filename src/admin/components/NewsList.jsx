@@ -10,8 +10,8 @@ const statusLabels = {
 const statusClassNames = {
   published: 'published',
   draft: 'draft',
-  pending: 'draft',
-  rejected: 'draft',
+  pending: 'pending',
+  rejected: 'rejected',
 };
 
 const NewsList = ({

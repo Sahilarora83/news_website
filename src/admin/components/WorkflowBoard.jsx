@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { apiUrl } from '../../lib/api';
 
-const WorkflowBoard = ({ authHeaders, formatDateTime }) => {
+const WorkflowBoard = ({ authHeaders, formatDateTime, openEditor }) => {
   const [queue, setQueue] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -62,7 +62,12 @@ const WorkflowBoard = ({ authHeaders, formatDateTime }) => {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {pendingItems.length > 0 ? pendingItems.map((post) => (
-                <div key={post.id} className="table-card admin-compact-card">
+                <div
+                  key={post.id}
+                  className="table-card admin-compact-card"
+                  onClick={openEditor ? () => openEditor(post.id) : undefined}
+                  style={{ cursor: openEditor ? 'pointer' : 'default' }}
+                >
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 10 }}>
                     <span style={{ fontSize: '12px', fontWeight: 700, color: '#6366f1' }}>
                       {post.city || 'General'}
@@ -75,10 +80,23 @@ const WorkflowBoard = ({ authHeaders, formatDateTime }) => {
                     {post.headline}
                   </h5>
                   <div style={{ display: 'flex', gap: 10 }}>
-                    <button className="btn-primary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => handleStatusChange(post.id, 'published')}>
+                    <button
+                      className="btn-primary"
+                      style={{ flex: 1, justifyContent: 'center' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleStatusChange(post.id, 'published');
+                      }}
+                    >
                       Publish
                     </button>
-                    <button className="btn-secondary" onClick={() => handleStatusChange(post.id, 'rejected')}>
+                    <button
+                      className="btn-secondary"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleStatusChange(post.id, 'rejected');
+                      }}
+                    >
                       Reject
                     </button>
                   </div>

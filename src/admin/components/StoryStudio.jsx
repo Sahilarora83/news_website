@@ -13,6 +13,7 @@ const StoryStudio = ({
   uploadingImage,
   uploadMessage,
   uploadStoryImage,
+  user,
 }) => {
   const updateField = (key, value) => {
     setPostForm((current) => ({
@@ -326,9 +327,20 @@ const StoryStudio = ({
         {savingMessage ? <div className="admin-inline-message">{savingMessage}</div> : null}
 
         <footer className="floating-action-bar">
-          <button className="btn-primary" type="submit" disabled={savingPost || uploadingImage}>
-            {savingPost ? 'Saving...' : 'Publish'}
-          </button>
+          {!user || (user.role !== 'city_manager' && user.role !== 'reporter') ? (
+            <button className="btn-primary" type="submit" disabled={savingPost || uploadingImage}>
+              {savingPost ? 'Saving...' : 'Publish'}
+            </button>
+          ) : (
+            <button
+              className="btn-primary"
+              type="button"
+              onClick={(event) => savePost(event, 'pending')}
+              disabled={savingPost || uploadingImage}
+            >
+              {savingPost ? 'Saving...' : 'Send to Review'}
+            </button>
+          )}
           <button
             className="btn-secondary"
             type="button"

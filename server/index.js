@@ -1,3 +1,6 @@
+import { configDotenv } from 'dotenv';
+configDotenv();
+
 import express from 'express';
 import cors from 'cors';
 import { existsSync } from 'node:fs';
@@ -23,6 +26,8 @@ import {
   getNewsByCity,
   listLocationsRepo,
   listUsers,
+  requestPasswordReset,
+  resetPassword,
   searchArticles,
   updateLocation,
   updatePostStatus,
@@ -45,7 +50,7 @@ let server = null;
 app.disable('x-powered-by');
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '20mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ limit: '20mb', extended: true }));
 app.use('/uploads', express.static(getUploadsDirectory()));
 
 app.get('/api/health', (req, res) => {
@@ -77,6 +82,39 @@ app.post('/api/admin/login', async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/admin/password-reset-request', async (req, res) => {
+  const { identity } = req.body || {};
+  try {
+    const result = await requestPasswordReset(identity);
+    const response = {
+      message: 'If that account exists, password reset instructions have been sent.',
+    };
+
+    if (result && process.env.NODE_ENV !== 'production') {
+      response.token = result.token;
+      response.username = result.user.username;
+    }
+
+    return res.json(response);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/admin/password-reset', async (req, res) => {
+  const { token, password } = req.body || {};
+  if (!token || !password) {
+    return res.status(400).json({ error: 'Reset token and new password are required.' });
+  }
+
+  try {
+    await resetPassword(token, password);
+    return res.json({ message: 'Password has been updated successfully.' });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
 });
 
@@ -287,6 +325,13 @@ app.get('/api/search', async (req, res) => {
   }
 });
 
+app.use('/api', (err, req, res, next) => {
+  console.error('[API Error]:', err);
+  res.status(err.status || 500).json({ 
+    error: err.message || 'Internal Server Error' 
+  });
+});
+
 if (existsSync(distDir)) {
   app.use(express.static(distDir));
   app.get(/^(?!\/api\/).*/, (req, res, next) => {
@@ -303,11 +348,16 @@ export function startServer(port = PORT, host = HOST) {
   }
 
   server = app.listen(port, host, () => {
-    console.log(`Unified CMS Engine running on http://${host}:${port}`);
+    const logLevel = process.env.LOG_LEVEL || 'info';
+    if (logLevel !== 'silent') {
+      console.log(`[CMS] Server running on http://${host}:${port}`);
+    }
   });
   return server;
 }
 
 export { app, server };
 
-startServer();
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  startServer();
+}

@@ -119,6 +119,12 @@ const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [] }) =>
             <div className="logo-divider" />
             <div className="logo-tagline">{tagline}</div>
           </Link>
+
+          <div className="header-ad-banner">
+            <Link to="/">
+              <img src="/970x90.jpg.jpeg" alt={`${siteName1} ${siteName2}`.trim() || 'News Banner'} />
+            </Link>
+          </div>
         </div>
       </header>
 

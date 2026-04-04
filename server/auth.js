@@ -1,8 +1,16 @@
+import { configDotenv } from 'dotenv';
+configDotenv();
+
+
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { authenticateUserRecord } from './sql-store.js';
 
 const TOKEN_TTL_MS = 1000 * 60 * 60 * 12;
-const ADMIN_SECRET = process.env.ADMIN_TOKEN_SECRET || 'pratham-genda-enterprise-secret-2026';
+const ADMIN_SECRET = process.env.ADMIN_TOKEN_SECRET;
+
+if (!ADMIN_SECRET) {
+  throw new Error('ADMIN_TOKEN_SECRET environment variable is required');
+}
 
 function base64UrlEncode(value) {
   return Buffer.from(value).toString('base64url');

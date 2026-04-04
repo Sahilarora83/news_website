@@ -50,9 +50,13 @@ const Home = () => {
       }
 
       fetch(apiUrl(`/api/news-by-city?city=${encodeURIComponent(city)}`))
-        .then((response) => response.json())
+        .then((response) => {
+          if (!response.ok) throw new Error(`Failed to fetch city news: ${response.status}`);
+          return response.json();
+        })
         .then((data) => setPinnedCityNews({ city, items: data.items || [] }))
-        .catch(() => {
+        .catch(err => {
+          console.error(`Error loading news for city ${city}:`, err);
           setPinnedCityNews(null);
         });
     };

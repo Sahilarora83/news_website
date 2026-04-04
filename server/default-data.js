@@ -93,6 +93,7 @@ export function createDefaultStoreData() {
       { id: 2, username: 'editor', email: 'editor@prathamgenda.local', password: 'editor123', role: 'editor', assignedCityId: 1 },
       { id: 3, username: 'reporter', email: 'reporter@prathamgenda.local', password: 'reporter123', role: 'reporter', assignedCityId: 3 },
     ],
+    passwordResetTokens: [],
     categories,
     tags: [],
     trendingTopics: [],

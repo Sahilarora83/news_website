@@ -72,15 +72,15 @@ const Article = () => {
     return [];
   }, [article]);
 
-  const highlights = useMemo(
-    () =>
-      bodyParagraphs
-        .slice(0, 3)
-        .map((paragraph) => paragraph.split('.').find((part) => part.trim())?.trim())
-        .filter(Boolean)
-        .map((point) => `${point}.`),
-    [bodyParagraphs],
-  );
+  const highlights = useMemo(() => {
+    if (article?.excerpt) {
+      return article.excerpt
+        .split(/\n+/)
+        .map((point) => point.trim())
+        .filter(Boolean);
+    }
+    return [];
+  }, [article?.excerpt]);
 
   if (status === 'loading') {
     return (

@@ -68,8 +68,8 @@ button {
   margin: 0 auto;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 28px;
+  justify-content: space-between;
+  gap: 20px;
   padding: 16px 15px 14px;
 }
 .logo-text-wrapper {
@@ -79,6 +79,30 @@ button {
   display: inline-grid;
   justify-items: start;
   flex-shrink: 0;
+}
+
+.header-ad-banner {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.header-ad-banner img {
+  max-width: 100%;
+  height: auto;
+  max-height: 90px;
+  border-radius: 4px;
+}
+
+@media (min-width: 769px) {
+  .logo-text-wrapper {
+    display: none !important;
+  }
+}
+@media (max-width: 768px) {
+  .header-ad-banner {
+    display: none !important;
+  }
 }
 .logo-mainline {
   display: flex;

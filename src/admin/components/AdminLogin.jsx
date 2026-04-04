@@ -1,6 +1,6 @@
 import React from 'react';
 
-const AdminLogin = ({ error, username, setUsername, password, setPassword, handleLogin }) => {
+const AdminLogin = ({ error, username, setUsername, password, setPassword, handleLogin, onForgotPassword }) => {
   return (
     <main
       className="login-master-container"
@@ -58,9 +58,15 @@ const AdminLogin = ({ error, username, setUsername, password, setPassword, handl
           </div>
 
           <div className="form-field">
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, alignItems: 'center' }}>
               <label style={{ fontSize: '13px', fontWeight: 700, color: '#475569' }}>Password</label>
-              <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 700 }}>Contact admin</span>
+              <button
+                type="button"
+                onClick={onForgotPassword}
+                style={{ background: 'transparent', border: 'none', color: '#4f46e5', cursor: 'pointer', fontSize: '12px', fontWeight: 700 }}
+              >
+                Forgot password?
+              </button>
             </div>
             <div style={{ position: 'relative' }}>
               <i className="fas fa-lock" style={{ position: 'absolute', left: 14, top: 13, color: '#94a3b8', fontSize: '14px' }} />

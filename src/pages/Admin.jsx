@@ -10,6 +10,7 @@ import StoryStudio from '../admin/components/StoryStudio';
 import TaxonomyManager from '../admin/components/TaxonomyManager';
 import SiteSettings from '../admin/components/SiteSettings';
 import AdminLogin from '../admin/components/AdminLogin';
+import AdminForgotPassword from '../admin/components/AdminForgotPassword';
 import LocationMaster from '../admin/components/LocationMaster';
 import WorkflowBoard from '../admin/components/WorkflowBoard';
 import UserManage from '../admin/components/UserManage';
@@ -148,6 +149,7 @@ function Admin() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [loginError, setLoginError] = useState('');
+  const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
   const [dashboard, setDashboard] = useState(null);
   const [loadingDashboard, setLoadingDashboard] = useState(false);
   const [savingPost, setSavingPost] = useState(false);
@@ -443,6 +445,10 @@ function Admin() {
   };
 
   if (!token || !user) {
+    if (forgotPasswordMode) {
+      return <AdminForgotPassword onBack={() => setForgotPasswordMode(false)} />;
+    }
+
     return (
       <AdminLogin
         error={loginError}
@@ -451,6 +457,7 @@ function Admin() {
         password={loginForm.password}
         setPassword={(value) => setLoginForm((current) => ({ ...current, password: value }))}
         handleLogin={handleLogin}
+        onForgotPassword={() => setForgotPasswordMode(true)}
       />
     );
   }
@@ -481,7 +488,20 @@ function Admin() {
           )}
 
           {activeTab === 'workflow' && (
-            <WorkflowBoard authHeaders={authHeaders} formatDateTime={formatDateTime} />
+            <WorkflowBoard
+              authHeaders={authHeaders}
+              formatDateTime={formatDateTime}
+              openEditor={(postId) => {
+                const post = dashboard?.posts?.find((p) => String(p.id) === String(postId));
+                if (post) {
+                  setPostForm(formFromPost(post));
+                  setEditingId(post.id);
+                  setActiveTab('editor');
+                } else {
+                  window.alert('Detailed story data not found in dashboard! Please refresh.');
+                }
+              }}
+            />
           )}
 
           {activeTab === 'posts' && (
@@ -522,6 +542,7 @@ function Admin() {
               uploadingImage={uploadingImage}
               uploadMessage={uploadMessage}
               uploadStoryImage={uploadStoryImage}
+              user={user}
             />
           )}
 

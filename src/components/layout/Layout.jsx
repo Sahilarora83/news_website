@@ -20,14 +20,19 @@ const Layout = ({ children }) => {
     if (isAdminRoute) return;
     
     fetch(apiUrl('/api/home'))
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then(data => {
         setConfig(data.config);
         setCategories(data.categories || []);
         setTags(data.tags || []);
         setLocationStates(data.locationStates || []);
       })
-      .catch(() => {});
+      .catch(err => {
+        console.error('Failed to load home config:', err);
+      });
   }, [isAdminRoute]);
 
   useEffect(() => {
