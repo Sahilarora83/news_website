@@ -1,34 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-const moreLinks = [
-  'क्रिकेट',
-  'ज्योतिष',
-  'क्विज़',
-  'टेक',
-  'ऑटो',
-  'विशेष',
-  'शॉर्ट वीडियोज',
-  'आवाज',
-  'फोटो गैलरी',
-  'हेल्थ',
-  'फैशन',
-  'धर्म',
-  'दुनिया',
-  'शब्द खोज',
-  'नौकरी',
-  'शिक्षा',
-  'राशिफल',
-  'ई-पेपर',
-];
+const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [] }) => {
+  const siteName1 = config?.siteNamePrimary || '';
+  const siteName2 = config?.siteNameSecondary || '';
+  const tagline = config?.siteTagline || '';
 
-const Header = ({ toggleSidebar, toggleCityDrawer }) => {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [desktopSearchOpen, setDesktopSearchOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const moreMenuRef = useRef(null);
   const desktopSearchInputRef = useRef(null);
   const mobileSearchInputRef = useRef(null);
+
+  const mainCategories = categories.filter((category) => category !== 'होम').slice(0, 6);
+  const overflowCategories = categories.filter((category) => category !== 'होम').slice(6);
 
   const closeMoreMenu = () => setIsMoreOpen(false);
 
@@ -85,13 +71,13 @@ const Header = ({ toggleSidebar, toggleCityDrawer }) => {
           <button className="mobile-icon-btn js-open-sidebar" type="button" aria-label="Open menu" onClick={toggleSidebar}>
             <i className="fas fa-bars" />
           </button>
-          <Link to="/" className="mobile-logo" aria-label="प्रथम गेंडा NEWS">
+          <Link to="/" className="mobile-logo" aria-label={`${siteName1} ${siteName2}`.trim() || 'Home'}>
             <span className="mobile-logo-top">
-              <span className="mobile-logo-text">प्रथम गेंडा</span>
-              <span className="mobile-logo-news">NEWS</span>
+              <span className="mobile-logo-text">{siteName1}</span>
+              <span className="mobile-logo-news">{siteName2}</span>
             </span>
             <span className="mobile-logo-line" />
-            <span className="mobile-logo-tagline">सच आईने की तरह...</span>
+            <span className="mobile-logo-tagline">{tagline}</span>
           </Link>
           <button className="mobile-city-btn js-open-city" type="button" aria-label="Open city drawer" onClick={toggleCityDrawer}>
             <span>मेरा शहर</span>
@@ -106,7 +92,17 @@ const Header = ({ toggleSidebar, toggleCityDrawer }) => {
           <button className="mobile-icon-btn js-open-sidebar" type="button" aria-label="Open menu" onClick={toggleSidebar}>
             <i className="fas fa-bars" />
           </button>
-          <input ref={mobileSearchInputRef} id="mobileSearchInput" type="text" placeholder="search" />
+          <input
+            ref={mobileSearchInputRef}
+            id="mobileSearchInput"
+            type="text"
+            placeholder="खोजें"
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                window.location.href = `/search?q=${encodeURIComponent(event.target.value)}`;
+              }
+            }}
+          />
           <button className="mobile-icon-btn" id="mobileSearchClose" type="button" aria-label="Close search" onClick={closeSearchPanels}>
             <i className="fas fa-xmark" />
           </button>
@@ -115,13 +111,13 @@ const Header = ({ toggleSidebar, toggleCityDrawer }) => {
 
       <header className="header-branding">
         <div className="top-inner">
-          <Link to="/" className="logo-text-wrapper" aria-label="प्रथम गेंडा NEWS">
+          <Link to="/" className="logo-text-wrapper" aria-label={`${siteName1} ${siteName2}`.trim() || 'Home'}>
             <div className="logo-mainline">
-              <div className="logo-primary">प्रथम गेंडा</div>
-              <div className="logo-news-box">NEWS</div>
+              <div className="logo-primary">{siteName1}</div>
+              <div className="logo-news-box">{siteName2}</div>
             </div>
             <div className="logo-divider" />
-            <div className="logo-tagline">सच आईने की तरह...</div>
+            <div className="logo-tagline">{tagline}</div>
           </Link>
         </div>
       </header>
@@ -135,50 +131,41 @@ const Header = ({ toggleSidebar, toggleCityDrawer }) => {
             <Link to="/" className="nav-btn btn-home">
               होम
             </Link>
-            <button className="nav-brand-badge" type="button" aria-label="प्रथम गेंडा विशेष">
+            <Link to="/search?q=%E0%A4%B5%E0%A4%BF%E0%A4%B6%E0%A5%87%E0%A4%B7" className="nav-brand-badge" aria-label="विशेष">
               <i className="fas fa-crown badge-crown" />
               <span className="badge-text">PG</span>
-            </button>
-            <button className="nav-btn" type="button">
-              देश
-            </button>
-            <button className="nav-btn" type="button">
-              शहर और राज्य
-            </button>
-            <button className="nav-btn" type="button">
-              चुनाव
-            </button>
-            <button className="nav-btn" type="button">
-              कारोबार
-            </button>
-            <button className="nav-btn" type="button">
-              मनोरंजन
-            </button>
-            <div className={`more-wrapper ${isMoreOpen ? 'open' : ''}`} id="moreMenuWrapper" ref={moreMenuRef}>
-              <button
-                className="nav-btn more-btn"
-                id="moreBtn"
-                type="button"
-                aria-expanded={isMoreOpen ? 'true' : 'false'}
-                onClick={toggleMoreMenu}
-              >
-                More<span className="more-dots">•••</span>
-              </button>
-              <div className="more-menu" id="moreMenu">
-                {moreLinks.map((label) => (
-                  <a
-                    key={label}
-                    href="#"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      closeMoreMenu();
-                    }}
-                  >
-                    {label}
-                  </a>
-                ))}
+            </Link>
+
+            {mainCategories.map((category) => (
+              <Link key={category} to={`/search?q=${encodeURIComponent(category)}`} className="nav-btn">
+                {category}
+              </Link>
+            ))}
+
+            {overflowCategories.length > 0 ? (
+              <div className={`more-wrapper ${isMoreOpen ? 'active' : ''}`} id="moreMenuWrapper" ref={moreMenuRef}>
+                <button
+                  className="nav-btn more-btn"
+                  id="moreBtn"
+                  type="button"
+                  aria-expanded={isMoreOpen ? 'true' : 'false'}
+                  onClick={toggleMoreMenu}
+                >
+                  More<span className="more-dots">•••</span>
+                </button>
+                <div className="more-menu" id="moreMenu">
+                  {overflowCategories.map((label) => (
+                    <Link
+                      key={label}
+                      to={`/search?q=${encodeURIComponent(label)}`}
+                      onClick={() => closeMoreMenu()}
+                    >
+                      {label}
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : null}
           </div>
 
           <div className="nav-right">
@@ -195,7 +182,17 @@ const Header = ({ toggleSidebar, toggleCityDrawer }) => {
             <button className="search-panel-menu js-open-sidebar" type="button" aria-label="Open menu" onClick={toggleSidebar}>
               <i className="fas fa-bars" />
             </button>
-            <input ref={desktopSearchInputRef} id="navSearchInput" type="text" placeholder="Search" />
+            <input
+              ref={desktopSearchInputRef}
+              id="navSearchInput"
+              type="text"
+              placeholder="खोजें"
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  window.location.href = `/search?q=${encodeURIComponent(event.target.value)}`;
+                }
+              }}
+            />
             <button className="search-close-btn" id="closeSearch" type="button" aria-label="Close search" onClick={closeSearchPanels}>
               <i className="fas fa-xmark" />
             </button>
@@ -208,11 +205,11 @@ const Header = ({ toggleSidebar, toggleCityDrawer }) => {
           <i className="fas fa-house" />
           <span>होम</span>
         </Link>
-        <button className="mobile-bottom-link" type="button">
+        <Link className="mobile-bottom-link" to="/search?q=%E0%A4%B6%E0%A5%89%E0%A4%B0%E0%A5%8D%E0%A4%9F%20%E0%A4%B5%E0%A5%80%E0%A4%A1%E0%A4%BF%E0%A4%AF%E0%A5%8B">
           <i className="fas fa-circle-play" />
           <span>वीडियो</span>
-        </button>
-        <button className="mobile-bottom-link mobile-bottom-premium" type="button" aria-label="Premium">
+        </Link>
+        <Link className="mobile-bottom-link mobile-bottom-premium" to="/search?q=%E0%A4%B5%E0%A4%BF%E0%A4%B6%E0%A5%87%E0%A4%B7" aria-label="विशेष">
           <svg className="mobile-premium-badge" viewBox="0 0 64 64" role="img" aria-hidden="true">
             <defs>
               <linearGradient id="pgRing" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
@@ -244,15 +241,15 @@ const Header = ({ toggleSidebar, toggleCityDrawer }) => {
               PG
             </text>
           </svg>
-        </button>
-        <button className="mobile-bottom-link" type="button">
+        </Link>
+        <Link className="mobile-bottom-link" to="/search?q=%E0%A4%AB%E0%A5%8B%E0%A4%9F%E0%A5%8B%20%E0%A4%97%E0%A5%88%E0%A4%B2%E0%A4%B0%E0%A5%80">
           <i className="fas fa-camera" />
           <span>फोटो</span>
-        </button>
-        <button className="mobile-bottom-link" type="button">
+        </Link>
+        <Link className="mobile-bottom-link" to="/search?q=%E0%A4%88-%E0%A4%AA%E0%A5%87%E0%A4%AA%E0%A4%B0">
           <i className="fas fa-newspaper" />
           <span>ई-पेपर</span>
-        </button>
+        </Link>
       </nav>
     </>
   );

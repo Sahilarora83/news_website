@@ -1,32 +1,40 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { resolveImageUrl } from '../../lib/media';
 
-const ElectionSection = ({ tabs, cards }) => {
+const ElectionSection = ({ tabs = [], cards = [], title }) => {
+  const displayTitle = title || 'विधानसभा चुनाव 2026';
+
   return (
-    <section className="election-section container" aria-label="विधानसभा चुनाव 2026">
+    <section className="election-section container" aria-label={displayTitle}>
       <div className="election-header">
-        <a className="election-title-link" href="#">
-          <h2 className="election-title">विधानसभा चुनाव 2026</h2>
+        <Link className="election-title-link" to={`/search?q=${encodeURIComponent(displayTitle)}`}>
+          <h2 className="election-title">{displayTitle}</h2>
           <i className="far fa-circle-right" aria-hidden="true" />
-        </a>
+        </Link>
 
-        <div className="election-tabs" role="tablist" aria-label="चुनाव श्रेणियां">
-          {tabs.map((tab, index) => (
-            <a key={tab} href="#" className={`election-tab ${index === 0 ? 'active' : ''}`}>
-              {tab}
-            </a>
-          ))}
-        </div>
+        {tabs.length > 0 ? (
+          <div className="election-tabs" role="tablist" aria-label="चुनाव श्रेणियां">
+            {tabs.map((tab, index) => (
+              <Link key={tab} to={`/search?q=${encodeURIComponent(tab)}`} className={`election-tab ${index === 0 ? 'active' : ''}`}>
+                {tab}
+              </Link>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       <div className="election-grid">
         {cards.map((card) => (
           <article key={card.id} className="election-card">
             <div className="election-card-media">
-              <img className="election-card-image" src={card.image} alt={card.title} />
+              <Link to={`/article/${card.id}`}>
+                <img className="election-card-image" src={resolveImageUrl(card.image)} alt={card.title} />
+              </Link>
               {card.banner ? <span className="election-card-banner">{card.banner}</span> : null}
             </div>
             <h3 className="election-card-headline">
-              <a href="#">{card.title}</a>
+              <Link to={`/article/${card.id}`}>{card.title}</Link>
             </h3>
             <div className="election-card-footer">
               <span className="story-category">{card.category}</span>

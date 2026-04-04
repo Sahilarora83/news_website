@@ -1,0 +1,313 @@
+import express from 'express';
+import cors from 'cors';
+import { existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import {
+  authenticateUser,
+  createAdminToken,
+  requireRole,
+} from './auth.js';
+import {
+  createLocation,
+  createUser,
+  deleteLocation,
+  deleteArticle,
+  deleteUser,
+  fetchAdminDashboard,
+  fetchCoverageSummary,
+  fetchWorkflowQueue,
+  getArticleByIdOrSlug,
+  getConfig,
+  getHomeAggregatedData,
+  getNewsByCity,
+  listLocationsRepo,
+  listUsers,
+  searchArticles,
+  updateLocation,
+  updatePostStatus,
+  updateSiteConfig,
+  updateTaxonomy,
+  updateUser,
+  updateUserRole,
+  upsertArticle,
+} from './sql-store.js';
+import { getUploadsDirectory, saveBase64ImageUpload } from './media-store.js';
+
+const app = express();
+const PORT = Number(process.env.PORT || 3001);
+const HOST = process.env.HOST || '0.0.0.0';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const distDir = join(__dirname, '..', 'dist');
+let server = null;
+
+app.disable('x-powered-by');
+app.use(cors({ origin: true, credentials: true }));
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(getUploadsDirectory()));
+
+app.get('/api/health', (req, res) => {
+  res.json({
+    ok: true,
+    service: 'pratham-genda-unified-api',
+    date: new Date().toISOString(),
+  });
+});
+
+app.post('/api/admin/login', async (req, res) => {
+  const { username, password } = req.body || {};
+
+  try {
+    const user = await authenticateUser(username, password);
+    if (!user) {
+      return res.status(401).json({ error: 'Login failed: Invalid credentials' });
+    }
+
+    const token = createAdminToken(user);
+    return res.json({
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+      },
+      expiresInMinutes: 720,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/admin/dashboard', requireRole(['super_admin', 'editor', 'reporter', 'city_manager', 'admin']), async (req, res) => {
+  try {
+    const dashboard = await fetchAdminDashboard();
+    return res.json({
+      ...dashboard,
+      user: {
+        username: req.admin.sub,
+        role: req.admin.role,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/admin/coverage', requireRole(['super_admin', 'editor', 'admin']), async (req, res) => {
+  try {
+    return res.json(await fetchCoverageSummary());
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/admin/config', requireRole(['super_admin', 'editor', 'admin']), async (req, res) => {
+  try {
+    return res.json(await getConfig());
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/admin/config', requireRole(['super_admin', 'admin']), async (req, res) => {
+  try {
+    return res.json(await updateSiteConfig(req.body || {}));
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/admin/locations', requireRole(['super_admin', 'city_manager', 'admin']), async (req, res) => {
+  try {
+    return res.json(await listLocationsRepo());
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/admin/locations/:type', requireRole(['super_admin', 'city_manager', 'admin']), async (req, res) => {
+  try {
+    const item = await createLocation(req.params.type, req.body || {});
+    return res.status(201).json(item);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.put('/api/admin/locations/:type/:locationId', requireRole(['super_admin', 'city_manager', 'admin']), async (req, res) => {
+  try {
+    return res.json(await updateLocation(req.params.type, req.params.locationId, req.body || {}));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.delete('/api/admin/locations/:type/:locationId', requireRole(['super_admin', 'city_manager', 'admin']), async (req, res) => {
+  try {
+    return res.json(await deleteLocation(req.params.type, req.params.locationId));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.get('/api/admin/users', requireRole(['super_admin', 'admin']), async (req, res) => {
+  try {
+    return res.json({ users: await listUsers() });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/admin/users', requireRole(['super_admin', 'admin']), async (req, res) => {
+  try {
+    return res.status(201).json(await createUser(req.body || {}));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.put('/api/admin/users/:userId', requireRole(['super_admin', 'admin']), async (req, res) => {
+  try {
+    return res.json(await updateUser(req.params.userId, req.body || {}));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.put('/api/admin/users/:userId/role', requireRole(['super_admin', 'admin']), async (req, res) => {
+  try {
+    return res.json(await updateUserRole(req.params.userId, req.body?.role));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.delete('/api/admin/users/:userId', requireRole(['super_admin', 'admin']), async (req, res) => {
+  try {
+    return res.json(await deleteUser(req.params.userId));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.get('/api/admin/posts/queue', requireRole(['super_admin', 'editor', 'admin']), async (req, res) => {
+  try {
+    return res.json({ items: await fetchWorkflowQueue() });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/admin/posts/:postId/status', requireRole(['super_admin', 'editor', 'admin']), async (req, res) => {
+  try {
+    return res.json(await updatePostStatus(req.params.postId, req.body || {}));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.post('/api/admin/posts/submit', requireRole(['super_admin', 'editor', 'reporter', 'city_manager', 'admin']), async (req, res) => {
+  try {
+    return res.json(await upsertArticle(req.body || {}, req.admin));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.post('/api/admin/uploads/images', requireRole(['super_admin', 'editor', 'reporter', 'city_manager', 'admin']), async (req, res) => {
+  try {
+    const uploaded = await saveBase64ImageUpload(req.body || {});
+    const origin = `${req.protocol}://${req.get('host')}`;
+
+    return res.status(201).json({
+      ...uploaded,
+      url: `${origin}${uploaded.relativeUrl}`,
+    });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.delete('/api/admin/posts/:postId', requireRole(['super_admin', 'editor', 'admin']), async (req, res) => {
+  try {
+    return res.json(await deleteArticle(req.params.postId));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.post('/api/admin/taxonomy/:type', requireRole(['super_admin', 'editor', 'admin']), async (req, res) => {
+  try {
+    const names = await updateTaxonomy(req.params.type, req.body?.name, req.body?.action);
+    return res.json({ items: names });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.get('/api/home', async (req, res) => {
+  try {
+    return res.json(await getHomeAggregatedData());
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/news-by-city', async (req, res) => {
+  try {
+    return res.json({ items: await getNewsByCity(req.query.city) });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/article/:id', async (req, res) => {
+  try {
+    const article = await getArticleByIdOrSlug(req.params.id);
+    if (!article) {
+      return res.status(404).json({ error: 'Article not found.' });
+    }
+
+    return res.json({ article });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/search', async (req, res) => {
+  try {
+    return res.json({
+      query: String(req.query.q || ''),
+      items: await searchArticles(req.query.q),
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+if (existsSync(distDir)) {
+  app.use(express.static(distDir));
+  app.get(/^(?!\/api\/).*/, (req, res, next) => {
+    if (req.path.startsWith('/api/')) {
+      return next();
+    }
+    return res.sendFile(join(distDir, 'index.html'));
+  });
+}
+
+export function startServer(port = PORT, host = HOST) {
+  if (server) {
+    return server;
+  }
+
+  server = app.listen(port, host, () => {
+    console.log(`Unified CMS Engine running on http://${host}:${port}`);
+  });
+  return server;
+}
+
+export { app, server };
+
+startServer();

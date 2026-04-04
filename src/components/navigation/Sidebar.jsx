@@ -1,6 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-const Sidebar = ({ isOpen, close }) => {
+const Sidebar = ({ isOpen, close, categories = [], tags = [] }) => {
   return (
     <aside className={`sidebar ${isOpen ? 'active' : ''}`}>
       <div className="sb-header">
@@ -18,36 +19,36 @@ const Sidebar = ({ isOpen, close }) => {
       </div>
 
       <div className="sb-menu">
-        <a href="#" className="sb-item">
-          <span className="sb-item-text">मेरी खबरें</span>
-          <div className="sb-icon-box">
-            <i className="fa-solid fa-chevron-right" />
-          </div>
-        </a>
-        <a href="#" className="sb-item">
-          <span className="sb-item-text sb-item-feature">प्रीमियम</span>
-          <div className="sb-icon-box gold-crown">
-            <i className="fa-solid fa-crown" />
-          </div>
-        </a>
-        <a href="#" className="sb-item">
-          <span className="sb-item-text">शहर चुनें</span>
-          <div className="sb-icon-box">
-            <i className="fa-solid fa-location-dot" />
-          </div>
-        </a>
-
-        <div style={{ padding: '20px 22px 10px', fontSize: '0.82rem', color: '#888', fontWeight: '700', textTransform: 'uppercase' }}>
-          श्रेणियाँ
+        <div style={{ padding: '20px 22px 5px', fontSize: '0.82rem', color: '#888', fontWeight: '700', textTransform: 'uppercase' }}>
+          श्रेणियां
+        </div>
+        <div className="sb-category-grid" style={{ padding: '0 10px' }}>
+          {categories.map((category) => (
+            <Link key={category} to={`/search?q=${encodeURIComponent(category)}`} className="sb-item" onClick={close}>
+              <span className="sb-item-text">{category}</span>
+            </Link>
+          ))}
         </div>
 
-        <a href="#" className="sb-item"><span className="sb-item-text">देश</span></a>
-        <a href="#" className="sb-item"><span className="sb-item-text">प्रदेश</span></a>
-        <a href="#" className="sb-item"><span className="sb-item-text">राजनीति</span></a>
-        <a href="#" className="sb-item"><span className="sb-item-text">दुनिया</span></a>
-        <a href="#" className="sb-item"><span className="sb-item-text">मनोरंजन</span></a>
-        <a href="#" className="sb-item"><span className="sb-item-text">खेल</span></a>
-        <a href="#" className="sb-item"><span className="sb-item-text">बिजनेस</span></a>
+        {tags.length > 0 ? (
+          <>
+            <div style={{ padding: '20px 22px 5px', fontSize: '0.82rem', color: '#888', fontWeight: '700', textTransform: 'uppercase' }}>
+              प्रमुख टैग्स
+            </div>
+            <div className="sb-tag-cloud" style={{ padding: '0 22px', display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {tags.map((tag) => (
+                <Link
+                  key={tag}
+                  to={`/search?q=${encodeURIComponent(tag)}`}
+                  style={{ fontSize: '0.75rem', color: '#555', background: '#f1f5f9', padding: '4px 10px', borderRadius: 4, textDecoration: 'none' }}
+                  onClick={close}
+                >
+                  #{tag}
+                </Link>
+              ))}
+            </div>
+          </>
+        ) : null}
       </div>
     </aside>
   );

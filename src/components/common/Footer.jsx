@@ -1,60 +1,77 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-const Footer = () => {
+const Footer = ({ config, categories = [], tags = [] }) => {
+  if (!config && categories.length === 0 && tags.length === 0) {
+    return null;
+  }
+
+  const brand = config?.siteNamePrimary || '';
+  const copy = config?.footerCopyright || '';
+  const socialLinks = [
+    { href: config?.facebook_url, label: 'Facebook' },
+    { href: config?.twitter_url, label: 'X' },
+    config?.whatsapp_number ? { href: `https://wa.me/${config.whatsapp_number}`, label: 'WhatsApp' } : null,
+  ].filter((item) => item?.href);
+
   return (
     <footer className="site-footer">
       <div className="site-footer-inner">
         <div className="site-footer-grid">
-          <section>
-            <h2 className="site-footer-title">हमारा नेटवर्क</h2>
-            <div className="site-footer-links">
-              <a href="#">हिंदी न्यूज़</a>
-              <a href="#">हर ज़िंदगी</a>
-              <a href="#">स्वास्थ्य</a>
-              <a href="#">टीवी</a>
-              <a href="#">इनएक्स्टलाइव</a>
-              <a href="#">नवदुनिया</a>
-              <a href="#">प्राइम वीडियो</a>
-              <a href="#">खेल</a>
-            </div>
-          </section>
+          {categories.length > 0 ? (
+            <section>
+              <h2 className="site-footer-title">श्रेणियां</h2>
+              <div className="site-footer-links">
+                {categories.slice(0, 10).map((category) => (
+                  <Link key={category} to={`/search?q=${encodeURIComponent(category)}`}>
+                    {category}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
-          <section>
-            <h2 className="site-footer-title">ज़रूरी लिंक</h2>
-            <div className="site-footer-links">
-              <a href="#">हमारे बारे में</a>
-              <a href="#">संपर्क करें</a>
-              <a href="#">विज्ञापन दें</a>
-              <a href="#">गोपनीयता नीति</a>
-              <a href="#">कुकी नीति</a>
-              <a href="#">अस्वीकरण</a>
-              <a href="#">साइटमैप</a>
-              <a href="#">ई-पेपर</a>
-            </div>
-          </section>
+          {tags.length > 0 ? (
+            <section>
+              <h2 className="site-footer-title">ट्रेंडिंग टैग्स</h2>
+              <div className="site-footer-links">
+                {tags.slice(0, 10).map((tag) => (
+                  <Link key={tag} to={`/search?q=${encodeURIComponent(tag)}`}>
+                    #{tag}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
-          <section>
-            <h2 className="site-footer-title">ऐप और अपडेट</h2>
-            <div className="site-footer-meta">
-              <a href="#">लेटेस्ट खबरें सीधे मोबाइल पर पाएं</a>
-              <a href="#">अपने शहर की खबरें फ़ॉलो करें</a>
-              <a href="#">वीडियो, फोटो और ई-पेपर एक्सेस करें</a>
-            </div>
-          </section>
+          {socialLinks.length > 0 || config?.siteTagline || config?.support_email ? (
+            <section>
+              <h2 className="site-footer-title">हमसे जुड़ें</h2>
+              <div className="site-footer-meta">
+                {config?.siteTagline ? <span>{config.siteTagline}</span> : null}
+                {config?.support_email ? <a href={`mailto:${config.support_email}`}>{config.support_email}</a> : null}
+                {socialLinks.map((item) => (
+                  <a key={item.label} href={item.href} target="_blank" rel="noreferrer">
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+            </section>
+          ) : null}
         </div>
 
-        <div className="site-footer-brand">
-          <div className="site-footer-brand-mark" aria-hidden="true"></div>
-          <div className="site-footer-brand-text">प्रथम गेंडा</div>
-        </div>
-
-        <div className="site-footer-bottom">
-          <div className="site-footer-copy">अंतिम अपडेट: 3 अप्रैल 2026</div>
-          <div className="site-footer-badges">
-            <a className="site-footer-badge" href="#"><i className="fab fa-apple"></i><span>ऐप स्टोर</span></a>
-            <a className="site-footer-badge" href="#"><i className="fab fa-google-play"></i><span>गूगल प्ले</span></a>
+        {brand ? (
+          <div className="site-footer-brand">
+            <div className="site-footer-brand-mark" aria-hidden="true"></div>
+            <div className="site-footer-brand-text">{brand}</div>
           </div>
-        </div>
+        ) : null}
+
+        {copy ? (
+          <div className="site-footer-bottom">
+            <div className="site-footer-copy">{copy}</div>
+          </div>
+        ) : null}
       </div>
     </footer>
   );

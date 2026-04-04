@@ -1,9 +1,15 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { resolveImageUrl } from '../../lib/media';
 
 const CricketSection = ({ data }) => {
+  if (!data?.hero) {
+    return null;
+  }
+
   const badgeClassMap = {
     राजस्थान: 'bg-rr',
-    बैंगलुरु: 'bg-blr',
+    बेंगलुरु: 'bg-blr',
     दिल्ली: 'bg-del',
     मुंबई: 'bg-mum',
     पंजाब: 'bg-pun',
@@ -17,19 +23,21 @@ const CricketSection = ({ data }) => {
   return (
     <section className="cricket-section container" aria-label="क्रिकेट">
       <div className="cricket-section-header">
-        <a href="#">
-          <img className="cricket-icon" src={data.icon} alt="" aria-hidden="true" />
+        <Link to={`/search?q=${encodeURIComponent(data.title)}`}>
+          {data.icon ? <img className="cricket-icon" src={data.icon} alt="" aria-hidden="true" /> : null}
           <h2 className="cricket-title">{data.title}</h2>
           <i className="far fa-circle-right" aria-hidden="true" />
-        </a>
+        </Link>
       </div>
 
       <div className="cricket-grid">
         <article className="cricket-hero">
-          <img className="cricket-hero-image" src={data.hero.image} alt={data.hero.title} />
+          <Link to={`/article/${data.hero.id}`}>
+            <img className="cricket-hero-image" src={resolveImageUrl(data.hero.image)} alt={data.hero.title} />
+          </Link>
           <span className="cricket-live-badge">LIVE</span>
           <h3 className="cricket-hero-headline">
-            <a href="#">{data.hero.title}</a>
+            <Link to={`/article/${data.hero.id}`}>{data.hero.title}</Link>
           </h3>
           <div className="story-meta">
             <span className="story-category">{data.hero.category}</span>
@@ -37,12 +45,14 @@ const CricketSection = ({ data }) => {
         </article>
 
         <div className="cricket-side">
-          {data.stories.map((story) => (
+          {(data.stories || []).map((story) => (
             <article key={story.id} className="cricket-side-item">
-              <img src={story.image} alt={story.title} />
+              <Link to={`/article/${story.id}`}>
+                <img src={resolveImageUrl(story.image)} alt={story.title} />
+              </Link>
               <div>
                 <h3 className="story-title">
-                  <a href="#">{story.title}</a>
+                  <Link to={`/article/${story.id}`}>{story.title}</Link>
                 </h3>
                 <div className="story-meta">
                   <span className="story-category">{story.category}</span>
@@ -65,7 +75,7 @@ const CricketSection = ({ data }) => {
               <span>R/R</span>
             </div>
             <div className="cricket-table-body">
-              {data.pointsTable.map((row) => (
+              {(data.pointsTable || []).map((row) => (
                 <div key={row.team} className="cricket-table-row">
                   <span className="cricket-team">
                     <span className={`cricket-badge ${badgeClassMap[row.team] ?? ''}`}>{row.badge}</span>

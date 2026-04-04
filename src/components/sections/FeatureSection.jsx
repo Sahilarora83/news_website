@@ -1,23 +1,27 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { resolveImageUrl } from '../../lib/media';
 
-const FeatureSection = ({ title, items }) => {
+const FeatureSection = ({ title, items = [] }) => {
   const isEditorial = title.includes('संपादकीय');
 
   return (
     <section className="feature-section container" aria-label={title}>
       <div className="feature-section-header">
-        <a href="#">
+        <Link to={`/search?q=${encodeURIComponent(title)}`}>
           <h2 className="feature-section-title">{title}</h2>
           <i className="far fa-circle-right" aria-hidden="true" />
-        </a>
+        </Link>
       </div>
 
       <div className="feature-grid">
         {items.map((item) => (
           <article key={item.id} className="feature-card">
-            <img className="feature-image" src={item.image} alt={item.title} />
+            <Link to={`/article/${item.id}`}>
+              <img className="feature-image" src={resolveImageUrl(item.image)} alt={item.title} />
+            </Link>
             <h3 className="feature-headline">
-              <a href="#">{item.title}</a>
+              <Link to={`/article/${item.id}`}>{item.title}</Link>
             </h3>
             <div className="feature-footer">
               {isEditorial ? (
