@@ -44,10 +44,12 @@ const NewsList = ({
   return (
     <div className="table-card">
       <header className="card-header">
-        <div className="header-filters-modern" style={{ display: 'flex', gap: 12, flex: 1, flexWrap: 'wrap' }}>
+        <div
+          className="header-filters-modern"
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, width: '100%' }}
+        >
           <select
             className="input-modern"
-            style={{ width: 'auto', minWidth: '180px' }}
             value={slotFilter}
             onChange={(event) => setSlotFilter(event.target.value)}
           >
@@ -61,7 +63,6 @@ const NewsList = ({
 
           <select
             className="input-modern"
-            style={{ width: 'auto', minWidth: '180px' }}
             value={categoryFilter}
             onChange={(event) => setCategoryFilter(event.target.value)}
           >
@@ -75,7 +76,6 @@ const NewsList = ({
 
           <select
             className="input-modern"
-            style={{ width: 'auto', minWidth: '160px' }}
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value)}
           >
@@ -88,7 +88,6 @@ const NewsList = ({
 
           <input
             className="input-modern"
-            style={{ width: '220px' }}
             placeholder="Filter by city"
             value={cityFilter}
             onChange={(event) => setCityFilter(event.target.value)}

@@ -154,9 +154,9 @@ INSERT INTO cities (id, district_id, name, slug, lat, lng) VALUES
   (4, 4, 'जयपुर', 'jaipur', 26.912400, 75.787300);
 
 INSERT INTO users (username, email, password, role, assigned_city_id) VALUES
-  ('admin', 'admin@prathamgenda.local', 'admin123', 'admin', NULL),
-  ('editor', 'editor@prathamgenda.local', 'editor123', 'editor', 1),
-  ('reporter', 'reporter@prathamgenda.local', 'reporter123', 'reporter', 3);
+  ('admin', 'admin@prathamagenda.local', 'admin123', 'admin', NULL),
+  ('editor', 'editor@prathamagenda.local', 'editor123', 'editor', 1),
+  ('reporter', 'reporter@prathamagenda.local', 'reporter123', 'reporter', 3);
 
 INSERT INTO categories (id, name, slug, sort_order) VALUES
   (1, 'देश', 'desh', 1),
@@ -202,10 +202,10 @@ INSERT INTO site_config (config_json) VALUES
     "trio": true,
     "show_article_suggestions": true,
     "show_article_latest_news": true,
-    "siteNamePrimary": "प्रथम गेंडा",
+    "siteNamePrimary": "प्रथम एजेंडा",
     "siteNameSecondary": "NEWS",
     "siteTagline": "सच आईने की तरह...",
-    "footerCopyright": "© 2026 प्रथम गेंडा न्यूज़. सर्वाधिकार सुरक्षित.",
+    "footerCopyright": "© 2026 प्रथम एजेंडा न्यूज़. सर्वाधिकार सुरक्षित.",
     "facebook_url": "",
     "twitter_url": "",
     "whatsapp_number": "",

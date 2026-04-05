@@ -7,7 +7,7 @@ const DashboardOverview = ({ summary = {}, analytics = {}, slots = [], formatNum
 
   return (
     <div className="admin-dashboard-view">
-      <div className="admin-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, marginBottom: 32 }}>
+      <div className="admin-stats-grid">
         <div className="table-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: 20 }}>
           <div style={{ width: 56, height: 56, borderRadius: 12, background: '#f5f7ff', color: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>
             <i className="fas fa-copy" />

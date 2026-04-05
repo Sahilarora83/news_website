@@ -42,7 +42,7 @@ const Layout = ({ children }) => {
 
     const titleParts = [config.siteNamePrimary, config.siteNameSecondary].filter(Boolean);
     if (titleParts.length > 0) {
-      document.title = titleParts.join(' ');
+      document.title = titleParts.join(' ').replace('प्रथम गेंडा', 'प्रथम एजेंडा');
     }
 
     if (config.meta_description) {

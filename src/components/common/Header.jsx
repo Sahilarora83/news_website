@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [] }) => {
-  const siteName1 = config?.siteNamePrimary || '';
+  const siteName1 = (config?.siteNamePrimary || '').replace('प्रथम गेंडा', 'प्रथम एजेंडा');
   const siteName2 = config?.siteNameSecondary || '';
   const tagline = config?.siteTagline || '';
 
@@ -139,7 +139,7 @@ const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [] }) =>
             </Link>
             <Link to="/search?q=%E0%A4%B5%E0%A4%BF%E0%A4%B6%E0%A5%87%E0%A4%B7" className="nav-brand-badge" aria-label="विशेष">
               <i className="fas fa-crown badge-crown" />
-              <span className="badge-text">PG</span>
+              <span className="badge-text">PA</span>
             </Link>
 
             {mainCategories.map((category) => (
@@ -244,7 +244,7 @@ const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [] }) =>
               fontWeight="800"
               fontFamily="Poppins, Arial, sans-serif"
             >
-              PG
+              PA
             </text>
           </svg>
         </Link>

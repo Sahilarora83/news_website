@@ -6,8 +6,8 @@ const Footer = ({ config, categories = [], tags = [] }) => {
     return null;
   }
 
-  const brand = config?.siteNamePrimary || '';
-  const copy = config?.footerCopyright || '';
+  const brand = (config?.siteNamePrimary || '').replace('प्रथम गेंडा', 'प्रथम एजेंडा');
+  const copy = (config?.footerCopyright || '').replace('प्रथम गेंडा', 'प्रथम एजेंडा');
   const socialLinks = [
     { href: config?.facebook_url, label: 'Facebook' },
     { href: config?.twitter_url, label: 'X' },
