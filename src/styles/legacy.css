@@ -1881,9 +1881,18 @@
 
     .shorts-card-media {
       position: relative;
-      aspect-ratio: 0.72 / 1;
+      aspect-ratio: 9 / 16;
       overflow: hidden;
-      background: #ddd;
+      background: #000;
+    }
+
+    .shorts-card-media iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
     }
 
     .shorts-card-media img {
@@ -2085,9 +2094,18 @@
 
     .shorts-card-media {
       position: relative;
-      aspect-ratio: 0.72 / 1;
+      aspect-ratio: 9 / 16;
       overflow: hidden;
-      background: #ddd;
+      background: #000;
+    }
+
+    .shorts-card-media iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
     }
 
     .shorts-card-media img {

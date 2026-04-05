@@ -5,6 +5,8 @@ import Home from './pages/Home';
 import Article from './pages/Article';
 import Admin from './pages/Admin';
 import SearchResults from './pages/SearchResults';
+import ShortsPage from './pages/ShortsPage';
+import ShortVideoPage from './pages/ShortVideoPage';
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
           <Route path="/article/:id" element={<Article />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/search" element={<SearchResults />} />
+          <Route path="/shorts" element={<ShortsPage />} />
+          <Route path="/short/:id" element={<ShortVideoPage />} />
         </Routes>
       </Layout>
     </Router>

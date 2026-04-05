@@ -31,9 +31,13 @@ import {
   createUser,
   deleteLocation,
   deleteArticle,
+  deleteShort,
   deleteUser,
   fetchAdminDashboard,
   fetchCoverageSummary,
+  fetchPublicShorts,
+  fetchShortById,
+  fetchShorts,
   fetchWorkflowQueue,
   getArticleByIdOrSlug,
   getConfig,
@@ -51,6 +55,7 @@ import {
   updateUser,
   updateUserRole,
   upsertArticle,
+  upsertShort,
 } from './sql-store.js';
 import { getUploadsDirectory, saveBase64ImageUpload } from './media-store.js';
 
@@ -64,8 +69,8 @@ let server = null;
 
 app.disable('x-powered-by');
 app.use(cors({ origin: true, credentials: true }));
-app.use(express.json({ limit: '20mb' }));
-app.use(express.urlencoded({ limit: '20mb', extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/uploads', express.static(getUploadsDirectory()));
 
 app.get('/api/health', (req, res) => {
@@ -283,9 +288,48 @@ app.post('/api/admin/uploads/images', requireRole(['super_admin', 'editor', 'rep
   }
 });
 
+app.post('/api/admin/uploads/videos', requireRole(['super_admin', 'editor', 'reporter', 'city_manager', 'admin']), async (req, res) => {
+  try {
+    const { saveBase64VideoUpload } = await import('./media-store.js');
+    const uploaded = await saveBase64VideoUpload(req.body || {});
+    const origin = `${req.protocol}://${req.get('host')}`;
+
+    return res.status(201).json({
+      ...uploaded,
+      url: `${origin}${uploaded.relativeUrl}`,
+    });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
 app.delete('/api/admin/posts/:postId', requireRole(['super_admin', 'editor', 'admin']), async (req, res) => {
   try {
     return res.json(await deleteArticle(req.params.postId));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.get('/api/admin/shorts', requireRole(['super_admin', 'editor', 'reporter', 'city_manager', 'admin']), async (req, res) => {
+  try {
+    return res.json({ items: await fetchShorts() });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/admin/shorts', requireRole(['super_admin', 'editor', 'reporter', 'city_manager', 'admin']), async (req, res) => {
+  try {
+    return res.json(await upsertShort(req.body || {}));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.delete('/api/admin/shorts/:shortId', requireRole(['super_admin', 'editor', 'admin']), async (req, res) => {
+  try {
+    return res.json(await deleteShort(req.params.shortId));
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
@@ -311,6 +355,24 @@ app.get('/api/home', async (req, res) => {
 app.get('/api/news-by-city', async (req, res) => {
   try {
     return res.json({ items: await getNewsByCity(req.query.city) });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/shorts', async (req, res) => {
+  try {
+    return res.json({ items: await fetchPublicShorts() });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/shorts/:id', async (req, res) => {
+  try {
+    const data = await fetchShortById(req.params.id);
+    if (!data) return res.status(404).json({ error: 'Short not found' });
+    return res.json(data);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }

@@ -15,6 +15,13 @@ const imageExtensionMap = {
   'image/svg+xml': '.svg',
 };
 
+const videoExtensionMap = {
+  'video/mp4': '.mp4',
+  'video/webm': '.webm',
+  'video/quicktime': '.mov',
+  'video/x-msvideo': '.avi',
+};
+
 function slugifyFileName(value) {
   return String(value || 'image')
     .trim()
@@ -37,6 +44,19 @@ function resolveExtension(mimeType, fileName) {
   }
 
   return '.png';
+}
+
+function resolveVideoExtension(mimeType, fileName) {
+  if (videoExtensionMap[mimeType]) {
+    return videoExtensionMap[mimeType];
+  }
+
+  const existingExtension = extname(String(fileName || '')).toLowerCase();
+  if (existingExtension) {
+    return existingExtension;
+  }
+
+  return '.mp4';
 }
 
 export function getUploadsDirectory() {
@@ -62,6 +82,37 @@ export async function saveBase64ImageUpload({ dataUrl, fileName }) {
   }
 
   const extension = resolveExtension(mimeType, fileName);
+  const safeName = `${Date.now()}-${slugifyFileName(fileName)}${extension}`;
+  const absolutePath = join(uploadsDirectory, safeName);
+
+  await mkdir(uploadsDirectory, { recursive: true });
+  await writeFile(absolutePath, buffer);
+
+  return {
+    fileName: safeName,
+    relativeUrl: `/uploads/${safeName}`,
+  };
+}
+
+export async function saveBase64VideoUpload({ dataUrl, fileName }) {
+  const match = String(dataUrl || '').match(/^data:(video\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+
+  if (!match) {
+    throw new Error('Please select a valid video file.');
+  }
+
+  const [, mimeType, base64Payload] = match;
+  const buffer = Buffer.from(base64Payload, 'base64');
+
+  if (!buffer.length) {
+    throw new Error('Uploaded video is empty.');
+  }
+
+  if (buffer.length > 40 * 1024 * 1024) {
+    throw new Error('Video must be smaller than 40 MB.');
+  }
+
+  const extension = resolveVideoExtension(mimeType, fileName);
   const safeName = `${Date.now()}-${slugifyFileName(fileName)}${extension}`;
   const absolutePath = join(uploadsDirectory, safeName);
 

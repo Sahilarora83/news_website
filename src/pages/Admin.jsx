@@ -14,6 +14,7 @@ import AdminForgotPassword from '../admin/components/AdminForgotPassword';
 import LocationMaster from '../admin/components/LocationMaster';
 import WorkflowBoard from '../admin/components/WorkflowBoard';
 import UserManage from '../admin/components/UserManage';
+import ShortsManager from '../admin/components/ShortsManager';
 
 const STORAGE_KEY = 'pratham_agenda_admin_token';
 const USER_KEY = 'pratham_agenda_admin_user';
@@ -157,6 +158,7 @@ function Admin() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [dashboard, setDashboard] = useState(null);
   const [loadingDashboard, setLoadingDashboard] = useState(false);
+  const [shortsList, setShortsList] = useState([]);
   const [savingPost, setSavingPost] = useState(false);
   const [savingMessage, setSavingMessage] = useState('');
   const [savingSettings, setSavingSettings] = useState(false);
@@ -194,6 +196,9 @@ function Admin() {
 
       const data = await response.json();
       setDashboard(data);
+      if (data.shorts) {
+        setShortsList(data.shorts);
+      }
       if (data.user) {
         setUser(data.user);
         localStorage.setItem(USER_KEY, JSON.stringify(data.user));
@@ -314,6 +319,47 @@ function Admin() {
     }
   };
 
+  const saveShort = async (event, nextStatus = 'published') => {
+    event?.preventDefault?.();
+    setSavingPost(true);
+    setSavingMessage('');
+
+    try {
+      const response = await fetch(apiUrl('/api/admin/shorts'), {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({
+          ...postForm,
+          status: nextStatus,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || 'Short save failed');
+      }
+
+      const data = await response.json();
+      setShortsList((prev) => {
+        const index = prev.findIndex((s) => String(s.id) === String(data.id));
+        if (index >= 0) {
+          const next = [...prev];
+          next[index] = data;
+          return next;
+        }
+        return [data, ...prev];
+      });
+      
+      setEditingId(data.id);
+      setSavingMessage('Short saved successfully!');
+      setTimeout(() => setSavingMessage(''), 3000);
+    } catch (error) {
+      setSavingMessage(error.message);
+    } finally {
+      setSavingPost(false);
+    }
+  };
+
   const resetEditor = () => {
     setEditingId('');
     setSavingMessage('');
@@ -375,6 +421,27 @@ function Admin() {
       }
 
       await loadDashboard();
+    } catch (error) {
+      window.alert(error.message);
+    }
+  };
+
+  const deleteShort = async (shortId) => {
+    if (!window.confirm('Delete this short?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(apiUrl(`/api/admin/shorts/${shortId}`), {
+        method: 'DELETE',
+        headers: authHeaders,
+      });
+
+      if (!response.ok) {
+        throw new Error('Delete failed');
+      }
+
+      setShortsList((prev) => prev.filter((s) => String(s.id) !== String(shortId)));
     } catch (error) {
       window.alert(error.message);
     }
@@ -583,6 +650,24 @@ function Admin() {
 
           {activeTab === 'users' && (
             <UserManage authHeaders={authHeaders} locationOptions={dashboard.locationOptions} />
+          )}
+
+          {activeTab === 'shorts' && (
+            <ShortsManager
+              dashboard={dashboard}
+              shortsList={shortsList}
+              postForm={postForm}
+              setPostForm={setPostForm}
+              editingId={editingId}
+              setEditingId={setEditingId}
+              saveShort={saveShort}
+              savingPost={savingPost}
+              savingMessage={savingMessage}
+              emptyPost={emptyPost}
+              formFromPost={formFromPost}
+              deleteShort={deleteShort}
+              user={user}
+            />
           )}
 
           {activeTab === 'settings' && (

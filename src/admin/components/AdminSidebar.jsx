@@ -6,6 +6,7 @@ const AdminSidebar = ({ activeTab, setActiveTab, handleLogout, user = { role: 'r
     { id: 'workflow', label: 'Workflow', icon: 'fa-tasks', roles: ['super_admin', 'editor', 'admin'] },
     { id: 'editor', label: 'Story Editor', icon: 'fa-pen-nib', roles: ['super_admin', 'editor', 'reporter', 'city_manager', 'admin'] },
     { id: 'posts', label: 'Stories', icon: 'fa-file-alt', roles: ['super_admin', 'editor', 'admin'] },
+    { id: 'shorts', label: 'Shorts', icon: 'fa-play-circle', roles: ['super_admin', 'editor', 'reporter', 'city_manager', 'admin'] },
     { id: 'locations', label: 'Locations', icon: 'fa-map-marked-alt', roles: ['super_admin', 'city_manager', 'admin'] },
     { id: 'taxonomy', label: 'Taxonomy', icon: 'fa-folder-open', roles: ['super_admin', 'editor', 'admin'] },
     { id: 'users', label: 'Users', icon: 'fa-users-cog', roles: ['super_admin', 'admin'] },

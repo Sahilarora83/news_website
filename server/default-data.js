@@ -45,7 +45,6 @@ export function createDefaultStoreData() {
     { slot: 'editorial', label: 'संपादकीय', section: 'संपादकीय' },
     { slot: 'cricket-hero', label: 'क्रिकेट हेडलाइन', section: 'क्रिकेट', single: true },
     { slot: 'cricket-story', label: 'क्रिकेट स्टोरी', section: 'क्रिकेट' },
-    { slot: 'shorts', label: 'शॉर्ट वीडियो', section: 'शॉर्ट वीडियो' },
     { slot: 'trio-national', label: 'राष्ट्रीय न्यूज़', section: 'मुख्य वर्ग' },
     { slot: 'trio-politics', label: 'पॉलिटिक्स', section: 'मुख्य वर्ग' },
     { slot: 'trio-world', label: 'दुनिया', section: 'मुख्य वर्ग' },
@@ -102,5 +101,6 @@ export function createDefaultStoreData() {
     slotDefinitions,
     locations: { states, districts, cities },
     articles: [],
+    shorts: [],
   };
 }

@@ -204,6 +204,11 @@ function sanitizeLoadedData(data) {
     }
   }
 
+  if (!Array.isArray(data.shorts)) {
+    data.shorts = [];
+    changed = true;
+  }
+
   return { data, changed };
 }
 
@@ -387,7 +392,7 @@ function buildCoverageData(data) {
         pointsRows: data.cricketPointsTable.length,
       },
     },
-    { key: 'shorts', label: data.config.labels.shorts, type: 'shorts-grid', required: true, items: bySlot('shorts') },
+    { key: 'shorts', label: data.config.labels.shorts, type: 'shorts-grid', required: true, items: (data.shorts || []).filter(s => s.status === 'published') },
     {
       key: 'newsTrio',
       label: 'राष्ट्रीय न्यूज़ / पॉलिटिक्स / दुनिया',
@@ -592,7 +597,9 @@ function buildHomePayload(data) {
       stories: articlesBySlot.get('cricket-story') || [],
       pointsTable: deepClone(data.cricketPointsTable),
     },
-    shortsVideos: articlesBySlot.get('shorts') || [],
+    shortsVideos: (data.shorts || [])
+      .filter((s) => s.status === 'published')
+      .map((s) => ({ ...s, time: formatRelativeTime(s.publishedAt || s.updatedAt || s.createdAt) })),
     trioSections: trioColumns,
     customSections,
     items: published.map(mapArticleForClient),
@@ -678,6 +685,7 @@ export async function fetchAdminDashboard() {
     tags: data.tags.map((tag) => tag.name),
     summary: {
       totalPosts: data.articles.length,
+      totalShorts: (data.shorts || []).length,
       drafts: data.articles.filter((article) => article.status === 'draft').length,
       published: data.articles.filter((article) => article.status === 'published').length,
       featured: data.articles.filter((article) => article.featured).length,
@@ -707,6 +715,7 @@ export async function fetchAdminDashboard() {
       tags: article.tags || [],
       breaking: article.slotKey === 'breaking',
     })),
+    shorts: sortByOrderThenDate(data.shorts || []),
     slots: deepClone(data.slotDefinitions),
     trendingTopics: deepClone(data.trendingTopics),
     electionTabs: deepClone(data.electionTabs),
@@ -1281,4 +1290,73 @@ export async function authenticateUserRecord(identity, password) {
   }
 
   return deepClone(user);
+}
+
+export async function fetchShorts() {
+  const data = await loadData();
+  return sortByOrderThenDate(data.shorts || []);
+}
+
+export async function fetchPublicShorts() {
+  const data = await loadData();
+  return (data.shorts || [])
+    .filter((s) => s.status === 'published')
+    .map((s) => ({
+      ...s,
+      time: formatRelativeTime(s.publishedAt || s.updatedAt || s.createdAt),
+    }))
+    .sort((left, right) => new Date(right.publishedAt).getTime() - new Date(left.publishedAt).getTime());
+}
+
+export async function fetchShortById(id) {
+  const data = await loadData();
+  const short = (data.shorts || []).find((s) => String(s.id) === String(id));
+  if (!short) return null;
+
+  return {
+    ...short,
+    time: formatRelativeTime(short.publishedAt || short.updatedAt || short.createdAt),
+  };
+}
+
+export async function upsertShort(payload) {
+  return updateData(async (data) => {
+    if (!Array.isArray(data.shorts)) data.shorts = [];
+
+    const existingIndex = payload.id
+      ? data.shorts.findIndex((s) => String(s.id) === String(payload.id))
+      : -1;
+
+    const now = new Date().toISOString();
+    const shortData = {
+      id: payload.id || `short-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      title: String(payload.title || 'Untitled Short').trim(),
+      videoUrl: String(payload.videoUrl || '').trim(),
+      city: String(payload.city || '').trim(),
+      status: payload.status || 'published',
+      createdAt: existingIndex >= 0 ? data.shorts[existingIndex].createdAt : now,
+      updatedAt: now,
+      publishedAt: payload.status === 'published' ? now : (existingIndex >= 0 ? data.shorts[existingIndex].publishedAt : null),
+    };
+
+    if (existingIndex >= 0) {
+      data.shorts[existingIndex] = shortData;
+    } else {
+      data.shorts.push(shortData);
+    }
+
+    return shortData;
+  });
+}
+
+export async function deleteShort(id) {
+  return updateData(async (data) => {
+    if (!Array.isArray(data.shorts)) return;
+    const index = data.shorts.findIndex((s) => String(s.id) === String(id));
+    if (index >= 0) {
+      data.shorts.splice(index, 1);
+      return { success: true };
+    }
+    throw new Error('Short not found.');
+  });
 }

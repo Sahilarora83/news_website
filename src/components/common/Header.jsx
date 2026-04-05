@@ -162,6 +162,9 @@ const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [], loca
               <i className="fas fa-crown badge-crown" />
               <span className="badge-text">अ</span>
             </Link>
+            <Link to="/shorts" className="nav-btn nav-shorts-btn">
+              शॉर्ट न्यूज़
+            </Link>
 
             {mainCategories.map((category) => (
               <Link key={category} to={`/search?q=${encodeURIComponent(category)}`} className="nav-btn">
@@ -233,7 +236,7 @@ const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [], loca
           <i className="fas fa-house" />
           <span>होम</span>
         </Link>
-        <Link className="mobile-bottom-link" to={`/search?q=${encodeURIComponent(config?.labels?.shorts || 'शॉर्ट वीडियो')}`}>
+        <Link className="mobile-bottom-link" to="/shorts">
           <i className="fas fa-circle-play" />
           <span>वीडियो</span>
         </Link>

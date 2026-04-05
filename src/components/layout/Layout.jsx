@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from '../common/Header';
 import Footer from '../common/Footer';
@@ -18,6 +18,7 @@ const Layout = ({ children }) => {
   const [trendingTopics, setTrendingTopics] = useState([]);
   const [locationStates, setLocationStates] = useState([]);
   const [locationCities, setLocationCities] = useState([]);
+  const [pinnedCity, setPinnedCity] = useState(() => localStorage.getItem('pinnedCity') || '');
 
   useEffect(() => {
     if (isAdminRoute) return;
@@ -39,6 +40,31 @@ const Layout = ({ children }) => {
         console.error('Failed to load home config:', err);
       });
   }, [isAdminRoute]);
+
+  useEffect(() => {
+    const handleStorage = () => {
+      setPinnedCity(localStorage.getItem('pinnedCity') || '');
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  const displayTags = useMemo(() => {
+    if (!pinnedCity) return tags;
+    // Prepend pinned city as a tag if it's not already there
+    const cityTag = pinnedCity;
+    const exists = tags.some((t) => String(t).toLowerCase() === cityTag.toLowerCase());
+    return exists ? tags : [cityTag, ...tags];
+  }, [tags, pinnedCity]);
+
+  const displayTrending = useMemo(() => {
+    if (!pinnedCity) return trendingTopics;
+    // Prepend pinned city as a trending topic if it's not already there
+    const cityTopic = pinnedCity;
+    const exists = trendingTopics.some((t) => String(t).toLowerCase() === cityTopic.toLowerCase());
+    return exists ? trendingTopics : [cityTopic, ...trendingTopics];
+  }, [trendingTopics, pinnedCity]);
 
   useEffect(() => {
     if (isAdminRoute || !config) {
@@ -79,9 +105,9 @@ const Layout = ({ children }) => {
         locationCities={locationCities}
       />
 
-      {trendingTopics.length > 0 && <TrendingBar topics={trendingTopics} />}
+      {displayTrending.length > 0 && <TrendingBar topics={displayTrending} />}
 
-      <Sidebar isOpen={isSidebarOpen} close={() => setIsSidebarOpen(false)} categories={categories} tags={tags} />
+      <Sidebar isOpen={isSidebarOpen} close={() => setIsSidebarOpen(false)} categories={categories} tags={displayTags} />
       <CityDrawer isOpen={isCityDrawerOpen} close={() => setIsCityDrawerOpen(false)} locations={locationCities} />
 
       <div
@@ -94,7 +120,7 @@ const Layout = ({ children }) => {
 
       <main className="main-content">{children}</main>
 
-      <Footer config={config} categories={categories} tags={tags} />
+      <Footer config={config} categories={categories} tags={displayTags} />
     </div>
   );
 };

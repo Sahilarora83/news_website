@@ -5,7 +5,6 @@ import SectionDivider from '../components/sections/SectionDivider';
 import ElectionSection from '../components/sections/ElectionSection';
 import FeatureSection from '../components/sections/FeatureSection';
 import CricketSection from '../components/sections/CricketSection';
-import ShortsSection from '../components/sections/ShortsSection';
 import NewsTrioSection from '../components/sections/NewsTrioSection';
 import DynamicStorySection from '../components/sections/DynamicStorySection';
 import NewsCard from '../components/news/NewsCard';
@@ -101,7 +100,6 @@ const Home = () => {
   const electionCards = show('election') ? homeData?.electionCards || [] : [];
   const businessItems = show('business') ? homeData?.featureSections?.business || [] : [];
   const editorialItems = show('editorial') ? homeData?.featureSections?.editorial || [] : [];
-  const shortsItems = show('shorts') ? homeData?.shortsVideos || [] : [];
   const trioColumns = show('trio') ? homeData?.trioSections || [] : [];
   const customSections = homeData?.customSections || [];
   const cricketData =
@@ -233,13 +231,6 @@ const Home = () => {
       ) : null}
 
       {editorialItems.length > 0 ? <FeatureSection title={labels.editorial || 'संपादकीय'} items={editorialItems} /> : null}
-
-      {shortsItems.length > 0 ? (
-        <>
-          <ShortsSection items={shortsItems} title={labels.shorts} />
-          <SectionDivider />
-        </>
-      ) : null}
 
       {trioColumns.some((column) => (column.items || []).length > 0) ? (
         <>
