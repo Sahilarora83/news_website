@@ -1,6 +1,6 @@
 import React from 'react';
 
-const AdminSidebar = ({ activeTab, setActiveTab, handleLogout, user = { role: 'reporter' } }) => {
+const AdminSidebar = ({ activeTab, setActiveTab, handleLogout, user = { role: 'reporter' }, mobileOpen = false, onClose }) => {
   const navItems = [
     { id: 'dashboard', label: 'Overview', icon: 'fa-chart-line', roles: ['super_admin', 'editor', 'reporter', 'city_manager', 'admin'] },
     { id: 'workflow', label: 'Workflow', icon: 'fa-tasks', roles: ['super_admin', 'editor', 'admin'] },
@@ -15,7 +15,7 @@ const AdminSidebar = ({ activeTab, setActiveTab, handleLogout, user = { role: 'r
   const visibleItems = navItems.filter((item) => item.roles.includes(String(user.role || '').toLowerCase()));
 
   return (
-    <aside className="admin-nav-sidebar">
+    <aside className={`admin-nav-sidebar${mobileOpen ? ' mobile-open' : ''}`}>
       <div className="admin-nav-header">
         <div
           className="admin-logo-icon"
@@ -24,8 +24,17 @@ const AdminSidebar = ({ activeTab, setActiveTab, handleLogout, user = { role: 'r
           <i className="fas fa-newspaper" />
         </div>
         <div className="admin-logo-text" style={{ fontSize: '16px', fontWeight: 800, color: '#111827', letterSpacing: '-0.02em', marginLeft: 12 }}>
-          Genda News
+          Agenda News
         </div>
+        <button
+          type="button"
+          className="admin-sidebar-close-btn"
+          aria-label="Close admin menu"
+          onClick={onClose}
+          style={{ display: 'none', marginLeft: 'auto', border: 'none', background: 'transparent', color: '#6b7280', fontSize: '18px', cursor: 'pointer' }}
+        >
+          <i className="fas fa-times" />
+        </button>
       </div>
 
       <nav className="admin-nav-list" style={{ padding: '24px 12px' }}>

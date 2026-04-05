@@ -15,8 +15,8 @@ import LocationMaster from '../admin/components/LocationMaster';
 import WorkflowBoard from '../admin/components/WorkflowBoard';
 import UserManage from '../admin/components/UserManage';
 
-const STORAGE_KEY = 'pratham_genda_admin_token';
-const USER_KEY = 'pratham_genda_admin_user';
+const STORAGE_KEY = 'pratham_agenda_admin_token';
+const USER_KEY = 'pratham_agenda_admin_user';
 
 const emptyPost = {
   id: '',
@@ -147,9 +147,11 @@ function Admin() {
   const [token, setToken] = useState(() => localStorage.getItem(STORAGE_KEY) || '');
   const [user, setUser] = useState(() => JSON.parse(localStorage.getItem(USER_KEY) || 'null'));
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [loginError, setLoginError] = useState('');
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [dashboard, setDashboard] = useState(null);
   const [loadingDashboard, setLoadingDashboard] = useState(false);
   const [savingPost, setSavingPost] = useState(false);
@@ -256,6 +258,7 @@ function Admin() {
       localStorage.setItem(USER_KEY, JSON.stringify(data.user));
       setToken(data.token);
       setUser(data.user);
+      setActiveTab('dashboard');
     } catch (error) {
       setLoginError(error.message);
     }
@@ -267,6 +270,7 @@ function Admin() {
     setToken('');
     setUser(null);
     setDashboard(null);
+    setIsSidebarOpen(false);
   };
 
   const savePost = async (event, nextStatus = 'published') => {
@@ -471,11 +475,23 @@ function Admin() {
   }
 
   return (
-    <div className="admin-layout modern-theme">
-      <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} handleLogout={handleLogout} user={user} />
+    <div className={`admin-layout modern-theme ${isSidebarOpen ? 'sidebar-open' : ''}`}>
+      <div className={`admin-sidebar-backdrop${isSidebarOpen ? ' open' : ''}`} onClick={() => setIsSidebarOpen(false)} />
+
+      <AdminSidebar
+        activeTab={activeTab}
+        setActiveTab={(tab) => {
+          setActiveTab(tab);
+          setIsSidebarOpen(false);
+        }}
+        handleLogout={handleLogout}
+        user={user}
+        mobileOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
 
       <div className="admin-main-container">
-        <AdminHeader query={query} setQuery={setQuery} user={user} />
+        <AdminHeader query={query} setQuery={setQuery} user={user} onToggleSidebar={() => setIsSidebarOpen((current) => !current)} />
         <main className="admin-content-area">
           {activeTab === 'dashboard' && (
             <DashboardOverview

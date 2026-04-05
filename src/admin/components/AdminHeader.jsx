@@ -1,6 +1,6 @@
 import React from 'react';
 
-const AdminHeader = ({ query, setQuery, user = { username: 'Admin', role: 'administrator' } }) => {
+const AdminHeader = ({ query, setQuery, user = { username: 'Admin', role: 'administrator' }, onToggleSidebar }) => {
   return (
     <header
       className="admin-header-v2"
@@ -15,8 +15,31 @@ const AdminHeader = ({ query, setQuery, user = { username: 'Admin', role: 'admin
         position: 'sticky',
         top: 0,
         zIndex: 10,
+        gap: '16px',
+        flexWrap: 'wrap',
       }}
     >
+      <button
+        type="button"
+        className="admin-mobile-menu-btn"
+        aria-label="Open admin menu"
+        onClick={onToggleSidebar}
+        style={{
+          display: 'none',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 40,
+          height: 40,
+          borderRadius: 12,
+          border: '1px solid #e5e7eb',
+          background: 'white',
+          color: '#374151',
+          cursor: 'pointer',
+        }}
+      >
+        <i className="fas fa-bars" />
+      </button>
+
       <div style={{ position: 'relative', width: '100%', maxWidth: '400px' }}>
         <i className="fas fa-search" style={{ position: 'absolute', left: 16, top: 12, color: '#94a3b8' }} />
         <input
