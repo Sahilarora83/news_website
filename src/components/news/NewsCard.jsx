@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { resolveImageUrl } from '../../lib/media';
+import StoryActionButton from '../common/StoryActionButton';
 
 const NewsCard = ({ type, data }) => {
   const { id, title, category, time, image, isVideo } = data;
@@ -20,6 +21,9 @@ const NewsCard = ({ type, data }) => {
           <h3 className="related-story-title">
             <Link to={`/article/${id}`}>{title}</Link>
           </h3>
+          <div className="related-story-footer">
+            <StoryActionButton storyId={id} className="bookmark-btn related-story-bookmark" />
+          </div>
         </div>
       </article>
     );
@@ -29,11 +33,13 @@ const NewsCard = ({ type, data }) => {
     return (
       <article className="latest-item">
         <h3 className="story-title"><Link to={`/article/${id}`}>{title}</Link></h3>
-        <div className="story-meta">
-          <span className="story-category">{category}</span>
-          <span className="story-time">{time}</span>
+        <div className="story-card-footer latest-item-footer">
+          <div className="story-meta">
+            <span className="story-category">{category}</span>
+            <span className="story-time">{time}</span>
+          </div>
+          <StoryActionButton storyId={id} className="bookmark-btn story-card-bookmark" />
         </div>
-        <button className="bookmark-btn" aria-label="Save story"><i className="far fa-bookmark"></i></button>
       </article>
     );
   }
@@ -41,15 +47,19 @@ const NewsCard = ({ type, data }) => {
   if (type === 'center') {
     return (
       <article className="center-list-item">
-        <img className="center-thumb" src={imageSrc} alt={title} />
-        <div>
+        <Link to={`/article/${id}`} className="center-thumb-link" aria-label={title}>
+          <img className="center-thumb" src={imageSrc} alt={title} />
+        </Link>
+        <div className="center-list-copy">
           <h3 className="story-title"><Link to={`/article/${id}`}>{title}</Link></h3>
-          <div className="story-meta">
-            <span className="story-category">{category}</span>
-            <span className="story-time">{time}</span>
+          <div className="story-card-footer">
+            <div className="story-meta">
+              <span className="story-category">{category}</span>
+              <span className="story-time">{time}</span>
+            </div>
+            <StoryActionButton storyId={id} className="bookmark-btn story-card-bookmark" />
           </div>
         </div>
-        <button className="bookmark-btn" aria-label="Save story"><i className="far fa-bookmark"></i></button>
       </article>
     );
   }
@@ -62,22 +72,29 @@ const NewsCard = ({ type, data }) => {
         </div>
         <div>
           <h3 className="story-title"><Link to={`/article/${id}`}>{title}</Link></h3>
-          <div className="story-meta">
-            <span className="story-category">{category}</span>
+          <div className="story-card-footer">
+            <div className="story-meta">
+              <span className="story-category">{category}</span>
+            </div>
+            <StoryActionButton storyId={id} className="bookmark-btn story-card-bookmark" />
           </div>
         </div>
-        <button className="bookmark-btn" aria-label="Save story"><i className="far fa-bookmark"></i></button>
       </article>
     );
   }
 
   return (
     <article className="city-news-card">
-      <img className="city-news-image" src={imageSrc} alt={title} />
-      <div>
+      <Link to={`/article/${id}`} className="city-news-media-link" aria-label={title}>
+        <img className="city-news-image" src={imageSrc} alt={title} />
+      </Link>
+      <div className="city-news-copy">
         <h3 className="story-title"><Link to={`/article/${id}`}>{title}</Link></h3>
-        <div className="story-meta">
-          <span className="story-category">{category}</span>
+        <div className="city-news-footer">
+          <div className="story-meta">
+            <span className="story-category">{category}</span>
+          </div>
+          <StoryActionButton storyId={id} className="bookmark-btn city-news-bookmark" />
         </div>
       </div>
     </article>

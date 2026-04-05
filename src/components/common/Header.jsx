@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
-const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [] }) => {
-  const siteName1 = (config?.siteNamePrimary || '').replace('प्रथम गेंडा', 'प्रथम एजेंडा');
+const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [], locationStates = [], locationCities = [] }) => {
+  const siteName1 = config?.siteNamePrimary || '';
   const siteName2 = config?.siteNameSecondary || '';
   const tagline = config?.siteTagline || '';
+  const navigate = useNavigate();
 
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [desktopSearchOpen, setDesktopSearchOpen] = useState(false);
@@ -13,14 +14,34 @@ const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [] }) =>
   const desktopSearchInputRef = useRef(null);
   const mobileSearchInputRef = useRef(null);
 
-  const mainCategories = categories.filter((category) => category !== 'होम').slice(0, 6);
-  const overflowCategories = categories.filter((category) => category !== 'होम').slice(6);
+  const hiddenLocationSet = useMemo(
+    () => new Set([...locationStates, ...locationCities].map((item) => String(item).trim().toLowerCase()).filter(Boolean)),
+    [locationCities, locationStates],
+  );
+
+  const navCategories = categories
+    .filter(Boolean)
+    .filter((category) => category !== 'होम')
+    .filter((category) => !hiddenLocationSet.has(String(category).trim().toLowerCase()));
+
+  const mainCategories = navCategories.slice(0, 5);
+  const overflowCategories = navCategories.slice(5);
+  const adImage = config?.headerAdImage || '/970x90.jpg.jpeg';
+  const adLink = config?.headerAdLink || '/';
+  const adAlt = config?.headerAdAlt || `${siteName1} ${siteName2}`.trim() || 'News Banner';
 
   const closeMoreMenu = () => setIsMoreOpen(false);
 
   const closeSearchPanels = () => {
     setDesktopSearchOpen(false);
     setMobileSearchOpen(false);
+  };
+
+  const submitSearch = (value) => {
+    const query = String(value || '').trim();
+    if (!query) return;
+    closeSearchPanels();
+    navigate(`/search?q=${encodeURIComponent(query)}`);
   };
 
   const openSearchPanel = () => {
@@ -99,7 +120,7 @@ const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [] }) =>
             placeholder="खोजें"
             onKeyDown={(event) => {
               if (event.key === 'Enter') {
-                window.location.href = `/search?q=${encodeURIComponent(event.target.value)}`;
+                submitSearch(event.target.value);
               }
             }}
           />
@@ -121,9 +142,9 @@ const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [] }) =>
           </Link>
 
           <div className="header-ad-banner">
-            <Link to="/">
-              <img src="/970x90.jpg.jpeg" alt={`${siteName1} ${siteName2}`.trim() || 'News Banner'} />
-            </Link>
+            <a href={adLink} target={adLink.startsWith('http') ? '_blank' : undefined} rel={adLink.startsWith('http') ? 'noreferrer' : undefined}>
+              <img src={adImage} alt={adAlt} />
+            </a>
           </div>
         </div>
       </header>
@@ -139,7 +160,7 @@ const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [] }) =>
             </Link>
             <Link to="/search?q=%E0%A4%B5%E0%A4%BF%E0%A4%B6%E0%A5%87%E0%A4%B7" className="nav-brand-badge" aria-label="विशेष">
               <i className="fas fa-crown badge-crown" />
-              <span className="badge-text">PA</span>
+              <span className="badge-text">अ</span>
             </Link>
 
             {mainCategories.map((category) => (
@@ -149,23 +170,24 @@ const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [] }) =>
             ))}
 
             {overflowCategories.length > 0 ? (
-              <div className={`more-wrapper ${isMoreOpen ? 'active' : ''}`} id="moreMenuWrapper" ref={moreMenuRef}>
+              <div className={`more-wrapper ${isMoreOpen ? 'open' : ''}`} id="moreMenuWrapper" ref={moreMenuRef}>
                 <button
                   className="nav-btn more-btn"
                   id="moreBtn"
                   type="button"
+                  aria-haspopup="menu"
                   aria-expanded={isMoreOpen ? 'true' : 'false'}
-                  onClick={toggleMoreMenu}
+                  onPointerDown={(event) => event.stopPropagation()}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    toggleMoreMenu();
+                  }}
                 >
-                  More<span className="more-dots">•••</span>
+                  More<span className="more-dots">...</span>
                 </button>
                 <div className="more-menu" id="moreMenu">
                   {overflowCategories.map((label) => (
-                    <Link
-                      key={label}
-                      to={`/search?q=${encodeURIComponent(label)}`}
-                      onClick={() => closeMoreMenu()}
-                    >
+                    <Link key={label} to={`/search?q=${encodeURIComponent(label)}`} onClick={closeMoreMenu}>
                       {label}
                     </Link>
                   ))}
@@ -195,7 +217,7 @@ const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [] }) =>
               placeholder="खोजें"
               onKeyDown={(event) => {
                 if (event.key === 'Enter') {
-                  window.location.href = `/search?q=${encodeURIComponent(event.target.value)}`;
+                  submitSearch(event.target.value);
                 }
               }}
             />
@@ -211,7 +233,7 @@ const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [] }) =>
           <i className="fas fa-house" />
           <span>होम</span>
         </Link>
-        <Link className="mobile-bottom-link" to="/search?q=%E0%A4%B6%E0%A5%89%E0%A4%B0%E0%A5%8D%E0%A4%9F%20%E0%A4%B5%E0%A5%80%E0%A4%A1%E0%A4%BF%E0%A4%AF%E0%A5%8B">
+        <Link className="mobile-bottom-link" to={`/search?q=${encodeURIComponent(config?.labels?.shorts || 'शॉर्ट वीडियो')}`}>
           <i className="fas fa-circle-play" />
           <span>वीडियो</span>
         </Link>
@@ -235,16 +257,8 @@ const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [] }) =>
             <circle cx="32" cy="32" r="30" fill="url(#pgRing)" />
             <circle cx="32" cy="32" r="26" fill="url(#pgCore)" />
             <path d="M24 14l4 5 4-7 4 7 4-5 1 10H23z" fill="url(#pgGold)" />
-            <text
-              x="32"
-              y="41"
-              textAnchor="middle"
-              fill="url(#pgGold)"
-              fontSize="24"
-              fontWeight="800"
-              fontFamily="Poppins, Arial, sans-serif"
-            >
-              PA
+            <text x="32" y="41" textAnchor="middle" fill="url(#pgGold)" fontSize="24" fontWeight="800" fontFamily="Poppins, Arial, sans-serif">
+              अ
             </text>
           </svg>
         </Link>

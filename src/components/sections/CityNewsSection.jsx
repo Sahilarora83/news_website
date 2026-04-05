@@ -7,13 +7,13 @@ const CityNewsSection = ({ cityNews = [], title, tabs = [] }) => {
 
   const tabItems = useMemo(() => {
     if (tabs.length > 0) {
-      return tabs;
+      return tabs.slice(0, 10);
     }
 
-    return [...new Set(cityNews.map((item) => item.category).filter(Boolean))].slice(0, 10);
+    return [...new Set(cityNews.map((item) => item.city).filter(Boolean))].slice(0, 10);
   }, [cityNews, tabs]);
 
-  const moreQuery = tabItems[0] || cityNews[0]?.category || displayTitle;
+  const moreQuery = tabItems[0] || cityNews[0]?.city || displayTitle;
 
   return (
     <section className="city-news-section container" aria-label={displayTitle}>

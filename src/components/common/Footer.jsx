@@ -8,6 +8,7 @@ const Footer = ({ config, categories = [], tags = [] }) => {
 
   const brand = (config?.siteNamePrimary || '').replace('प्रथम गेंडा', 'प्रथम एजेंडा');
   const copy = (config?.footerCopyright || '').replace('प्रथम गेंडा', 'प्रथम एजेंडा');
+  const footerLogo = '/150x60 logo.jpg.jpeg';
   const socialLinks = [
     { href: config?.facebook_url, label: 'Facebook' },
     { href: config?.twitter_url, label: 'X' },
@@ -62,8 +63,7 @@ const Footer = ({ config, categories = [], tags = [] }) => {
 
         {brand ? (
           <div className="site-footer-brand">
-            <div className="site-footer-brand-mark" aria-hidden="true"></div>
-            <div className="site-footer-brand-text">{brand}</div>
+            <img className="site-footer-brand-image" src={footerLogo} alt={brand} />
           </div>
         ) : null}
 

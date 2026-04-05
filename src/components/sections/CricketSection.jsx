@@ -20,6 +20,9 @@ const CricketSection = ({ data }) => {
     चेन्नई: 'bg-csk',
   };
 
+  const heroBanner = String(data.hero.banner || '').trim();
+  const isLive = heroBanner.toLowerCase() === 'live';
+
   return (
     <section className="cricket-section container" aria-label="क्रिकेट">
       <div className="cricket-section-header">
@@ -35,7 +38,7 @@ const CricketSection = ({ data }) => {
           <Link to={`/article/${data.hero.id}`}>
             <img className="cricket-hero-image" src={resolveImageUrl(data.hero.image)} alt={data.hero.title} />
           </Link>
-          <span className="cricket-live-badge">LIVE</span>
+          {isLive ? <span className="cricket-live-badge">LIVE</span> : null}
           <h3 className="cricket-hero-headline">
             <Link to={`/article/${data.hero.id}`}>{data.hero.title}</Link>
           </h3>

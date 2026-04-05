@@ -118,6 +118,9 @@ function settingsFormFromDashboard(data = {}) {
     siteNamePrimary: config.siteNamePrimary || '',
     siteNameSecondary: config.siteNameSecondary || '',
     siteTagline: config.siteTagline || '',
+    headerAdImage: config.headerAdImage || '',
+    headerAdLink: config.headerAdLink || '',
+    headerAdAlt: config.headerAdAlt || '',
     footerCopyright: config.footerCopyright || '',
     facebook_url: config.facebook_url || '',
     twitter_url: config.twitter_url || '',
@@ -408,6 +411,9 @@ function Admin() {
             siteNamePrimary: settingsForm.siteNamePrimary,
             siteNameSecondary: settingsForm.siteNameSecondary,
             siteTagline: settingsForm.siteTagline,
+            headerAdImage: settingsForm.headerAdImage,
+            headerAdLink: settingsForm.headerAdLink,
+            headerAdAlt: settingsForm.headerAdAlt,
             footerCopyright: settingsForm.footerCopyright,
             facebook_url: settingsForm.facebook_url,
             twitter_url: settingsForm.twitter_url,
@@ -551,6 +557,7 @@ function Admin() {
               setPostForm={setPostForm}
               slots={dashboard.slots}
               categories={dashboard.categories}
+              locationOptions={dashboard.locationOptions}
               savePost={savePost}
               savingPost={savingPost}
               savingMessage={savingMessage}

@@ -60,63 +60,47 @@ const SiteSettings = ({ settingsForm, setSettingsForm, saveSettings, savingSetti
         <div className="admin-form-grid admin-form-grid-two">
           <div className="form-group">
             <label className="form-label">Primary Site Name</label>
-            <input
-              className="input-modern"
-              value={settingsForm.siteNamePrimary}
-              onChange={(event) => updateField('siteNamePrimary', event.target.value)}
-              placeholder="Website name"
-            />
+            <input className="input-modern" value={settingsForm.siteNamePrimary} onChange={(event) => updateField('siteNamePrimary', event.target.value)} placeholder="Website name" />
           </div>
 
           <div className="form-group">
             <label className="form-label">Secondary Brand Text</label>
-            <input
-              className="input-modern"
-              value={settingsForm.siteNameSecondary}
-              onChange={(event) => updateField('siteNameSecondary', event.target.value)}
-              placeholder="NEWS / LIVE / TV"
-            />
+            <input className="input-modern" value={settingsForm.siteNameSecondary} onChange={(event) => updateField('siteNameSecondary', event.target.value)} placeholder="NEWS / LIVE / TV" />
           </div>
 
           <div className="form-group">
             <label className="form-label">Tagline</label>
-            <input
-              className="input-modern"
-              value={settingsForm.siteTagline}
-              onChange={(event) => updateField('siteTagline', event.target.value)}
-              placeholder="Header tagline"
-            />
+            <input className="input-modern" value={settingsForm.siteTagline} onChange={(event) => updateField('siteTagline', event.target.value)} placeholder="Header tagline" />
           </div>
 
           <div className="form-group">
             <label className="form-label">Support Email</label>
-            <input
-              className="input-modern"
-              value={settingsForm.support_email}
-              onChange={(event) => updateField('support_email', event.target.value)}
-              placeholder="support@yourdomain.com"
-            />
+            <input className="input-modern" value={settingsForm.support_email} onChange={(event) => updateField('support_email', event.target.value)} placeholder="support@yourdomain.com" />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Header Ad Image</label>
+            <input className="input-modern" value={settingsForm.headerAdImage} onChange={(event) => updateField('headerAdImage', event.target.value)} placeholder="https://example.com/banner.jpg" />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Header Ad Link</label>
+            <input className="input-modern" value={settingsForm.headerAdLink} onChange={(event) => updateField('headerAdLink', event.target.value)} placeholder="https://advertiser.example" />
+          </div>
+
+          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="form-label">Header Ad Alt Text</label>
+            <input className="input-modern" value={settingsForm.headerAdAlt} onChange={(event) => updateField('headerAdAlt', event.target.value)} placeholder="Banner description" />
           </div>
 
           <div className="form-group" style={{ gridColumn: '1 / -1' }}>
             <label className="form-label">Meta Description</label>
-            <textarea
-              className="textarea-modern"
-              style={{ minHeight: 110 }}
-              value={settingsForm.meta_description}
-              onChange={(event) => updateField('meta_description', event.target.value)}
-              placeholder="SEO description"
-            />
+            <textarea className="textarea-modern" style={{ minHeight: 110 }} value={settingsForm.meta_description} onChange={(event) => updateField('meta_description', event.target.value)} placeholder="SEO description" />
           </div>
 
           <div className="form-group" style={{ gridColumn: '1 / -1' }}>
             <label className="form-label">Footer Copyright</label>
-            <input
-              className="input-modern"
-              value={settingsForm.footerCopyright}
-              onChange={(event) => updateField('footerCopyright', event.target.value)}
-              placeholder="Footer copyright text"
-            />
+            <input className="input-modern" value={settingsForm.footerCopyright} onChange={(event) => updateField('footerCopyright', event.target.value)} placeholder="Footer copyright text" />
           </div>
         </div>
       </section>
@@ -129,50 +113,27 @@ const SiteSettings = ({ settingsForm, setSettingsForm, saveSettings, savingSetti
         <div className="admin-form-grid admin-form-grid-two">
           <div className="form-group">
             <label className="form-label">Facebook URL</label>
-            <input
-              className="input-modern"
-              value={settingsForm.facebook_url}
-              onChange={(event) => updateField('facebook_url', event.target.value)}
-              placeholder="https://facebook.com/yourpage"
-            />
+            <input className="input-modern" value={settingsForm.facebook_url} onChange={(event) => updateField('facebook_url', event.target.value)} placeholder="https://facebook.com/yourpage" />
           </div>
 
           <div className="form-group">
             <label className="form-label">X / Twitter URL</label>
-            <input
-              className="input-modern"
-              value={settingsForm.twitter_url}
-              onChange={(event) => updateField('twitter_url', event.target.value)}
-              placeholder="https://x.com/yourpage"
-            />
+            <input className="input-modern" value={settingsForm.twitter_url} onChange={(event) => updateField('twitter_url', event.target.value)} placeholder="https://x.com/yourpage" />
           </div>
 
           <div className="form-group">
             <label className="form-label">WhatsApp Number</label>
-            <input
-              className="input-modern"
-              value={settingsForm.whatsapp_number}
-              onChange={(event) => updateField('whatsapp_number', event.target.value)}
-              placeholder="919999999999"
-            />
+            <input className="input-modern" value={settingsForm.whatsapp_number} onChange={(event) => updateField('whatsapp_number', event.target.value)} placeholder="919999999999" />
           </div>
 
           <div className="admin-toggle-stack">
             <label className="admin-checkbox">
-              <input
-                type="checkbox"
-                checked={settingsForm.show_article_suggestions}
-                onChange={(event) => updateField('show_article_suggestions', event.target.checked)}
-              />
+              <input type="checkbox" checked={settingsForm.show_article_suggestions} onChange={(event) => updateField('show_article_suggestions', event.target.checked)} />
               <span>Enable article suggestions</span>
             </label>
 
             <label className="admin-checkbox">
-              <input
-                type="checkbox"
-                checked={settingsForm.show_article_latest_news}
-                onChange={(event) => updateField('show_article_latest_news', event.target.checked)}
-              />
+              <input type="checkbox" checked={settingsForm.show_article_latest_news} onChange={(event) => updateField('show_article_latest_news', event.target.checked)} />
               <span>Enable article sidebar latest list</span>
             </label>
           </div>
@@ -188,11 +149,7 @@ const SiteSettings = ({ settingsForm, setSettingsForm, saveSettings, savingSetti
           {sectionToggleKeys.map((item) => (
             <label key={item.key} className="taxonomy-card" style={{ cursor: 'pointer' }}>
               <span style={{ fontWeight: 700 }}>{item.label}</span>
-              <input
-                type="checkbox"
-                checked={settingsForm[item.key]}
-                onChange={(event) => updateField(item.key, event.target.checked)}
-              />
+              <input type="checkbox" checked={settingsForm[item.key]} onChange={(event) => updateField(item.key, event.target.checked)} />
             </label>
           ))}
         </div>
@@ -200,7 +157,10 @@ const SiteSettings = ({ settingsForm, setSettingsForm, saveSettings, savingSetti
 
       <section className="table-card" style={{ marginTop: 32 }}>
         <header className="card-header">
-          <h4 style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>Homepage Sections</h4>
+          <div>
+            <h4 style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>Homepage Sections</h4>
+            <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: '13px' }}>Any extra slot you add here can now render on the homepage when stories are assigned to it.</p>
+          </div>
           <button
             className="btn-secondary"
             onClick={() =>
@@ -230,34 +190,18 @@ const SiteSettings = ({ settingsForm, setSettingsForm, saveSettings, savingSetti
             </thead>
             <tbody>
               {settingsForm.slots.map((slot, index) => (
-                <tr key={slot.slot}>
+                <tr key={`${slot.slot}-${index}`}>
                   <td>
-                    <input
-                      className="input-modern"
-                      value={slot.slot}
-                      onChange={(event) => updateListItem('slots', index, 'slot', event.target.value)}
-                    />
+                    <input className="input-modern" value={slot.slot} onChange={(event) => updateListItem('slots', index, 'slot', event.target.value)} />
                   </td>
                   <td>
-                    <input
-                      className="input-modern"
-                      value={slot.label}
-                      onChange={(event) => updateListItem('slots', index, 'label', event.target.value)}
-                    />
+                    <input className="input-modern" value={slot.label} onChange={(event) => updateListItem('slots', index, 'label', event.target.value)} />
                   </td>
                   <td>
-                    <input
-                      className="input-modern"
-                      value={slot.section || ''}
-                      onChange={(event) => updateListItem('slots', index, 'section', event.target.value)}
-                    />
+                    <input className="input-modern" value={slot.section || ''} onChange={(event) => updateListItem('slots', index, 'section', event.target.value)} />
                   </td>
                   <td>
-                    <input
-                      type="checkbox"
-                      checked={Boolean(slot.single)}
-                      onChange={(event) => updateListItem('slots', index, 'single', event.target.checked)}
-                    />
+                    <input type="checkbox" checked={Boolean(slot.single)} onChange={(event) => updateListItem('slots', index, 'single', event.target.checked)} />
                   </td>
                   <td>
                     <button className="btn-ghost danger" onClick={() => removeListItem('slots', index)}>
@@ -275,10 +219,7 @@ const SiteSettings = ({ settingsForm, setSettingsForm, saveSettings, savingSetti
         <section className="table-card">
           <header className="card-header">
             <h4 style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>Trending Topics</h4>
-            <button
-              className="btn-secondary"
-              onClick={() => addListItem('trendingTopics', { id: Date.now(), name: '', isActive: true })}
-            >
+            <button className="btn-secondary" onClick={() => addListItem('trendingTopics', { id: Date.now(), name: '', isActive: true })}>
               <i className="fas fa-plus" />
               Add Topic
             </button>
@@ -288,18 +229,9 @@ const SiteSettings = ({ settingsForm, setSettingsForm, saveSettings, savingSetti
             {settingsForm.trendingTopics.length > 0 ? (
               settingsForm.trendingTopics.map((topic, index) => (
                 <div key={`${topic.id}-${index}`} className="admin-list-editor-row">
-                  <input
-                    className="input-modern"
-                    value={topic.name || ''}
-                    onChange={(event) => updateListItem('trendingTopics', index, 'name', event.target.value)}
-                    placeholder="Topic name"
-                  />
+                  <input className="input-modern" value={topic.name || ''} onChange={(event) => updateListItem('trendingTopics', index, 'name', event.target.value)} placeholder="Topic name" />
                   <label className="admin-checkbox">
-                    <input
-                      type="checkbox"
-                      checked={topic.isActive !== false}
-                      onChange={(event) => updateListItem('trendingTopics', index, 'isActive', event.target.checked)}
-                    />
+                    <input type="checkbox" checked={topic.isActive !== false} onChange={(event) => updateListItem('trendingTopics', index, 'isActive', event.target.checked)} />
                     <span>Live</span>
                   </label>
                   <button className="btn-ghost danger" onClick={() => removeListItem('trendingTopics', index)}>
@@ -320,10 +252,7 @@ const SiteSettings = ({ settingsForm, setSettingsForm, saveSettings, savingSetti
         <section className="table-card">
           <header className="card-header">
             <h4 style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>Election Tabs</h4>
-            <button
-              className="btn-secondary"
-              onClick={() => addListItem('electionTabs', { id: Date.now(), name: '', isActive: true })}
-            >
+            <button className="btn-secondary" onClick={() => addListItem('electionTabs', { id: Date.now(), name: '', isActive: true })}>
               <i className="fas fa-plus" />
               Add Tab
             </button>
@@ -333,18 +262,9 @@ const SiteSettings = ({ settingsForm, setSettingsForm, saveSettings, savingSetti
             {settingsForm.electionTabs.length > 0 ? (
               settingsForm.electionTabs.map((tab, index) => (
                 <div key={`${tab.id}-${index}`} className="admin-list-editor-row">
-                  <input
-                    className="input-modern"
-                    value={tab.name || ''}
-                    onChange={(event) => updateListItem('electionTabs', index, 'name', event.target.value)}
-                    placeholder="Election tab name"
-                  />
+                  <input className="input-modern" value={tab.name || ''} onChange={(event) => updateListItem('electionTabs', index, 'name', event.target.value)} placeholder="Election tab name" />
                   <label className="admin-checkbox">
-                    <input
-                      type="checkbox"
-                      checked={tab.isActive !== false}
-                      onChange={(event) => updateListItem('electionTabs', index, 'isActive', event.target.checked)}
-                    />
+                    <input type="checkbox" checked={tab.isActive !== false} onChange={(event) => updateListItem('electionTabs', index, 'isActive', event.target.checked)} />
                     <span>Live</span>
                   </label>
                   <button className="btn-ghost danger" onClick={() => removeListItem('electionTabs', index)}>
@@ -356,7 +276,7 @@ const SiteSettings = ({ settingsForm, setSettingsForm, saveSettings, savingSetti
               <div className="empty-state-pro">
                 <i className="fas fa-landmark" />
                 <h3>No election tabs</h3>
-                <p>Add state/region tabs for the election section.</p>
+                <p>Add state or region tabs for the election section.</p>
               </div>
             )}
           </div>
@@ -406,38 +326,18 @@ const SiteSettings = ({ settingsForm, setSettingsForm, saveSettings, savingSetti
               {settingsForm.cricketPointsTable.map((row, index) => (
                 <tr key={`${row.id}-${index}`}>
                   <td>
-                    <input
-                      className="input-modern"
-                      value={row.team || ''}
-                      onChange={(event) => updateListItem('cricketPointsTable', index, 'team', event.target.value)}
-                    />
+                    <input className="input-modern" value={row.team || ''} onChange={(event) => updateListItem('cricketPointsTable', index, 'team', event.target.value)} />
                   </td>
                   {['played', 'won', 'lost', 'tied', 'pts'].map((field) => (
                     <td key={field}>
-                      <input
-                        className="input-modern"
-                        type="number"
-                        min="0"
-                        value={row[field] ?? 0}
-                        onChange={(event) =>
-                          updateListItem('cricketPointsTable', index, field, Number(event.target.value || 0))
-                        }
-                      />
+                      <input className="input-modern" type="number" min="0" value={row[field] ?? 0} onChange={(event) => updateListItem('cricketPointsTable', index, field, Number(event.target.value || 0))} />
                     </td>
                   ))}
                   <td>
-                    <input
-                      className="input-modern"
-                      value={row.rr || ''}
-                      onChange={(event) => updateListItem('cricketPointsTable', index, 'rr', event.target.value)}
-                    />
+                    <input className="input-modern" value={row.rr || ''} onChange={(event) => updateListItem('cricketPointsTable', index, 'rr', event.target.value)} />
                   </td>
                   <td>
-                    <input
-                      className="input-modern"
-                      value={row.badge || ''}
-                      onChange={(event) => updateListItem('cricketPointsTable', index, 'badge', event.target.value)}
-                    />
+                    <input className="input-modern" value={row.badge || ''} onChange={(event) => updateListItem('cricketPointsTable', index, 'badge', event.target.value)} />
                   </td>
                   <td>
                     <button className="btn-ghost danger" onClick={() => removeListItem('cricketPointsTable', index)}>

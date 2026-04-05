@@ -35,6 +35,8 @@ const NewsList = ({
   formatDateTime,
   deletePost,
 }) => {
+  const slotLabelMap = Object.fromEntries((slots || []).map((slot) => [slot.slot, slot.label]));
+
   const openEditor = (post) => {
     setPostForm(formFromPost(post));
     setEditingId(post.id);
@@ -151,7 +153,7 @@ const NewsList = ({
                         fontWeight: 600,
                       }}
                     >
-                      {labels[post.slot] || post.slot}
+                      {slotLabelMap[post.slot] || labels[post.slot] || post.slot}
                     </span>
                   </td>
                   <td>

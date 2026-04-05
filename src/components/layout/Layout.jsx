@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Header from '../common/Header';
 import Footer from '../common/Footer';
 import Sidebar from '../navigation/Sidebar';
 import CityDrawer from '../navigation/CityDrawer';
+import TrendingBar from '../home/TrendingBar';
 import { apiUrl } from '../../lib/api';
 
 const Layout = ({ children }) => {
@@ -14,23 +15,27 @@ const Layout = ({ children }) => {
   const [config, setConfig] = useState(null);
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
+  const [trendingTopics, setTrendingTopics] = useState([]);
   const [locationStates, setLocationStates] = useState([]);
+  const [locationCities, setLocationCities] = useState([]);
 
   useEffect(() => {
     if (isAdminRoute) return;
-    
+
     fetch(apiUrl('/api/home'))
-      .then(res => {
+      .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
       })
-      .then(data => {
+      .then((data) => {
         setConfig(data.config);
         setCategories(data.categories || []);
         setTags(data.tags || []);
+        setTrendingTopics(data.trendingTopics || []);
         setLocationStates(data.locationStates || []);
+        setLocationCities(data.locationCities || []);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error('Failed to load home config:', err);
       });
   }, [isAdminRoute]);
@@ -42,7 +47,7 @@ const Layout = ({ children }) => {
 
     const titleParts = [config.siteNamePrimary, config.siteNameSecondary].filter(Boolean);
     if (titleParts.length > 0) {
-      document.title = titleParts.join(' ').replace('प्रथम गेंडा', 'प्रथम एजेंडा');
+      document.title = titleParts.join(' ');
     }
 
     if (config.meta_description) {
@@ -65,13 +70,22 @@ const Layout = ({ children }) => {
 
   return (
     <div className="app-container">
-      <Header toggleSidebar={toggleSidebar} toggleCityDrawer={toggleCityDrawer} config={config} categories={categories} />
+      <Header
+        toggleSidebar={toggleSidebar}
+        toggleCityDrawer={toggleCityDrawer}
+        config={config}
+        categories={categories}
+        locationStates={locationStates}
+        locationCities={locationCities}
+      />
+
+      {trendingTopics.length > 0 && <TrendingBar topics={trendingTopics} />}
 
       <Sidebar isOpen={isSidebarOpen} close={() => setIsSidebarOpen(false)} categories={categories} tags={tags} />
-      <CityDrawer isOpen={isCityDrawerOpen} close={() => setIsCityDrawerOpen(false)} locations={locationStates} />
+      <CityDrawer isOpen={isCityDrawerOpen} close={() => setIsCityDrawerOpen(false)} locations={locationCities} />
 
       <div
-        className={`overlay ${(isSidebarOpen || isCityDrawerOpen) ? 'active' : ''}`}
+        className={`overlay ${isSidebarOpen || isCityDrawerOpen ? 'active' : ''}`}
         onClick={() => {
           setIsSidebarOpen(false);
           setIsCityDrawerOpen(false);

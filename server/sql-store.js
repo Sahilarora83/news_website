@@ -172,8 +172,7 @@ function sanitizeLoadedData(data) {
 
   if (Array.isArray(data.articles)) {
     const nextArticles = data.articles.filter((article) => {
-      const image = String(article.image || '');
-      return !image.includes('picsum.photos/seed/') && String(article.slug || '') !== 'smoke-test-story';
+      return String(article.slug || '') !== 'smoke-test-story';
     });
 
     if (nextArticles.length !== data.articles.length) {
@@ -242,12 +241,60 @@ function mapArticleForClient(article) {
 
 function getPublishedHomepageArticles(data) {
   return sortByOrderThenDate(
-    data.articles.filter((article) => article.status === 'published' && article.showOnHomepage !== false),
+    data.articles.filter((article) => {
+      if (article.status !== 'published' || article.showOnHomepage === false) {
+        return false;
+      }
+
+      if (Array.isArray(article.tags)) {
+        const hasExcludedTag = article.tags.some(tag => {
+          const t = String(tag).trim().toLowerCase();
+          return t === 'test' || t === 'draft' || t === 'dummy';
+        });
+        if (hasExcludedTag) {
+          return false;
+        }
+      }
+
+      const lowerTitle = String(article.title || '').toLowerCase();
+      if (lowerTitle.includes('dummy story') || lowerTitle.includes('test article')) {
+        return false;
+      }
+
+      return true;
+    }),
   );
 }
 
 function getActiveTopicNames(items) {
   return items.filter((item) => item.isActive !== false).map((item) => item.name);
+}
+
+function deriveTrendingTopicsFromArticles(articles = [], limit = 8) {
+  const seen = new Set();
+  const derived = [];
+
+  for (const article of articles) {
+    const candidates = [
+      ...(Array.isArray(article.tags) ? article.tags : []),
+      article.category,
+      article.city,
+    ]
+      .map((item) => String(item || '').trim())
+      .filter(Boolean);
+
+    for (const candidate of candidates) {
+      const normalized = candidate.toLowerCase();
+      if (seen.has(normalized)) continue;
+      seen.add(normalized);
+      derived.push(candidate);
+      if (derived.length >= limit) {
+        return derived;
+      }
+    }
+  }
+
+  return derived;
 }
 
 function ensureCategory(data, categoryName) {
@@ -468,6 +515,7 @@ async function updateData(mutator) {
 function buildHomePayload(data) {
   const published = getPublishedHomepageArticles(data);
   const articlesBySlot = new Map();
+  const slotDefinitionMap = new Map((data.slotDefinitions || []).map((slot) => [slot.slot, slot]));
 
   for (const article of published) {
     if (!articlesBySlot.has(article.slotKey)) {
@@ -482,6 +530,34 @@ function buildHomePayload(data) {
     { title: 'दुनिया', items: articlesBySlot.get('trio-world') || [] },
   ];
 
+  const builtInSlots = new Set([
+    'center-hero',
+    'latest',
+    'center',
+    'breaking',
+    'city',
+    'election',
+    'business',
+    'editorial',
+    'cricket-hero',
+    'cricket-story',
+    'shorts',
+    'trio-national',
+    'trio-politics',
+    'trio-world',
+  ]);
+
+  const customSections = (data.slotDefinitions || [])
+    .filter((slot) => !builtInSlots.has(slot.slot))
+    .map((slot) => ({
+      slot: slot.slot,
+      title: slot.label || slot.section || slot.slot,
+      section: slot.section || '',
+      items: articlesBySlot.get(slot.slot) || [],
+      single: Boolean(slot.single),
+    }))
+    .filter((section) => section.items.length > 0);
+
   return {
     generatedAt: new Date().toISOString(),
     config: deepClone(data.config),
@@ -491,7 +567,12 @@ function buildHomePayload(data) {
       .sort((left, right) => Number(left.sortOrder || 0) - Number(right.sortOrder || 0))
       .map((category) => category.name),
     tags: data.tags.map((tag) => tag.name),
-    trendingTopics: getActiveTopicNames(data.trendingTopics),
+    trendingTopics: (() => {
+      const configuredTopics = getActiveTopicNames(data.trendingTopics);
+      return configuredTopics.length > 0
+        ? configuredTopics
+        : deriveTrendingTopicsFromArticles(published);
+    })(),
     centerHero: (articlesBySlot.get('center-hero') || [])[0] || null,
     latestNews: articlesBySlot.get('latest') || [],
     centerNews: articlesBySlot.get('center') || [],
@@ -513,6 +594,7 @@ function buildHomePayload(data) {
     },
     shortsVideos: articlesBySlot.get('shorts') || [],
     trioSections: trioColumns,
+    customSections,
     items: published.map(mapArticleForClient),
   };
 }

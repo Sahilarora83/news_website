@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import NewsCard from '../news/NewsCard';
+import StoryActionButton from '../common/StoryActionButton';
 import { resolveImageUrl } from '../../lib/media';
 
 const TopNewsLayout = ({ latestNews = [], centerHero = null, centerNews = [], breakingNews = [], labels = {} }) => {
@@ -22,7 +23,7 @@ const TopNewsLayout = ({ latestNews = [], centerHero = null, centerNews = [], br
           {centerHero ? (
             <article className="center-hero">
               <div className="center-hero-media">
-                <span className="hero-tag">{labels.center || 'Hindi News'}</span>
+                <span className="hero-tag">Hindi News</span>
                 <Link to={`/article/${centerHero.id}`}>
                   <img src={resolveImageUrl(centerHero.image)} alt={centerHero.title} />
                 </Link>
@@ -31,9 +32,12 @@ const TopNewsLayout = ({ latestNews = [], centerHero = null, centerNews = [], br
                 <h1 className="center-hero-title">
                   <Link to={`/article/${centerHero.id}`}>{centerHero.title}</Link>
                 </h1>
-                <div className="story-meta">
-                  <span className="story-category">{centerHero.category}</span>
-                  <span className="story-time">{centerHero.time}</span>
+                <div className="center-hero-footer">
+                  <div className="story-meta">
+                    <span className="story-category">{centerHero.category}</span>
+                    <span className="story-time">{centerHero.time}</span>
+                  </div>
+                  <StoryActionButton storyId={centerHero.id} className="bookmark-btn center-hero-bookmark" />
                 </div>
               </div>
             </article>

@@ -9,12 +9,12 @@ const TrendingBar = ({ topics = [] }) => {
   return (
     <div className="trending-bar">
       <div className="trending-inner">
-        <div className="trending-tag">
-          <i className="fas fa-hashtag" aria-hidden="true" />
+        <div className="trending-tag" aria-hidden="true">
+          <i className="fas fa-hashtag" />
         </div>
-        {topics.map((topic) => (
-          <Link key={topic} to={`/search?q=${encodeURIComponent(topic)}`} className="trending-link">
-            {topic}
+        {topics.map((topic, index) => (
+          <Link key={`${topic}-${index}`} to={`/search?q=${encodeURIComponent(topic)}`} className="trending-link">
+              {topic}
           </Link>
         ))}
       </div>

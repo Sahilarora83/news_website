@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { resolveImageUrl } from '../../lib/media';
+import StoryActionButton from '../common/StoryActionButton';
 
 const ElectionSection = ({ tabs = [], cards = [], title }) => {
   const displayTitle = title || 'विधानसभा चुनाव 2026';
@@ -38,9 +39,7 @@ const ElectionSection = ({ tabs = [], cards = [], title }) => {
             </h3>
             <div className="election-card-footer">
               <span className="story-category">{card.category}</span>
-              <button className="bookmark-btn" type="button" aria-label="सहेजें">
-                <i className="far fa-bookmark" />
-              </button>
+              <StoryActionButton storyId={card.id} />
             </div>
           </article>
         ))}

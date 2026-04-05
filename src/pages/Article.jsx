@@ -2,11 +2,39 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { apiUrl } from '../lib/api';
 import NewsCard from '../components/news/NewsCard';
+import StoryActionButton from '../components/common/StoryActionButton';
+
+function collectRelatedCandidates(homeData = {}) {
+  const buckets = [
+    ...(homeData.items || []),
+    ...(homeData.latestNews || []),
+    ...(homeData.centerHero ? [homeData.centerHero] : []),
+    ...(homeData.centerNews || []),
+    ...(homeData.breakingNews || []),
+    ...(homeData.cityNews || []),
+    ...(homeData.electionCards || []),
+    ...Object.values(homeData.featureSections || {}).flat(),
+    ...(homeData.shortsVideos || []),
+    ...((homeData.trioSections || []).flatMap((section) => section.items || [])),
+    ...((homeData.customSections || []).flatMap((section) => section.items || [])),
+  ];
+
+  const seen = new Set();
+  return buckets.filter((item) => {
+    const nextId = String(item?.id || '').trim();
+    if (!nextId || seen.has(nextId)) {
+      return false;
+    }
+    seen.add(nextId);
+    return true;
+  });
+}
 
 const Article = () => {
   const { id } = useParams();
   const [article, setArticle] = useState(null);
   const [related, setRelated] = useState([]);
+  const [latestItems, setLatestItems] = useState([]);
   const [config, setConfig] = useState(null);
   const [status, setStatus] = useState('loading');
   const [error, setError] = useState('');
@@ -33,12 +61,14 @@ const Article = () => {
 
         const articleData = await articleResponse.json();
         const homeData = await homeResponse.json();
-        const relatedItems = homeData.items || [
-          ...(homeData.latestNews || []),
-          ...(homeData.centerNews || []),
-          ...(homeData.breakingNews || []),
-          ...(homeData.cityNews || []),
-        ];
+        const relatedItems = collectRelatedCandidates(homeData);
+        const latestStories = collectRelatedCandidates({
+          items: homeData.items || [],
+          latestNews: homeData.latestNews || [],
+          centerHero: homeData.centerHero || null,
+          centerNews: homeData.centerNews || [],
+          breakingNews: homeData.breakingNews || [],
+        });
 
         setArticle(articleData.article);
         setRelated(
@@ -46,6 +76,7 @@ const Article = () => {
             .filter((item) => String(item.id) !== String(id) && item.isSuggestion !== false)
             .slice(0, 4),
         );
+        setLatestItems(latestStories.filter((item) => String(item.id) !== String(id)).slice(0, 5));
         setConfig(homeData.config);
         setStatus('ready');
       } catch (err) {
@@ -79,8 +110,10 @@ const Article = () => {
         .map((point) => point.trim())
         .filter(Boolean);
     }
+
     return [];
   }, [article?.excerpt]);
+
 
   if (status === 'loading') {
     return (
@@ -120,7 +153,8 @@ const Article = () => {
   ].filter(Boolean);
 
   return (
-    <main className="container single-article-view">
+    <>
+      <main className="container single-article-view">
       <div className="article-breadcrumb">
         <Link to="/">Hindi News</Link> / <span>{article.category || 'News'}</span>
       </div>
@@ -161,12 +195,8 @@ const Article = () => {
                   <i className={item.icon} />
                 </a>
               ))}
-              <button type="button" className="share-icon-btn" aria-label="Like story">
-                <i className="far fa-heart" />
-              </button>
-              <button type="button" className="share-icon-btn" aria-label="Save story">
-                <i className="far fa-bookmark" />
-              </button>
+              <StoryActionButton storyId={article.id} action="like" className="share-icon-btn" />
+              <StoryActionButton storyId={article.id} className="share-icon-btn" />
             </div>
           </div>
 
@@ -209,11 +239,11 @@ const Article = () => {
         </div>
 
         <aside className="article-sidebar">
-          {showLatest && related.length > 0 ? (
+          {showLatest && latestItems.length > 0 ? (
             <div className="sidebar-block">
-              <h3 className="sidebar-block-title">ताज़ा खबरें</h3>
+              <h3 className="sidebar-block-title">{config?.labels?.latest || 'Latest News'}</h3>
               <div className="sidebar-list">
-                {related.slice(0, 5).map((item) => (
+                {latestItems.map((item) => (
                   <Link key={item.id} to={`/article/${item.id}`} className="sidebar-story-link">
                     <h4>{item.title}</h4>
                   </Link>
@@ -223,7 +253,8 @@ const Article = () => {
           ) : null}
         </aside>
       </div>
-    </main>
+      </main>
+    </>
   );
 };
 

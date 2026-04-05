@@ -12,6 +12,21 @@ import {
   requireRole,
 } from './auth.js';
 import {
+  followCity,
+  listFollowedCities,
+  unfollowCity,
+} from './city-follow-store.js';
+import {
+  listSavedStoryIds,
+  saveStory,
+  unsaveStory,
+} from './story-save-store.js';
+import {
+  likeStory,
+  listLikedStoryIds,
+  unlikeStory,
+} from './story-like-store.js';
+import {
   createLocation,
   createUser,
   deleteLocation,
@@ -301,6 +316,78 @@ app.get('/api/news-by-city', async (req, res) => {
   }
 });
 
+app.get('/api/followed-cities', async (req, res) => {
+  try {
+    return res.json({ items: await listFollowedCities(req.query.clientId) });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.post('/api/followed-cities', async (req, res) => {
+  try {
+    return res.status(201).json(await followCity(req.body?.clientId, req.body?.city));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.delete('/api/followed-cities', async (req, res) => {
+  try {
+    return res.json(await unfollowCity(req.body?.clientId, req.body?.city));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.get('/api/saved-stories', async (req, res) => {
+  try {
+    return res.json({ items: await listSavedStoryIds(req.query.clientId) });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.post('/api/saved-stories', async (req, res) => {
+  try {
+    return res.status(201).json(await saveStory(req.body?.clientId, req.body?.storyId));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.delete('/api/saved-stories', async (req, res) => {
+  try {
+    return res.json(await unsaveStory(req.body?.clientId, req.body?.storyId));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.get('/api/liked-stories', async (req, res) => {
+  try {
+    return res.json({ items: await listLikedStoryIds(req.query.clientId) });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.post('/api/liked-stories', async (req, res) => {
+  try {
+    return res.status(201).json(await likeStory(req.body?.clientId, req.body?.storyId));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.delete('/api/liked-stories', async (req, res) => {
+  try {
+    return res.json(await unlikeStory(req.body?.clientId, req.body?.storyId));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
 app.get('/api/article/:id', async (req, res) => {
   try {
     const article = await getArticleByIdOrSlug(req.params.id);
@@ -316,9 +403,11 @@ app.get('/api/article/:id', async (req, res) => {
 
 app.get('/api/search', async (req, res) => {
   try {
+    const homeData = await getHomeAggregatedData();
     return res.json({
       query: String(req.query.q || ''),
       items: await searchArticles(req.query.q),
+      trendingTopics: homeData.trendingTopics || [],
     });
   } catch (error) {
     return res.status(500).json({ error: error.message });

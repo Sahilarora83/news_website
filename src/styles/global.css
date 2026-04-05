@@ -68,8 +68,8 @@ button {
   margin: 0 auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
+  justify-content: flex-start;
+  gap: 28px;
   padding: 16px 15px 14px;
 }
 .logo-text-wrapper {
@@ -186,6 +186,36 @@ button {
 .nav-control { width: 58px; border-right: 1px solid #52575b; font-size: 1.45rem; cursor: pointer; }
 .nav-btn { padding: 0 18px; font-size: 0.95rem; font-weight: 600; }
 .btn-home { background: #de1f27; }
+.nav-btn:hover,
+.nav-control:hover,
+.nav-brand-badge:hover,
+.location-btn:hover,
+.search-btn-trigger:hover {
+  background: #42484d;
+}
+.btn-home:hover {
+  background: #de1f27;
+}
+.nav-brand-badge {
+  width: 68px;
+  position: relative;
+  background: linear-gradient(180deg, #151515 0%, #282828 100%);
+  color: #f2bd20;
+  font-family: 'Noto Serif Devanagari', serif;
+  font-weight: 700;
+  font-size: 1.65rem;
+}
+.badge-crown {
+  position: absolute;
+  top: 4px;
+  right: 7px;
+  font-size: 0.92rem;
+  color: #f6b41d;
+}
+.badge-text {
+  transform: translateY(2px);
+  letter-spacing: -1px;
+}
 
 /* Sidebar */
 .sidebar {
@@ -230,6 +260,31 @@ button {
   overflow-x: auto;
   white-space: nowrap;
 }
+.trending-inner::-webkit-scrollbar {
+  display: none;
+}
+.trending-tag {
+  color: #111;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.28rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.trending-link {
+  color: #1c1c1c;
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 400;
+}
+.trending-link:hover {
+  color: var(--au-red);
+}
+
+@media (max-width: 768px) {
+  .top-inner { gap: 14px; }
+}
 
 /* Home Layout */
 .homepage-layout {
@@ -270,7 +325,7 @@ button {
   border-radius: 6px;
 }
 
-.more-wrapper.active .more-menu {
+.more-wrapper.open .more-menu {
   display: flex;
 }
 

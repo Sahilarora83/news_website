@@ -6,6 +6,7 @@ const StoryStudio = ({
   setPostForm,
   slots = [],
   categories = [],
+  locationOptions = {},
   savePost,
   savingPost,
   savingMessage,
@@ -22,6 +23,9 @@ const StoryStudio = ({
     }));
   };
 
+  const cityOptions = [...new Set([postForm.city, ...(locationOptions.cities || []).map((city) => city.name)].filter(Boolean))]
+    .sort((left, right) => left.localeCompare(right));
+
   return (
     <main className="admin-editor-wrap">
       <form onSubmit={(event) => savePost(event, 'published')}>
@@ -29,7 +33,7 @@ const StoryStudio = ({
           <div>
             <h2 className="admin-page-title">{editingId ? 'Edit Story' : 'Create Story'}</h2>
             <p className="admin-page-note">
-              Yahin se headline, byline, publish date, image, homepage placement aur full article control hoga.
+              Headline, byline, publish time, location, homepage placement, and full article content are all controlled here.
             </p>
           </div>
           {editingId ? (
@@ -42,11 +46,7 @@ const StoryStudio = ({
         <section className="form-section-card admin-form-grid admin-form-grid-four">
           <div className="form-group">
             <label className="form-label">Section</label>
-            <select
-              className="input-modern"
-              value={postForm.slot}
-              onChange={(event) => updateField('slot', event.target.value)}
-            >
+            <select className="input-modern" value={postForm.slot} onChange={(event) => updateField('slot', event.target.value)}>
               {slots.map((slot) => (
                 <option key={slot.slot} value={slot.slot}>
                   {slot.label}
@@ -57,11 +57,7 @@ const StoryStudio = ({
 
           <div className="form-group">
             <label className="form-label">Category</label>
-            <select
-              className="input-modern"
-              value={postForm.category}
-              onChange={(event) => updateField('category', event.target.value)}
-            >
+            <select className="input-modern" value={postForm.category} onChange={(event) => updateField('category', event.target.value)}>
               <option value="">Choose category</option>
               {categories.map((category) => (
                 <option key={category} value={category}>
@@ -73,12 +69,14 @@ const StoryStudio = ({
 
           <div className="form-group">
             <label className="form-label">City</label>
-            <input
-              className="input-modern"
-              value={postForm.city || ''}
-              onChange={(event) => updateField('city', event.target.value)}
-              placeholder="City name"
-            />
+            <select className="input-modern" value={postForm.city || ''} onChange={(event) => updateField('city', event.target.value)}>
+              <option value="">Choose city</option>
+              {cityOptions.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="form-group">
@@ -122,7 +120,7 @@ const StoryStudio = ({
                 className="input-modern"
                 value={postForm.banner || ''}
                 onChange={(event) => updateField('banner', event.target.value)}
-                placeholder="Optional card ribbon"
+                placeholder="Optional ribbon or LIVE label"
               />
             </div>
           </div>
@@ -175,21 +173,12 @@ const StoryStudio = ({
 
           <div className="admin-image-upload-row">
             <label className="btn-secondary admin-upload-button">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(event) => uploadStoryImage(event.target.files?.[0])}
-                hidden
-              />
+              <input type="file" accept="image/*" onChange={(event) => uploadStoryImage(event.target.files?.[0])} hidden />
               {uploadingImage ? 'Uploading...' : 'Upload Image'}
             </label>
 
             {postForm.image ? (
-              <button
-                type="button"
-                className="btn-ghost"
-                onClick={() => updateField('image', '')}
-              >
+              <button type="button" className="btn-ghost" onClick={() => updateField('image', '')}>
                 Remove Image
               </button>
             ) : null}
@@ -263,20 +252,12 @@ const StoryStudio = ({
         <section className="form-section-card admin-form-grid admin-form-grid-two">
           <div className="form-group admin-toggle-stack">
             <label className="admin-checkbox">
-              <input
-                type="checkbox"
-                checked={postForm.featured}
-                onChange={(event) => updateField('featured', event.target.checked)}
-              />
+              <input type="checkbox" checked={postForm.featured} onChange={(event) => updateField('featured', event.target.checked)} />
               <span>Featured Story</span>
             </label>
 
             <label className="admin-checkbox">
-              <input
-                type="checkbox"
-                checked={postForm.sticky}
-                onChange={(event) => updateField('sticky', event.target.checked)}
-              />
+              <input type="checkbox" checked={postForm.sticky} onChange={(event) => updateField('sticky', event.target.checked)} />
               <span>Pin At Top</span>
             </label>
 
@@ -341,12 +322,7 @@ const StoryStudio = ({
               {savingPost ? 'Saving...' : 'Send to Review'}
             </button>
           )}
-          <button
-            className="btn-secondary"
-            type="button"
-            onClick={() => savePost(null, 'draft')}
-            disabled={savingPost || uploadingImage}
-          >
+          <button className="btn-secondary" type="button" onClick={() => savePost(null, 'draft')} disabled={savingPost || uploadingImage}>
             Save Draft
           </button>
         </footer>

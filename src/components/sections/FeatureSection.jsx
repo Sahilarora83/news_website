@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { resolveImageUrl } from '../../lib/media';
+import StoryActionButton from '../common/StoryActionButton';
 
 const FeatureSection = ({ title, items = [] }) => {
-  const isEditorial = title.includes('संपादकीय');
+  const isEditorial = String(title || '').toLowerCase().includes('संपादकीय');
 
   return (
     <section className="feature-section container" aria-label={title}>
@@ -32,9 +33,7 @@ const FeatureSection = ({ title, items = [] }) => {
               ) : (
                 <span className="story-category">{item.category}</span>
               )}
-              <button className="bookmark-btn" type="button" aria-label="सहेजें">
-                <i className="far fa-bookmark" />
-              </button>
+              <StoryActionButton storyId={item.id} />
             </div>
           </article>
         ))}

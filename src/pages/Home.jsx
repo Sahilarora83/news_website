@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import TrendingBar from '../components/home/TrendingBar';
 import TopNewsLayout from '../components/home/TopNewsLayout';
 import CityNewsSection from '../components/sections/CityNewsSection';
 import SectionDivider from '../components/sections/SectionDivider';
@@ -8,8 +7,10 @@ import FeatureSection from '../components/sections/FeatureSection';
 import CricketSection from '../components/sections/CricketSection';
 import ShortsSection from '../components/sections/ShortsSection';
 import NewsTrioSection from '../components/sections/NewsTrioSection';
+import DynamicStorySection from '../components/sections/DynamicStorySection';
 import NewsCard from '../components/news/NewsCard';
 import { apiUrl } from '../lib/api';
+import { getPreferredCities, prioritizeHomeData } from '../lib/personalization';
 
 const Home = () => {
   const [homeData, setHomeData] = useState(null);
@@ -22,14 +23,17 @@ const Home = () => {
 
     const loadHome = async () => {
       try {
-        const response = await fetch(apiUrl('/api/home'), { signal: controller.signal });
+        const [response, preferredCities] = await Promise.all([
+          fetch(apiUrl('/api/home'), { signal: controller.signal }),
+          getPreferredCities(),
+        ]);
         if (!response.ok) {
           throw new Error(`Failed to load live home content (${response.status})`);
         }
 
         const data = await response.json();
         if (!controller.signal.aborted) {
-          setHomeData(data);
+          setHomeData(prioritizeHomeData(data, preferredCities));
           setStatus('ready');
         }
       } catch (err) {
@@ -42,23 +46,38 @@ const Home = () => {
       }
     };
 
-    const handleStorageChange = () => {
+    const handleStorageChange = async () => {
       const city = localStorage.getItem('pinnedCity');
       if (!city) {
         setPinnedCityNews(null);
-        return;
+      } else {
+        fetch(apiUrl(`/api/news-by-city?city=${encodeURIComponent(city)}`))
+          .then((response) => {
+            if (!response.ok) throw new Error(`Failed to fetch city news: ${response.status}`);
+            return response.json();
+          })
+          .then((data) => setPinnedCityNews({ city, items: data.items || [] }))
+          .catch(() => {
+            setPinnedCityNews(null);
+          });
       }
 
-      fetch(apiUrl(`/api/news-by-city?city=${encodeURIComponent(city)}`))
-        .then((response) => {
-          if (!response.ok) throw new Error(`Failed to fetch city news: ${response.status}`);
-          return response.json();
-        })
-        .then((data) => setPinnedCityNews({ city, items: data.items || [] }))
-        .catch(err => {
-          console.error(`Error loading news for city ${city}:`, err);
-          setPinnedCityNews(null);
-        });
+      try {
+        const [response, preferredCities] = await Promise.all([
+          fetch(apiUrl('/api/home'), { signal: controller.signal }),
+          getPreferredCities(),
+        ]);
+        if (!response.ok) {
+          throw new Error(`Failed to load live home content (${response.status})`);
+        }
+
+        const data = await response.json();
+        if (!controller.signal.aborted) {
+          setHomeData(prioritizeHomeData(data, preferredCities));
+        }
+      } catch {
+        // Keep existing UI if personalization refresh fails.
+      }
     };
 
     loadHome();
@@ -84,6 +103,7 @@ const Home = () => {
   const editorialItems = show('editorial') ? homeData?.featureSections?.editorial || [] : [];
   const shortsItems = show('shorts') ? homeData?.shortsVideos || [] : [];
   const trioColumns = show('trio') ? homeData?.trioSections || [] : [];
+  const customSections = homeData?.customSections || [];
   const cricketData =
     show('cricket') && homeData?.cricketSection
       ? {
@@ -92,7 +112,10 @@ const Home = () => {
         }
       : null;
 
-  const hasTopStories = latestNews.length > 0 || Boolean(centerHero) || centerNews.length > 0 || breakingNews.length > 0;
+  const effectiveCenterHero = centerHero || centerNews[0] || null;
+  const effectiveCenterNews = centerHero ? centerNews : centerNews.slice(1);
+  const hasTopStories =
+    latestNews.length > 0 || Boolean(effectiveCenterHero) || effectiveCenterNews.length > 0 || breakingNews.length > 0;
   const hasHomepageContent = (homeData?.items || []).length > 0;
 
   if (status === 'loading') {
@@ -126,8 +149,7 @@ const Home = () => {
         <div className="container" style={{ padding: '56px 0', textAlign: 'center' }}>
           <h2 style={{ marginBottom: '12px' }}>Homepage is ready for real stories</h2>
           <p style={{ maxWidth: '620px', margin: '0 auto', color: '#666', lineHeight: 1.7 }}>
-            Ab admin panel se story create karke publish karoge to wahi live homepage,
-            article page, suggestions aur section blocks me dikhai degi.
+            Publish a story from the admin panel and it will appear here, on article pages, and in search.
           </p>
         </div>
       </div>
@@ -136,8 +158,6 @@ const Home = () => {
 
   return (
     <div className="home-page">
-      {show('trending') && <TrendingBar topics={homeData.trendingTopics || []} />}
-
       {pinnedCityNews && pinnedCityNews.items.length > 0 ? (
         <section className="container" style={{ marginTop: '20px' }}>
           <div
@@ -167,7 +187,7 @@ const Home = () => {
                 borderRadius: '4px',
               }}
             >
-              हटाएँ
+              हटाएं
             </button>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '20px' }}>
@@ -182,8 +202,8 @@ const Home = () => {
       {hasTopStories ? (
         <TopNewsLayout
           latestNews={latestNews}
-          centerHero={centerHero}
-          centerNews={centerNews}
+          centerHero={effectiveCenterHero}
+          centerNews={effectiveCenterNews}
           breakingNews={breakingNews}
           labels={labels}
         />
@@ -196,13 +216,11 @@ const Home = () => {
         </>
       ) : null}
 
-      {electionCards.length > 0 ? (
-        <ElectionSection tabs={homeData.electionTabs || []} cards={electionCards} title={labels.election} />
-      ) : null}
+      {electionCards.length > 0 ? <ElectionSection tabs={homeData.electionTabs || []} cards={electionCards} title={labels.election} /> : null}
 
       {cityNews.length > 0 ? (
         <>
-          <CityNewsSection cityNews={cityNews} title={labels.city} tabs={homeData.locationStates || []} />
+          <CityNewsSection cityNews={cityNews} title={labels.city} tabs={homeData.locationCities || []} />
           <SectionDivider />
         </>
       ) : null}
@@ -223,7 +241,19 @@ const Home = () => {
         </>
       ) : null}
 
-      {trioColumns.some((column) => (column.items || []).length > 0) ? <NewsTrioSection columns={trioColumns} /> : null}
+      {trioColumns.some((column) => (column.items || []).length > 0) ? (
+        <>
+          <NewsTrioSection columns={trioColumns} />
+          <SectionDivider />
+        </>
+      ) : null}
+
+      {customSections.map((section) => (
+        <React.Fragment key={section.slot}>
+          <DynamicStorySection section={section} />
+          <SectionDivider />
+        </React.Fragment>
+      ))}
     </div>
   );
 };
