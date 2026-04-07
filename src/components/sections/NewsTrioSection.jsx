@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { resolveImageUrl } from '../../lib/media';
 
 const NewsTrioSection = ({ columns = [] }) => {
+  const storyPath = (item) => `/article/${encodeURIComponent(item?.slug || item?.id || '')}`;
   return (
     <section className="news-trio-section container" aria-label="मुख्य वर्ग">
       <div className="news-trio-wrap">
@@ -18,12 +19,12 @@ const NewsTrioSection = ({ columns = [] }) => {
             <div className="news-trio-list">
               {(column.items || []).map((item) => (
                 <article key={item.id} className="news-trio-item">
-                  <Link to={`/article/${item.id}`}>
+                  <Link to={storyPath(item)}>
                     <img className="news-trio-thumb" src={resolveImageUrl(item.image)} alt={item.title} />
                   </Link>
                   <div className="news-trio-copy">
                     <h3 className="story-title">
-                      <Link to={`/article/${item.id}`}>{item.title}</Link>
+                      <Link to={storyPath(item)}>{item.title}</Link>
                     </h3>
                     <div className="story-meta">
                       <span className="story-category">{column.label ?? column.title}</span>

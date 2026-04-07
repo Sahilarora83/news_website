@@ -9,12 +9,15 @@ import NewsList from '../admin/components/NewsList';
 import StoryStudio from '../admin/components/StoryStudio';
 import TaxonomyManager from '../admin/components/TaxonomyManager';
 import SiteSettings from '../admin/components/SiteSettings';
+import HomeSectionsManager from '../admin/components/HomeSectionsManager';
 import AdminLogin from '../admin/components/AdminLogin';
 import AdminForgotPassword from '../admin/components/AdminForgotPassword';
 import LocationMaster from '../admin/components/LocationMaster';
 import WorkflowBoard from '../admin/components/WorkflowBoard';
 import UserManage from '../admin/components/UserManage';
 import ShortsManager from '../admin/components/ShortsManager';
+import EpaperManager from '../admin/components/EpaperManager';
+import TeamManager from '../admin/components/TeamManager';
 
 const STORAGE_KEY = 'pratham_agenda_admin_token';
 const USER_KEY = 'pratham_agenda_admin_user';
@@ -45,6 +48,7 @@ const emptyPost = {
   authorName: '',
   editorName: '',
   publishedAt: '',
+  description: '',
 };
 
 function formatNumber(value) {
@@ -109,6 +113,7 @@ function formFromPost(post = {}) {
     authorName: post.authorName || '',
     editorName: post.editorName || '',
     publishedAt: toDateTimeInputValue(post.publishedAt || post.published_at),
+    description: post.description || '',
   };
 }
 
@@ -135,7 +140,6 @@ function settingsFormFromDashboard(data = {}) {
     election: config.election !== false,
     business: config.business !== false,
     editorial: config.editorial !== false,
-    cricket: config.cricket !== false,
     shorts: config.shorts !== false,
     trio: config.trio !== false,
     show_article_suggestions: config.show_article_suggestions !== false,
@@ -143,7 +147,6 @@ function settingsFormFromDashboard(data = {}) {
     slots: Array.isArray(data.slots) ? data.slots : [],
     trendingTopics: Array.isArray(data.trendingTopics) ? data.trendingTopics : [],
     electionTabs: Array.isArray(data.electionTabs) ? data.electionTabs : [],
-    cricketPointsTable: Array.isArray(data.cricketSection?.pointsTable) ? data.cricketSection.pointsTable : [],
   };
 }
 
@@ -167,9 +170,9 @@ function Admin() {
   const [postForm, setPostForm] = useState(emptyPost);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadMessage, setUploadMessage] = useState('');
-  const [slotFilter, setSlotFilter] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [slotFilter, setSlotFilter] = useState([]);
+  const [categoryFilter, setCategoryFilter] = useState([]);
+  const [statusFilter, setStatusFilter] = useState([]);
   const [cityFilter, setCityFilter] = useState('');
   const [settingsForm, setSettingsForm] = useState(() => settingsFormFromDashboard());
 
@@ -181,10 +184,12 @@ function Admin() {
     [token],
   );
 
-  const loadDashboard = async (activeToken = token) => {
+  const loadDashboard = async (activeToken = token, options = {}) => {
     if (!activeToken) return;
-
-    setLoadingDashboard(true);
+    const silent = options.silent === true;
+    if (!silent) {
+      setLoadingDashboard(true);
+    }
     try {
       const response = await fetch(apiUrl('/api/admin/dashboard'), {
         headers: { Authorization: `Bearer ${activeToken}` },
@@ -215,7 +220,9 @@ function Admin() {
 
       return null;
     } finally {
-      setLoadingDashboard(false);
+      if (!silent) {
+        setLoadingDashboard(false);
+      }
     }
   };
 
@@ -223,6 +230,16 @@ function Admin() {
     if (token) {
       loadDashboard(token);
     }
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) return undefined;
+
+    const intervalId = window.setInterval(() => {
+      loadDashboard(token, { silent: true });
+    }, 5000);
+
+    return () => window.clearInterval(intervalId);
   }, [token]);
 
   const filteredPosts = useMemo(() => {
@@ -237,14 +254,133 @@ function Admin() {
           .toLowerCase()
           .includes(normalizedQuery);
 
-      const slotMatch = !slotFilter || post.slot === slotFilter;
-      const categoryMatch = !categoryFilter || post.category === categoryFilter;
-      const statusMatch = !statusFilter || post.status === statusFilter;
+      const slotMatch = slotFilter.length === 0 || slotFilter.includes(post.slot);
+      const categoryMatch = categoryFilter.length === 0 || categoryFilter.includes(post.category);
+      const statusMatch = statusFilter.length === 0 || statusFilter.includes(post.status);
       const cityMatch = !cityFilter || String(post.city || '').toLowerCase().includes(cityFilter.toLowerCase());
 
       return queryMatch && slotMatch && categoryMatch && statusMatch && cityMatch;
     });
   }, [dashboard, query, slotFilter, categoryFilter, statusFilter, cityFilter]);
+
+  const mergePostIntoDashboard = (savedPost) => {
+    if (!savedPost) return;
+
+    setDashboard((current) => {
+      if (!current) return current;
+      const nextPosts = Array.isArray(current.posts) ? [...current.posts] : [];
+      const index = nextPosts.findIndex((post) => String(post.id) === String(savedPost.id));
+      if (index >= 0) {
+        nextPosts[index] = savedPost;
+      } else {
+        nextPosts.unshift(savedPost);
+      }
+      return { ...current, posts: nextPosts };
+    });
+  };
+
+  const workflowItems = useMemo(() => {
+    const storyItems = (dashboard?.posts || [])
+      .filter((post) => ['review', 'pending', 'rejected'].includes(post.status))
+      .map((post) => ({
+        ...post,
+        itemType: 'story',
+      }));
+
+    const shortItems = (shortsList || [])
+      .filter((item) => ['review', 'pending', 'rejected'].includes(item.status))
+      .map((item) => ({
+        ...item,
+        itemType: 'short',
+      }));
+
+    return [...storyItems, ...shortItems];
+  }, [dashboard, shortsList]);
+
+  const updateStoryStatus = async (postId, status) => {
+    const response = await fetch(apiUrl(`/api/admin/posts/${postId}/status`), {
+      method: 'PUT',
+      headers: authHeaders,
+      body: JSON.stringify({ status, comments: '' }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error || 'Status update failed');
+    }
+
+    const now = new Date().toISOString();
+    setDashboard((current) => {
+      if (!current) return current;
+      return {
+        ...current,
+        posts: (current.posts || []).map((post) =>
+          String(post.id) === String(postId)
+            ? {
+                ...post,
+                status,
+                updated_at: now,
+                updatedAt: now,
+              }
+            : post,
+        ),
+      };
+    });
+  };
+
+  const updateShortStatus = async (shortItem, status) => {
+    const response = await fetch(apiUrl('/api/admin/shorts'), {
+      method: 'POST',
+      headers: authHeaders,
+      body: JSON.stringify({
+        ...shortItem,
+        status,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error || 'Short status update failed');
+    }
+
+    const data = await response.json();
+    setShortsList((current) =>
+      current.map((item) =>
+        String(item.id) === String(shortItem.id)
+          ? {
+              ...item,
+              ...data,
+              status,
+              city: shortItem.city || item.city,
+              description: shortItem.description || item.description,
+            }
+          : item,
+      ),
+    );
+  };
+
+  const normalizedCategories = useMemo(() => {
+    const next = new Set(dashboard?.categories || []);
+    next.add('रिव्यूज़');
+    return Array.from(next).sort((left, right) => String(left).localeCompare(String(right), 'hi'));
+  }, [dashboard]);
+
+  const normalizedSlots = useMemo(() => {
+    const currentSlots = Array.isArray(dashboard?.slots) ? dashboard.slots : [];
+    const hasReviews = currentSlots.some((slot) => slot.slot === 'reviews');
+    if (hasReviews) {
+      return currentSlots;
+    }
+
+    return [
+      ...currentSlots,
+      {
+        slot: 'reviews',
+        label: 'रिव्यूज़',
+        section: 'रिव्यूज़',
+      },
+    ];
+  }, [dashboard]);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -303,15 +439,35 @@ function Admin() {
       }
 
       const data = await response.json();
-      const nextDashboard = await loadDashboard();
-      const savedPost = nextDashboard?.posts?.find((post) => String(post.id) === String(data.id));
+      const savedPost = {
+        ...postForm,
+        id: data.id,
+        slot: postForm.slot,
+        title: postForm.title,
+        category: postForm.category,
+        city: postForm.city,
+        status: nextStatus,
+        updated_at: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        created_at: postForm.createdAt || new Date().toISOString(),
+        createdAt: postForm.createdAt || new Date().toISOString(),
+      };
+      mergePostIntoDashboard(savedPost);
       setEditingId(data.id);
-      setPostForm(savedPost ? formFromPost(savedPost) : (current) => ({
+      setPostForm((current) => ({
         ...current,
         id: data.id,
         status: nextStatus,
       }));
-      setSavingMessage(nextStatus === 'draft' ? 'Draft save ho gaya.' : 'Story publish ho gayi.');
+      setSavingMessage(
+        nextStatus === 'draft'
+          ? 'Draft saved successfully.'
+          : nextStatus === 'review'
+            ? 'Story moved to Under Review.'
+            : nextStatus === 'rejected'
+              ? 'Story rejected successfully.'
+              : 'Story published successfully.',
+      );
     } catch (error) {
       setSavingMessage(error.message);
     } finally {
@@ -397,7 +553,71 @@ function Admin() {
         ...current,
         image: data.url,
       }));
-      setUploadMessage('Image upload ho gaya.');
+      setUploadMessage('Image uploaded successfully.');
+    } catch (error) {
+      setUploadMessage(error.message);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const uploadShortVideo = async (file) => {
+    if (!file) return;
+
+    setUploadingImage(true);
+    setUploadMessage('');
+
+    try {
+      // 1. Capture first frame
+      const canvas = document.createElement('canvas');
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.src = URL.createObjectURL(file);
+      
+      const frameUrl = await new Promise((resolve) => {
+        video.onloadedmetadata = () => {
+          video.currentTime = Math.min(1, video.duration / 2); // Capture at 1s or middle
+        };
+        video.onseeked = () => {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          canvas.getContext('2d').drawImage(video, 0, 0);
+          resolve(canvas.toDataURL('image/jpeg', 0.8));
+        };
+        video.onerror = () => resolve(null);
+      });
+
+      // 2. Upload video
+      const dataUrl = await readFileAsDataUrl(file);
+      const videoRes = await fetch(apiUrl('/api/admin/uploads/videos'), {
+        method: 'POST',
+        headers: authHeaders,
+        body: JSON.stringify({ fileName: file.name, dataUrl }),
+      });
+
+      if (!videoRes.ok) throw new Error('Video upload failed');
+      const videoData = await videoRes.json();
+
+      // 3. Upload captured frame as image if possible
+      let imageUrl = '';
+      if (frameUrl) {
+        const imgRes = await fetch(apiUrl('/api/admin/uploads/images'), {
+          method: 'POST',
+          headers: authHeaders,
+          body: JSON.stringify({ fileName: `thumb-${file.name}.jpg`, dataUrl: frameUrl }),
+        });
+        if (imgRes.ok) {
+          const imgData = await imgRes.json();
+          imageUrl = imgData.url;
+        }
+      }
+
+      setPostForm((current) => ({
+        ...current,
+        videoUrl: videoData.url,
+        image: imageUrl || current.image,
+      }));
+      setUploadMessage('Video and thumbnail uploaded successfully.');
     } catch (error) {
       setUploadMessage(error.message);
     } finally {
@@ -495,7 +715,6 @@ function Admin() {
             election: settingsForm.election,
             business: settingsForm.business,
             editorial: settingsForm.editorial,
-            cricket: settingsForm.cricket,
             shorts: settingsForm.shorts,
             trio: settingsForm.trio,
             show_article_suggestions: settingsForm.show_article_suggestions,
@@ -504,7 +723,6 @@ function Admin() {
           slots: settingsForm.slots,
           trendingTopics: settingsForm.trendingTopics,
           electionTabs: settingsForm.electionTabs,
-          cricketPointsTable: settingsForm.cricketPointsTable,
         }),
       });
 
@@ -540,11 +758,11 @@ function Admin() {
   }
 
   if (loadingDashboard && !dashboard) {
-    return <div className="admin-loading-screen">Admin panel load ho raha hai...</div>;
+    return <div className="admin-loading-screen">Loading admin panel...</div>;
   }
 
   if (!dashboard) {
-    return <div className="admin-loading-screen">Admin data load nahi ho paya.</div>;
+    return <div className="admin-loading-screen">Failed to load admin data.</div>;
   }
 
   return (
@@ -570,8 +788,8 @@ function Admin() {
             <DashboardOverview
               summary={dashboard.summary}
               analytics={dashboard.analytics}
-              categories={dashboard.categories}
-              slots={dashboard.slots}
+              categories={normalizedCategories}
+              slots={normalizedSlots}
               formatNumber={formatNumber}
             />
           )}
@@ -580,6 +798,9 @@ function Admin() {
             <WorkflowBoard
               authHeaders={authHeaders}
               formatDateTime={formatDateTime}
+              items={workflowItems}
+              onStoryStatusChange={updateStoryStatus}
+              onShortStatusChange={updateShortStatus}
               openEditor={(postId) => {
                 const post = dashboard?.posts?.find((p) => String(p.id) === String(postId));
                 if (post) {
@@ -596,8 +817,8 @@ function Admin() {
           {activeTab === 'posts' && (
             <NewsList
               filteredPosts={filteredPosts}
-              slots={dashboard.slots}
-              categories={dashboard.categories}
+              slots={normalizedSlots}
+              categories={normalizedCategories}
               slotFilter={slotFilter}
               setSlotFilter={setSlotFilter}
               categoryFilter={categoryFilter}
@@ -614,6 +835,7 @@ function Admin() {
               labels={dashboard.config?.labels || {}}
               formatDateTime={formatDateTime}
               deletePost={deletePost}
+              updateStoryStatus={updateStoryStatus}
             />
           )}
 
@@ -622,8 +844,9 @@ function Admin() {
               editingId={editingId}
               postForm={postForm}
               setPostForm={setPostForm}
-              slots={dashboard.slots}
-              categories={dashboard.categories}
+              slots={normalizedSlots}
+              categories={normalizedCategories}
+              tags={dashboard.tags || []}
               locationOptions={dashboard.locationOptions}
               savePost={savePost}
               savingPost={savingPost}
@@ -639,15 +862,22 @@ function Admin() {
           {activeTab === 'locations' && <LocationMaster authHeaders={authHeaders} />}
 
           {activeTab === 'taxonomy' && (
-            <TaxonomyManager
-              categories={dashboard.categories}
-              tags={dashboard.tags}
-              analytics={dashboard.analytics}
-              updateTaxonomy={updateTaxonomy}
-              formatNumber={formatNumber}
-            />
-          )}
-
+          <TaxonomyManager
+            categories={dashboard?.categories || []}
+            tags={dashboard?.tags || []}
+            analytics={dashboard?.analytics}
+            updateTaxonomy={updateTaxonomy}
+            formatNumber={formatNumber}
+          />
+        )}
+        {activeTab === 'home_sections' && (
+          <HomeSectionsManager
+            settingsForm={settingsForm}
+            setSettingsForm={setSettingsForm}
+            saveSettings={saveSettings}
+            savingSettings={savingSettings}
+          />
+        )}
           {activeTab === 'users' && (
             <UserManage authHeaders={authHeaders} locationOptions={dashboard.locationOptions} />
           )}
@@ -666,6 +896,10 @@ function Admin() {
               emptyPost={emptyPost}
               formFromPost={formFromPost}
               deleteShort={deleteShort}
+              updateShortStatus={updateShortStatus}
+              uploadShortVideo={uploadShortVideo}
+              uploadingVideo={uploadingImage}
+              uploadMessage={uploadMessage}
               user={user}
             />
           )}
@@ -677,6 +911,14 @@ function Admin() {
               saveSettings={saveSettings}
               savingSettings={savingSettings}
             />
+          )}
+
+          {activeTab === 'epaper' && (
+            <EpaperManager authHeaders={authHeaders} />
+          )}
+
+          {activeTab === 'team' && (
+            <TeamManager authHeaders={authHeaders} />
           )}
         </main>
       </div>

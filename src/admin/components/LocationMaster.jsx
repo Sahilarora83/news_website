@@ -31,7 +31,7 @@ const LocationMaster = ({ authHeaders }) => {
       const data = await response.json();
       setLocations(data);
     } catch (error) {
-      setMessage('Location data load nahi ho paya.');
+      setMessage('Failed to load location data.');
     } finally {
       setLoading(false);
     }
@@ -75,7 +75,7 @@ const LocationMaster = ({ authHeaders }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!form.name.trim()) {
-      setMessage('Naam likhna zaroori hai.');
+      setMessage('Name is required.');
       return;
     }
 
@@ -119,7 +119,7 @@ const LocationMaster = ({ authHeaders }) => {
 
       await fetchLocations();
       resetForm();
-      setMessage(isEditing ? 'Location update ho gaya.' : 'Location add ho gaya.');
+      setMessage(isEditing ? 'Location updated successfully.' : 'Location added successfully.');
     } catch (error) {
       setMessage(error.message || 'Action failed');
     } finally {
@@ -178,7 +178,7 @@ const LocationMaster = ({ authHeaders }) => {
       <div className="admin-section-header">
         <div>
           <h2 className="admin-page-title">Locations</h2>
-          <p className="admin-page-note">State, district aur city ka full CRUD yahin se manage karo.</p>
+          <p className="admin-page-note">Manage full CRUD for states, districts, and cities here.</p>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <button className={activeTab === 'states' ? 'btn-primary' : 'btn-secondary'} onClick={() => setActiveTab('states')}>
@@ -287,7 +287,7 @@ const LocationMaster = ({ authHeaders }) => {
       {message ? <div className="admin-inline-message">{message}</div> : null}
 
       {loading ? (
-        <div className="admin-loading-screen" style={{ height: '240px' }}>Locations load ho rahi hain...</div>
+        <div className="admin-loading-screen" style={{ height: '240px' }}>Loading locations...</div>
       ) : (
         <div className="table-card">
           <header className="card-header">

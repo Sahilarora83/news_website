@@ -23,7 +23,7 @@ const actionConfig = {
   },
 };
 
-const StoryActionButton = ({ storyId, action = 'bookmark', className = 'bookmark-btn' }) => {
+const StoryActionButton = ({ storyId, action = 'bookmark', className = 'bookmark-btn', title }) => {
   const config = actionConfig[action] || actionConfig.bookmark;
   const [active, setActive] = useState(false);
   const [pending, setPending] = useState(false);
@@ -60,7 +60,8 @@ const StoryActionButton = ({ storyId, action = 'bookmark', className = 'bookmark
       className={className}
       type="button"
       aria-pressed={active}
-      aria-label={config.label}
+      aria-label={title || config.label}
+      title={title || config.label}
       disabled={pending}
       onClick={async (event) => {
         event.preventDefault();

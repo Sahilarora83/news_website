@@ -2,25 +2,17 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { resolveImageUrl } from '../../lib/media';
 
-const getYoutubeEmbedUrl = (url) => {
-  if (!url) return '';
+const getShortThumbnail = (item) => {
+  if (item.image && !item.image.includes('fallback-svg')) return item.image;
   
-  let videoId = '';
-  // Handle shorts URLs: youtube.com/shorts/ID
-  const shortsMatch = url.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]+)/);
-  if (shortsMatch) videoId = shortsMatch[1];
+  if (item.videoUrl) {
+    const ytIdMatch = item.videoUrl.match(/(?:youtube\.com\/(?:shorts\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+    if (ytIdMatch) {
+      return `https://img.youtube.com/vi/${ytIdMatch[1]}/hqdefault.jpg`;
+    }
+  }
   
-  // Handle watch URLs: youtube.com/watch?v=ID
-  const watchMatch = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
-  if (watchMatch && !videoId) videoId = watchMatch[1];
-  
-  // Handle shortened URLs: youtu.be/ID
-  const shortMatch = url.match(/youtu\.be\/([a-zA-Z0-9_-]+)/);
-  if (shortMatch && !videoId) videoId = shortMatch[1];
-
-  if (!videoId) return url; // Fallback
-
-  return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&modestbranding=1&rel=0&iv_load_policy=3&showinfo=0`;
+  return resolveImageUrl(item.image);
 };
 
 const ShortsSection = ({ items = [], title }) => {
@@ -29,41 +21,29 @@ const ShortsSection = ({ items = [], title }) => {
   return (
     <section className="shorts-section container" aria-label={displayTitle}>
       <div className="shorts-header">
-        <Link to={`/search?q=${encodeURIComponent(displayTitle)}`}>
+        <Link to="/shorts">
           <h2 className="shorts-title">{displayTitle}</h2>
-          <i className="far fa-circle-right" aria-hidden="true" />
+          <i className="fas fa-arrow-right" style={{ fontSize: '1.2rem', marginLeft: '5px', color: '#de1f27' }} />
         </Link>
       </div>
 
       <div className="shorts-grid">
-        {items.map((item) => {
-          const videoUrl = getYoutubeEmbedUrl(item.videoUrl);
+        {items.slice(0, 10).map((item) => {
+          const thumbUrl = getShortThumbnail(item);
           
           return (
             <article key={item.id} className="shorts-card">
-              <div className="shorts-card-media">
-                {item.videoUrl ? (
-                  <iframe
-                    src={videoUrl}
-                    title={item.title}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
-                ) : (
-                  <Link to={`/short/${item.id}`}>
-                    <img src={resolveImageUrl(item.image)} alt={item.title} />
-                    <span className="shorts-play" aria-hidden="true">
-                      <i className="fas fa-play" />
-                    </span>
-                  </Link>
-                )}
-              </div>
-              <div className="shorts-copy">
-                <h3>
-                  <Link to={`/short/${item.id}`}>{item.title}</Link>
-                </h3>
-              </div>
+              <Link to={`/short/${item.slug || item.id}`} style={{ textDecoration: 'none' }}>
+                <div className="shorts-card-media">
+                  <img src={thumbUrl} alt={item.title} loading="lazy" />
+                  <div className="shorts-play-overlay" aria-hidden="true">
+                    <i className="fas fa-play" />
+                  </div>
+                </div>
+                <div className="shorts-card-caption">
+                  <h3>{item.title}</h3>
+                </div>
+              </Link>
             </article>
           );
         })}

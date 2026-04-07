@@ -1,0 +1,221 @@
+/* WeatherSection.css */
+
+.weather-sidebar-widget,
+.breaking-sidebar-widget,
+.breaking-news-list-only {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  border: 1px solid #e1e8ef;
+}
+
+.sidebar-widget-header {
+  border-bottom: 2px solid #de1f27;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-widget-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1a1a1a;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-widget-title i {
+  color: #3b82f6;
+  font-size: 14px;
+}
+
+.weather-sidebar-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.weather-sidebar-card {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #f0f3f6;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.weather-sidebar-card:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.weather-sidebar-card.active {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  box-shadow: 0 0 0 1px #3b82f6;
+}
+
+.sidebar-city-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.sidebar-card-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-weather-icon {
+  width: 40px;
+  height: 40px;
+  margin: -8px 0;
+}
+
+.sidebar-temp {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.sidebar-status-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+/* Condition Colors */
+.status-clear { background: #fff7ed; color: #9a3412; }
+.status-clear .status-dot { background: #f97316; }
+
+.status-clouds { background: #f1f5f9; color: #475569; }
+.status-clouds .status-dot { background: #94a3b8; }
+
+.status-rain { background: #eff6ff; color: #1e40af; }
+.status-rain .status-dot { background: #3b82f6; }
+
+.status-other { background: #f8fafc; color: #64728b; }
+.status-other .status-dot { background: #cbd5e1; }
+
+/* Sidebar Story Card styles */
+.sidebar-story-card {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.sidebar-story-card:last-child {
+  border-bottom: none;
+}
+
+.sidebar-story-image {
+  flex: 0 0 100px;
+  height: 68px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.sidebar-story-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sidebar-story-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.sidebar-story-title {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0;
+  display: -webkit-box;
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sidebar-story-title a {
+  color: #1a1a1a;
+  text-decoration: none;
+}
+
+.sidebar-story-title a:hover {
+  color: #de1f27;
+}
+
+.sidebar-story-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.sidebar-story-location {
+  font-size: 11px;
+  font-weight: 700;
+  color: #de1f27;
+  text-transform: uppercase;
+}
+
+.sidebar-story-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.sidebar-action-icon {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-action-icon:hover {
+  transform: scale(1.15);
+}
+
+.sidebar-action-icon.like-icon:hover {
+  color: #ef4444;
+}
+
+.sidebar-action-icon.bookmark-icon:hover {
+  color: #3b82f6;
+}
+
+/* Ensure active states show correct colors if not handled by internal classes */
+.sidebar-action-icon .fas.fa-heart { color: #ef4444; }
+.sidebar-action-icon .fas.fa-bookmark { color: #3b82f6; }
+

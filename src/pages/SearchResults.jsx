@@ -48,6 +48,7 @@ const SearchResults = () => {
   }, [query]);
 
   const hasQuery = query.trim().length > 0;
+  const storyPath = (article) => `/article/${encodeURIComponent(article?.slug || article?.id || '')}`;
 
   return (
     <main className="search-results-page container">
@@ -85,7 +86,7 @@ const SearchResults = () => {
               const imageSrc = article.image ? resolveImageUrl(article.image) : DEFAULT_SEARCH_IMAGE;
 
               return (
-                <Link key={article.id} to={`/article/${article.id}`} className="search-result-card" style={{ height: '100%' }}>
+                <Link key={article.id} to={storyPath(article)} className="search-result-card" style={{ height: '100%' }}>
                   <div className="search-result-media">
                     <img className="search-result-image" src={imageSrc} alt={article.title} />
                   </div>

@@ -6,6 +6,7 @@ const StoryStudio = ({
   setPostForm,
   slots = [],
   categories = [],
+  tags = [],
   locationOptions = {},
   savePost,
   savingPost,
@@ -25,6 +26,10 @@ const StoryStudio = ({
 
   const cityOptions = [...new Set([postForm.city, ...(locationOptions.cities || []).map((city) => city.name)].filter(Boolean))]
     .sort((left, right) => left.localeCompare(right));
+
+  const availableTags = [...new Set([...tags, ...(postForm.tags || [])].filter(Boolean))].sort((left, right) =>
+    String(left).localeCompare(String(right)),
+  );
 
   return (
     <main className="admin-editor-wrap">
@@ -87,6 +92,17 @@ const StoryStudio = ({
               value={postForm.publishedAt || ''}
               onChange={(event) => updateField('publishedAt', event.target.value)}
             />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Status</label>
+            <select className="input-modern" value={postForm.status || 'draft'} onChange={(event) => updateField('status', event.target.value)}>
+              <option value="published">Published</option>
+              <option value="draft">Draft</option>
+              <option value="review">Under Review</option>
+              <option value="pending">Pending Review</option>
+              <option value="rejected">Rejected</option>
+            </select>
           </div>
         </section>
 
@@ -233,6 +249,30 @@ const StoryStudio = ({
                 }
                 placeholder="politics, local, featured"
               />
+              {availableTags.length > 0 ? (
+                <div className="admin-tag-picker" style={{ marginTop: 12, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {availableTags.map((tag) => {
+                    const selected = (postForm.tags || []).some((item) => String(item).toLowerCase() === String(tag).toLowerCase());
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        className={`admin-tag-chip ${selected ? 'active' : ''}`}
+                        onClick={() =>
+                          updateField(
+                            'tags',
+                            selected
+                              ? (postForm.tags || []).filter((item) => String(item).toLowerCase() !== String(tag).toLowerCase())
+                              : [...(postForm.tags || []), tag],
+                          )
+                        }
+                      >
+                        {tag}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : null}
             </div>
 
             <div className="form-group">
@@ -305,25 +345,35 @@ const StoryStudio = ({
           </div>
         </section>
 
-        {savingMessage ? <div className="admin-inline-message">{savingMessage}</div> : null}
+          {savingMessage ? <div className="admin-inline-message">{savingMessage}</div> : null}
 
-        <footer className="floating-action-bar">
+          <footer className="floating-action-bar">
           {!user || (user.role !== 'city_manager' && user.role !== 'reporter') ? (
-            <button className="btn-primary" type="submit" disabled={savingPost || uploadingImage}>
-              {savingPost ? 'Saving...' : 'Publish'}
-            </button>
+            <>
+              <button className="btn-primary" type="button" onClick={(event) => savePost(event, 'published')} disabled={savingPost || uploadingImage}>
+                {savingPost ? 'Saving...' : 'Publish'}
+              </button>
+              <button
+                className="btn-secondary"
+                type="button"
+                onClick={(event) => savePost(event, postForm.status === 'review' ? 'draft' : 'review')}
+                disabled={savingPost || uploadingImage}
+              >
+                {savingPost ? 'Saving...' : postForm.status === 'review' ? 'Un-review' : 'Review'}
+              </button>
+            </>
           ) : (
             <button
               className="btn-primary"
               type="button"
-              onClick={(event) => savePost(event, 'pending')}
+              onClick={(event) => savePost(event, 'review')}
               disabled={savingPost || uploadingImage}
             >
               {savingPost ? 'Saving...' : 'Send to Review'}
             </button>
           )}
           <button className="btn-secondary" type="button" onClick={() => savePost(null, 'draft')} disabled={savingPost || uploadingImage}>
-            Save Draft
+            {savingPost ? 'Saving...' : 'Save Draft'}
           </button>
         </footer>
       </form>

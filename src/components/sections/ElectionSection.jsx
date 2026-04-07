@@ -5,6 +5,7 @@ import StoryActionButton from '../common/StoryActionButton';
 
 const ElectionSection = ({ tabs = [], cards = [], title }) => {
   const displayTitle = title || 'विधानसभा चुनाव 2026';
+  const storyPath = (item) => `/article/${encodeURIComponent(item?.slug || item?.id || '')}`;
 
   return (
     <section className="election-section container" aria-label={displayTitle}>
@@ -29,13 +30,13 @@ const ElectionSection = ({ tabs = [], cards = [], title }) => {
         {cards.map((card) => (
           <article key={card.id} className="election-card">
             <div className="election-card-media">
-              <Link to={`/article/${card.id}`}>
+              <Link to={storyPath(card)}>
                 <img className="election-card-image" src={resolveImageUrl(card.image)} alt={card.title} />
               </Link>
               {card.banner ? <span className="election-card-banner">{card.banner}</span> : null}
             </div>
             <h3 className="election-card-headline">
-              <Link to={`/article/${card.id}`}>{card.title}</Link>
+              <Link to={storyPath(card)}>{card.title}</Link>
             </h3>
             <div className="election-card-footer">
               <span className="story-category">{card.category}</span>

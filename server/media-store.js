@@ -22,6 +22,10 @@ const videoExtensionMap = {
   'video/x-msvideo': '.avi',
 };
 
+const documentExtensionMap = {
+  'application/pdf': '.pdf',
+};
+
 function slugifyFileName(value) {
   return String(value || 'image')
     .trim()
@@ -113,6 +117,50 @@ export async function saveBase64VideoUpload({ dataUrl, fileName }) {
   }
 
   const extension = resolveVideoExtension(mimeType, fileName);
+  const safeName = `${Date.now()}-${slugifyFileName(fileName)}${extension}`;
+  const absolutePath = join(uploadsDirectory, safeName);
+
+  await mkdir(uploadsDirectory, { recursive: true });
+  await writeFile(absolutePath, buffer);
+
+  return {
+    fileName: safeName,
+    relativeUrl: `/uploads/${safeName}`,
+  };
+}
+
+function resolveDocumentExtension(mimeType, fileName) {
+  if (documentExtensionMap[mimeType]) {
+    return documentExtensionMap[mimeType];
+  }
+
+  const existingExtension = extname(String(fileName || '')).toLowerCase();
+  if (existingExtension) {
+    return existingExtension;
+  }
+
+  return '.pdf';
+}
+
+export async function saveBase64DocumentUpload({ dataUrl, fileName }) {
+  const match = String(dataUrl || '').match(/^data:(application\/pdf);base64,(.+)$/);
+
+  if (!match) {
+    throw new Error('Please select a valid PDF file.');
+  }
+
+  const [, mimeType, base64Payload] = match;
+  const buffer = Buffer.from(base64Payload, 'base64');
+
+  if (!buffer.length) {
+    throw new Error('Uploaded PDF is empty.');
+  }
+
+  if (buffer.length > 30 * 1024 * 1024) {
+    throw new Error('PDF must be smaller than 30 MB.');
+  }
+
+  const extension = resolveDocumentExtension(mimeType, fileName);
   const safeName = `${Date.now()}-${slugifyFileName(fileName)}${extension}`;
   const absolutePath = join(uploadsDirectory, safeName);
 

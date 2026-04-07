@@ -30,8 +30,12 @@ function collectRelatedCandidates(homeData = {}) {
   });
 }
 
+function storyPath(item) {
+  return `/article/${encodeURIComponent(item?.slug || item?.id || '')}`;
+}
+
 const Article = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
   const [article, setArticle] = useState(null);
   const [related, setRelated] = useState([]);
   const [latestItems, setLatestItems] = useState([]);
@@ -41,7 +45,7 @@ const Article = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    if (!id) {
+    if (!slug) {
       return;
     }
 
@@ -51,7 +55,7 @@ const Article = () => {
 
       try {
         const [articleResponse, homeResponse] = await Promise.all([
-          fetch(apiUrl(`/api/article/${id}`)),
+          fetch(apiUrl(`/api/article/${slug}`)),
           fetch(apiUrl('/api/home')),
         ]);
 
@@ -73,10 +77,10 @@ const Article = () => {
         setArticle(articleData.article);
         setRelated(
           relatedItems
-            .filter((item) => String(item.id) !== String(id) && item.isSuggestion !== false)
+            .filter((item) => String(item.id) !== String(slug) && item.isSuggestion !== false)
             .slice(0, 4),
         );
-        setLatestItems(latestStories.filter((item) => String(item.id) !== String(id)).slice(0, 5));
+        setLatestItems(latestStories.filter((item) => String(item.id) !== String(slug)).slice(0, 5));
         setConfig(homeData.config);
         setStatus('ready');
       } catch (err) {
@@ -86,7 +90,7 @@ const Article = () => {
     };
 
     loadData();
-  }, [id]);
+  }, [slug]);
 
   const bodyParagraphs = useMemo(() => {
     if (Array.isArray(article?.body)) {
@@ -195,8 +199,8 @@ const Article = () => {
                   <i className={item.icon} />
                 </a>
               ))}
-              <StoryActionButton storyId={article.id} action="like" className="share-icon-btn" />
-              <StoryActionButton storyId={article.id} className="share-icon-btn" />
+              <StoryActionButton storyId={article.id} action="like" className="share-icon-btn" title="Like story" />
+              <StoryActionButton storyId={article.id} className="share-icon-btn" title="Bookmark story" />
             </div>
           </div>
 
@@ -223,6 +227,7 @@ const Article = () => {
             ))}
           </div>
 
+
           {showSuggestions && related.length > 0 ? (
             <section className="related-news-section">
               <h2 className="related-news-heading">
@@ -241,12 +246,26 @@ const Article = () => {
         <aside className="article-sidebar">
           {showLatest && latestItems.length > 0 ? (
             <div className="sidebar-block">
-              <h3 className="sidebar-block-title">{config?.labels?.latest || 'Latest News'}</h3>
+              <h3 className="sidebar-block-title">खबरें और भी</h3>
               <div className="sidebar-list">
-                {latestItems.map((item) => (
-                  <Link key={item.id} to={`/article/${item.id}`} className="sidebar-story-link">
-                    <h4>{item.title}</h4>
-                  </Link>
+                {latestItems.map((item, index) => (
+                  <React.Fragment key={item.id}>
+                  <Link to={storyPath(item)} className="sidebar-story-link">
+                      <div className="sidebar-story-thumb">
+                        {item.image ? (
+                          <img src={item.image} alt={item.title} loading="lazy" />
+                        ) : (
+                          <div className="sidebar-thumb-placeholder" />
+                        )}
+                      </div>
+                      <div className="sidebar-story-text">
+                        <h4>{item.title}</h4>
+                      </div>
+                    </Link>
+                    {index < latestItems.length - 1 && (
+                      <div className="sidebar-divider" />
+                    )}
+                  </React.Fragment>
                 ))}
               </div>
             </div>

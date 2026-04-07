@@ -9,7 +9,6 @@ const sectionToggleKeys = [
   { key: 'election', label: 'Election' },
   { key: 'business', label: 'Business' },
   { key: 'editorial', label: 'Editorial' },
-  { key: 'cricket', label: 'Cricket' },
   { key: 'shorts', label: 'Shorts' },
   { key: 'trio', label: 'Three Columns' },
 ];
@@ -54,7 +53,7 @@ const SiteSettings = ({ settingsForm, setSettingsForm, saveSettings, savingSetti
     <div className="admin-settings-view">
       <section className="form-section-card">
         <header className="card-header admin-card-header-plain">
-          <h4 style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>Branding & SEO</h4>
+          <h4 style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>General & Branding</h4>
         </header>
 
         <div className="admin-form-grid admin-form-grid-two">
@@ -129,12 +128,12 @@ const SiteSettings = ({ settingsForm, setSettingsForm, saveSettings, savingSetti
           <div className="admin-toggle-stack">
             <label className="admin-checkbox">
               <input type="checkbox" checked={settingsForm.show_article_suggestions} onChange={(event) => updateField('show_article_suggestions', event.target.checked)} />
-              <span>Enable article suggestions</span>
+              <span>Show related stories on article page</span>
             </label>
 
             <label className="admin-checkbox">
               <input type="checkbox" checked={settingsForm.show_article_latest_news} onChange={(event) => updateField('show_article_latest_news', event.target.checked)} />
-              <span>Enable article sidebar latest list</span>
+              <span>Show latest stories in article sidebar</span>
             </label>
           </div>
         </div>
@@ -142,7 +141,7 @@ const SiteSettings = ({ settingsForm, setSettingsForm, saveSettings, savingSetti
 
       <section className="form-section-card">
         <header className="card-header admin-card-header-plain">
-          <h4 style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>Homepage Visibility</h4>
+          <h4 style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>Homepage Sections</h4>
         </header>
 
         <div className="taxonomy-grid">
@@ -152,66 +151,6 @@ const SiteSettings = ({ settingsForm, setSettingsForm, saveSettings, savingSetti
               <input type="checkbox" checked={settingsForm[item.key]} onChange={(event) => updateField(item.key, event.target.checked)} />
             </label>
           ))}
-        </div>
-      </section>
-
-      <section className="table-card" style={{ marginTop: 32 }}>
-        <header className="card-header">
-          <div>
-            <h4 style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>Homepage Sections</h4>
-            <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: '13px' }}>Any extra slot you add here can now render on the homepage when stories are assigned to it.</p>
-          </div>
-          <button
-            className="btn-secondary"
-            onClick={() =>
-              addListItem('slots', {
-                slot: `custom-${settingsForm.slots.length + 1}`,
-                label: `Custom Section ${settingsForm.slots.length + 1}`,
-                section: 'Custom',
-                single: false,
-              })
-            }
-          >
-            <i className="fas fa-plus" />
-            Add Section
-          </button>
-        </header>
-
-        <div className="table-responsive">
-          <table className="admin-data-table">
-            <thead>
-              <tr>
-                <th>Slot ID</th>
-                <th>Label</th>
-                <th>Section Group</th>
-                <th>Single</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {settingsForm.slots.map((slot, index) => (
-                <tr key={`${slot.slot}-${index}`}>
-                  <td>
-                    <input className="input-modern" value={slot.slot} onChange={(event) => updateListItem('slots', index, 'slot', event.target.value)} />
-                  </td>
-                  <td>
-                    <input className="input-modern" value={slot.label} onChange={(event) => updateListItem('slots', index, 'label', event.target.value)} />
-                  </td>
-                  <td>
-                    <input className="input-modern" value={slot.section || ''} onChange={(event) => updateListItem('slots', index, 'section', event.target.value)} />
-                  </td>
-                  <td>
-                    <input type="checkbox" checked={Boolean(slot.single)} onChange={(event) => updateListItem('slots', index, 'single', event.target.checked)} />
-                  </td>
-                  <td>
-                    <button className="btn-ghost danger" onClick={() => removeListItem('slots', index)}>
-                      <i className="fas fa-trash-alt" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       </section>
 
@@ -282,74 +221,6 @@ const SiteSettings = ({ settingsForm, setSettingsForm, saveSettings, savingSetti
           </div>
         </section>
       </div>
-
-      <section className="table-card" style={{ marginTop: 32 }}>
-        <header className="card-header">
-          <h4 style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>Cricket Points Table</h4>
-          <button
-            className="btn-secondary"
-            onClick={() =>
-              addListItem('cricketPointsTable', {
-                id: Date.now(),
-                team: '',
-                played: 0,
-                won: 0,
-                lost: 0,
-                tied: 0,
-                pts: 0,
-                rr: '0.000',
-                badge: '',
-              })
-            }
-          >
-            <i className="fas fa-plus" />
-            Add Team
-          </button>
-        </header>
-
-        <div className="table-responsive">
-          <table className="admin-data-table">
-            <thead>
-              <tr>
-                <th>Team</th>
-                <th>P</th>
-                <th>W</th>
-                <th>L</th>
-                <th>T</th>
-                <th>PTS</th>
-                <th>RR</th>
-                <th>Badge</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {settingsForm.cricketPointsTable.map((row, index) => (
-                <tr key={`${row.id}-${index}`}>
-                  <td>
-                    <input className="input-modern" value={row.team || ''} onChange={(event) => updateListItem('cricketPointsTable', index, 'team', event.target.value)} />
-                  </td>
-                  {['played', 'won', 'lost', 'tied', 'pts'].map((field) => (
-                    <td key={field}>
-                      <input className="input-modern" type="number" min="0" value={row[field] ?? 0} onChange={(event) => updateListItem('cricketPointsTable', index, field, Number(event.target.value || 0))} />
-                    </td>
-                  ))}
-                  <td>
-                    <input className="input-modern" value={row.rr || ''} onChange={(event) => updateListItem('cricketPointsTable', index, 'rr', event.target.value)} />
-                  </td>
-                  <td>
-                    <input className="input-modern" value={row.badge || ''} onChange={(event) => updateListItem('cricketPointsTable', index, 'badge', event.target.value)} />
-                  </td>
-                  <td>
-                    <button className="btn-ghost danger" onClick={() => removeListItem('cricketPointsTable', index)}>
-                      <i className="fas fa-trash-alt" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
 
       <div style={{ marginTop: 32, display: 'flex', justifyContent: 'flex-end' }}>
         <button className="btn-primary" style={{ padding: '0 40px' }} onClick={saveSettings} disabled={savingSettings}>

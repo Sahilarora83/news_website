@@ -59,91 +59,82 @@ const ShortVideoPage = () => {
   }
 
   const embedUrl = getImmersiveYoutubeUrl(short.videoUrl);
+  const isYoutube = (url) => /youtube\.com|youtu\.be/.test(url || '');
+  const youtube = isYoutube(short.videoUrl);
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: short.title,
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.log('Error sharing', err);
+      }
+    } else {
+      alert('Sharing is not supported on this browser');
+    }
+  };
 
   return (
     <div className="short-video-immersive" style={{ 
       background: '#0a0a0a', 
-      height: 'calc(100vh - 140px)', 
+      height: '100vh', 
+      width: '100vw',
       display: 'flex', 
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '5px 10px',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      zIndex: 9999
     }}>
-      <div className="immersive-inner" style={{ 
-        height: '100%', 
-        width: '100%', 
-        display: 'flex', 
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        maxWidth: '500px'
-      }}>
-        <div style={{ 
-          height: '68vh', 
-          maxHeight: 'calc(100% - 100px)',
-          aspectRatio: '9/16', 
-          background: '#000', 
-          borderRadius: '8px', 
-          overflow: 'hidden',
-          boxShadow: '0 8px 25px rgba(0,0,0,0.6)',
-          position: 'relative'
-        }}>
-          <iframe
-            src={embedUrl}
-            title={short.title}
-            style={{ width: '100%', height: '100%', border: 'none' }}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          ></iframe>
+      <div className="immersive-player-container">
+        {/* Top Overlay */}
+        <div className="player-top-overlay">
+          <h4>{short.title}</h4>
         </div>
 
-        <div style={{ marginTop: '10px', color: '#fff', textAlign: 'center', width: '100%', padding: '0 10px' }}>
-          <h1 style={{ 
-            fontSize: '1.1rem', 
-            fontWeight: '700', 
-            marginBottom: '2px', 
-            whiteSpace: 'nowrap', 
-            overflow: 'hidden', 
-            textOverflow: 'ellipsis' 
-          }}>
-            {short.title}
-          </h1>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.75rem', color: '#777' }}>
-            <span>{short.city || 'Shorts'}</span>
-            <span>•</span>
-            <span>{short.time}</span>
-          </div>
-          
-          <div style={{ marginTop: '12px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
-            <Link to="/shorts" style={{ 
-              background: '#de1f27', 
-              color: '#fff', 
-              padding: '6px 14px', 
-              borderRadius: '20px', 
-              textDecoration: 'none',
-              fontWeight: '700',
-              fontSize: '0.8rem'
-            }}>
-              <i className="fas fa-grid-2" style={{ marginRight: '5px' }}></i>
-              Feed
-            </Link>
-            <button 
-              onClick={() => window.history.back()}
-              style={{ 
-                background: 'rgba(255,255,255,0.1)', 
-                color: '#ddd', 
-                border: 'none',
-                padding: '6px 14px', 
-                borderRadius: '20px', 
-                cursor: 'pointer',
-                fontWeight: '600',
-                fontSize: '0.8rem'
-              }}
-            >
-              Back
-            </button>
+        {/* Video Player */}
+        <div style={{ width: '100%', height: '100%' }}>
+          {youtube ? (
+            <iframe
+              src={embedUrl}
+              title={short.title}
+              style={{ width: '100%', height: '100%', border: 'none' }}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          ) : (
+            <video
+              src={short.videoUrl}
+              controls
+              autoPlay
+              loop
+              playsInline
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          )}
+        </div>
+
+        {/* Side Actions */}
+        <div className="player-side-actions">
+          <Link to="/" className="action-btn-circle" title="Home">
+            <i className="fas fa-home" />
+          </Link>
+          <button className="action-btn-circle" onClick={handleShare} title="Share">
+            <i className="fas fa-share" />
+          </button>
+        </div>
+
+        {/* Bottom Red Strip */}
+        <div className="player-bottom-red-strip">
+          <h2>{short.title}</h2>
+          <div style={{ fontSize: '0.75rem', marginTop: '4px', opacity: 0.8 }}>
+            {short.city || 'Shorts'} • {short.time}
           </div>
         </div>
       </div>

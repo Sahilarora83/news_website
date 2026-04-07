@@ -79,7 +79,7 @@ const UserManage = ({ authHeaders, locationOptions }) => {
       }
 
       await fetchTeam();
-      setMessage(isEditing ? 'User update ho gaya.' : 'User create ho gaya.');
+      setMessage(isEditing ? 'User updated successfully.' : 'User created successfully.');
       resetForm();
     } catch (error) {
       setMessage(error.message || 'User save failed');
@@ -130,7 +130,7 @@ const UserManage = ({ authHeaders, locationOptions }) => {
       <div className="admin-section-header">
         <div>
           <h2 className="admin-page-title">Users</h2>
-          <p className="admin-page-note">Create, edit, delete, role assign aur city assignment yahin se manage karo.</p>
+          <p className="admin-page-note">User banana, edit karna, delete karna, role change karna aur city assign karna yahan se hoga.</p>
         </div>
       </div>
 
@@ -210,11 +210,11 @@ const UserManage = ({ authHeaders, locationOptions }) => {
       {message ? <div className="admin-inline-message">{message}</div> : null}
 
       {loading ? (
-        <div className="admin-loading-screen" style={{ height: '240px' }}>Users load ho rahe hain...</div>
+        <div className="admin-loading-screen" style={{ height: '240px' }}>Loading users...</div>
       ) : (
         <div className="table-card">
           <header className="card-header">
-            <h4 style={{ fontSize: '16px', fontWeight: 700, margin: 0 }}>User list</h4>
+          <h4 style={{ fontSize: '16px', fontWeight: 700, margin: 0 }}>Registered users</h4>
           </header>
           <div className="table-responsive">
             <table className="admin-data-table">

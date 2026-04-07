@@ -5,6 +5,7 @@ import StoryActionButton from '../common/StoryActionButton';
 
 const FeatureSection = ({ title, items = [] }) => {
   const isEditorial = String(title || '').toLowerCase().includes('संपादकीय');
+  const storyPath = (item) => `/article/${encodeURIComponent(item?.slug || item?.id || '')}`;
 
   return (
     <section className="feature-section container" aria-label={title}>
@@ -18,11 +19,11 @@ const FeatureSection = ({ title, items = [] }) => {
       <div className="feature-grid">
         {items.map((item) => (
           <article key={item.id} className="feature-card">
-            <Link to={`/article/${item.id}`}>
+            <Link to={storyPath(item)}>
               <img className="feature-image" src={resolveImageUrl(item.image)} alt={item.title} />
             </Link>
             <h3 className="feature-headline">
-              <Link to={`/article/${item.id}`}>{item.title}</Link>
+              <Link to={storyPath(item)}>{item.title}</Link>
             </h3>
             <div className="feature-footer">
               {isEditorial ? (

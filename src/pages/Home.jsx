@@ -4,10 +4,10 @@ import CityNewsSection from '../components/sections/CityNewsSection';
 import SectionDivider from '../components/sections/SectionDivider';
 import ElectionSection from '../components/sections/ElectionSection';
 import FeatureSection from '../components/sections/FeatureSection';
-import CricketSection from '../components/sections/CricketSection';
 import NewsTrioSection from '../components/sections/NewsTrioSection';
 import DynamicStorySection from '../components/sections/DynamicStorySection';
 import NewsCard from '../components/news/NewsCard';
+import ShortsSection from '../components/sections/ShortsSection';
 import { apiUrl } from '../lib/api';
 import { getPreferredCities, prioritizeHomeData } from '../lib/personalization';
 
@@ -61,30 +61,20 @@ const Home = () => {
           });
       }
 
-      try {
-        const [response, preferredCities] = await Promise.all([
-          fetch(apiUrl('/api/home'), { signal: controller.signal }),
-          getPreferredCities(),
-        ]);
-        if (!response.ok) {
-          throw new Error(`Failed to load live home content (${response.status})`);
-        }
-
-        const data = await response.json();
-        if (!controller.signal.aborted) {
-          setHomeData(prioritizeHomeData(data, preferredCities));
-        }
-      } catch {
-        // Keep existing UI if personalization refresh fails.
-      }
+      loadHome();
     };
 
     loadHome();
     handleStorageChange();
+    
+    // Auto-refresh content every 60 seconds
+    const intervalId = setInterval(loadHome, 60000);
+
     window.addEventListener('storage', handleStorageChange);
 
     return () => {
       controller.abort();
+      clearInterval(intervalId);
       window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
@@ -92,28 +82,46 @@ const Home = () => {
   const labels = homeData?.config?.labels || {};
   const show = (key) => homeData?.config?.[key] !== false;
 
-  const latestNews = show('latest') ? homeData?.latestNews || [] : [];
-  const centerHero = show('center') ? homeData?.centerHero || null : null;
-  const centerNews = show('center') ? homeData?.centerNews || [] : [];
-  const breakingNews = show('breaking') ? homeData?.breakingNews || [] : [];
-  const cityNews = show('city') ? homeData?.cityNews || [] : [];
-  const electionCards = show('election') ? homeData?.electionCards || [] : [];
-  const businessItems = show('business') ? homeData?.featureSections?.business || [] : [];
-  const editorialItems = show('editorial') ? homeData?.featureSections?.editorial || [] : [];
-  const trioColumns = show('trio') ? homeData?.trioSections || [] : [];
-  const customSections = homeData?.customSections || [];
-  const cricketData =
-    show('cricket') && homeData?.cricketSection
-      ? {
-          ...homeData.cricketSection,
-          title: labels.cricket || homeData.cricketSection.title,
-        }
-      : null;
+  const seenIds = new Set();
+  const processItems = (items) => {
+    if (!items) return [];
+    const arr = Array.isArray(items) ? items : [items];
+    return arr.filter((item) => {
+      if (!item || !item.id || seenIds.has(item.id)) return false;
+      seenIds.add(item.id);
+      return true;
+    });
+  };
 
+  const centerHero = show('center') ? processItems(homeData?.centerHero)[0] || null : null;
+  const centerNews = show('center') ? processItems(homeData?.centerNews) : [];
+  const breakingNews = show('breaking') ? processItems(homeData?.breakingNews) : [];
+  const latestNews = show('latest') ? processItems(homeData?.latestNews) : [];
+  
+  const cityNews = show('city') ? processItems(homeData?.cityNews) : [];
+  const electionCards = show('election') ? processItems(homeData?.electionCards) : [];
+  const businessItems = show('business') ? processItems(homeData?.featureSections?.business) : [];
+  const editorialItems = show('editorial') ? processItems(homeData?.featureSections?.editorial) : [];
+  
+  const trioColumns = show('trio') 
+    ? (homeData?.trioSections || []).map(section => ({
+        ...section,
+        items: processItems(section.items)
+      }))
+    : [];
+
+  const customSections = (homeData?.customSections || []).map(section => ({
+    ...section,
+    items: processItems(section.items)
+  }));
+  const sectionsBeforeShorts = customSections.filter((section) => Array.isArray(section.items) && section.items.length > 0);
+
+  const shortsVideos = homeData?.shortsVideos || [];
   const effectiveCenterHero = centerHero || centerNews[0] || null;
   const effectiveCenterNews = centerHero ? centerNews : centerNews.slice(1);
   const hasTopStories =
     latestNews.length > 0 || Boolean(effectiveCenterHero) || effectiveCenterNews.length > 0 || breakingNews.length > 0;
+
   const hasHomepageContent = (homeData?.items || []).length > 0;
 
   if (status === 'loading') {
@@ -207,13 +215,6 @@ const Home = () => {
         />
       ) : null}
 
-      {cricketData?.hero ? (
-        <>
-          <CricketSection data={cricketData} />
-          <SectionDivider />
-        </>
-      ) : null}
-
       {electionCards.length > 0 ? <ElectionSection tabs={homeData.electionTabs || []} cards={electionCards} title={labels.election} /> : null}
 
       {cityNews.length > 0 ? (
@@ -239,12 +240,20 @@ const Home = () => {
         </>
       ) : null}
 
-      {customSections.map((section) => (
+      {shortsVideos.length > 0 ? (
+        <>
+          <ShortsSection items={shortsVideos} title={labels.shorts} />
+          <SectionDivider />
+        </>
+      ) : null}
+
+      {sectionsBeforeShorts.map((section) => (
         <React.Fragment key={section.slot}>
           <DynamicStorySection section={section} />
           <SectionDivider />
         </React.Fragment>
       ))}
+
     </div>
   );
 };

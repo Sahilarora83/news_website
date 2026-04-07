@@ -80,18 +80,6 @@ CREATE TABLE election_tabs (
   is_active TINYINT(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE cricket_points_table (
-  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  team_name VARCHAR(120) NOT NULL,
-  played INT NOT NULL DEFAULT 0,
-  won INT NOT NULL DEFAULT 0,
-  lost INT NOT NULL DEFAULT 0,
-  tied INT NOT NULL DEFAULT 0,
-  points INT NOT NULL DEFAULT 0,
-  run_rate VARCHAR(20) NOT NULL DEFAULT '0.000',
-  badge VARCHAR(20) NOT NULL DEFAULT ''
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 CREATE TABLE articles (
   id VARCHAR(100) NOT NULL PRIMARY KEY,
   slug VARCHAR(150) NOT NULL UNIQUE,
@@ -164,12 +152,11 @@ INSERT INTO categories (id, name, slug, sort_order) VALUES
   (3, 'वर्ल्ड', 'world', 3),
   (4, 'बिजनेस', 'business', 4),
   (5, 'संपादकीय', 'editorial', 5),
-  (6, 'क्रिकेट', 'cricket', 6),
-  (7, 'उत्तर प्रदेश', 'uttar-pradesh-news', 7),
-  (8, 'दिल्ली', 'delhi-news', 8),
-  (9, 'बिहार', 'bihar-news', 9),
-  (10, 'टेक', 'tech', 10),
-  (11, 'मनोरंजन', 'entertainment', 11);
+  (6, 'उत्तर प्रदेश', 'uttar-pradesh-news', 6),
+  (7, 'दिल्ली', 'delhi-news', 7),
+  (8, 'बिहार', 'bihar-news', 8),
+  (9, 'टेक', 'tech', 9),
+  (10, 'मनोरंजन', 'entertainment', 10);
 
 INSERT INTO slot_definitions (slot_key, label, section_name, is_single, sort_order) VALUES
   ('center-hero', 'मुख्य शीर्षक', 'मुख्य समाचार', 1, 1),
@@ -180,12 +167,10 @@ INSERT INTO slot_definitions (slot_key, label, section_name, is_single, sort_ord
   ('election', 'विधानसभा चुनाव', 'चुनाव', 0, 6),
   ('business', 'बिजनेस', 'बिजनेस', 0, 7),
   ('editorial', 'संपादकीय', 'संपादकीय', 0, 8),
-  ('cricket-hero', 'क्रिकेट हेडलाइन', 'क्रिकेट', 1, 9),
-  ('cricket-story', 'क्रिकेट स्टोरी', 'क्रिकेट', 0, 10),
-  ('shorts', 'शॉर्ट वीडियो', 'शॉर्ट वीडियो', 0, 11),
-  ('trio-national', 'राष्ट्रीय न्यूज़', 'मुख्य वर्ग', 0, 12),
-  ('trio-politics', 'पॉलिटिक्स', 'मुख्य वर्ग', 0, 13),
-  ('trio-world', 'दुनिया', 'मुख्य वर्ग', 0, 14);
+  ('shorts', 'शॉर्ट वीडियो', 'शॉर्ट वीडियो', 0, 9),
+  ('trio-national', 'राष्ट्रीय न्यूज़', 'मुख्य वर्ग', 0, 10),
+  ('trio-politics', 'पॉलिटिक्स', 'मुख्य वर्ग', 0, 11),
+  ('trio-world', 'दुनिया', 'मुख्य वर्ग', 0, 12);
 
 INSERT INTO site_config (config_json) VALUES
   ('{
@@ -197,7 +182,6 @@ INSERT INTO site_config (config_json) VALUES
     "election": true,
     "business": true,
     "editorial": true,
-    "cricket": true,
     "shorts": true,
     "trio": true,
     "show_article_suggestions": true,
@@ -219,7 +203,6 @@ INSERT INTO site_config (config_json) VALUES
       "election": "विधानसभा चुनाव",
       "business": "बिजनेस",
       "editorial": "संपादकीय",
-      "cricket": "क्रिकेट",
       "shorts": "शॉर्ट वीडियो",
       "trio": "मुख्य वर्ग"
     }

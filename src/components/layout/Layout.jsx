@@ -10,6 +10,7 @@ import { apiUrl } from '../../lib/api';
 const Layout = ({ children }) => {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isEpaperRoute = location.pathname.startsWith('/epaper');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCityDrawerOpen, setIsCityDrawerOpen] = useState(false);
   const [config, setConfig] = useState(null);
@@ -90,8 +91,14 @@ const Layout = ({ children }) => {
   const toggleSidebar = () => setIsSidebarOpen((value) => !value);
   const toggleCityDrawer = () => setIsCityDrawerOpen((value) => !value);
 
-  if (isAdminRoute) {
-    return <>{children}</>;
+  const isShortsVideoRoute = location.pathname.startsWith('/short/');
+
+  if (isAdminRoute || isShortsVideoRoute) {
+    return <main className="main-content" style={{ padding: 0, margin: 0 }}>{children}</main>;
+  }
+
+  if (isEpaperRoute) {
+    return <main className="main-content" style={{ padding: 0, margin: 0 }}>{children}</main>;
   }
 
   return (
@@ -120,7 +127,13 @@ const Layout = ({ children }) => {
 
       <main className="main-content">{children}</main>
 
-      <Footer config={config} categories={categories} tags={displayTags} />
+      <Footer
+        config={config}
+        categories={categories}
+        tags={displayTags}
+        trendingTopics={displayTrending}
+        cities={locationCities}
+      />
     </div>
   );
 };

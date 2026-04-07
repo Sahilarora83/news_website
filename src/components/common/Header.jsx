@@ -46,13 +46,11 @@ const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [], loca
 
   const openSearchPanel = () => {
     closeMoreMenu();
-
     if (window.innerWidth <= 768) {
       setMobileSearchOpen(true);
       requestAnimationFrame(() => mobileSearchInputRef.current?.focus());
       return;
     }
-
     setDesktopSearchOpen(true);
     requestAnimationFrame(() => desktopSearchInputRef.current?.focus());
   };
@@ -78,7 +76,6 @@ const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [], loca
 
     document.addEventListener('pointerdown', handlePointerDown);
     document.addEventListener('keydown', handleKeyDown);
-
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown);
       document.removeEventListener('keydown', handleKeyDown);
@@ -155,16 +152,12 @@ const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [], loca
             <button className="nav-control js-open-sidebar" id="hamburgerBtn" type="button" aria-label="Open menu" onClick={toggleSidebar}>
               <i className="fas fa-bars" />
             </button>
-            <Link to="/" className="nav-btn btn-home">
-              होम
-            </Link>
-            <Link to="/search?q=%E0%A4%B5%E0%A4%BF%E0%A4%B6%E0%A5%87%E0%A4%B7" className="nav-brand-badge" aria-label="विशेष">
+            <Link to="/" className="nav-btn btn-home">होम</Link>
+            <Link to="/search?q=विशेष" className="nav-brand-badge" aria-label="विशेष">
               <i className="fas fa-crown badge-crown" />
               <span className="badge-text">अ</span>
             </Link>
-            <Link to="/shorts" className="nav-btn nav-shorts-btn">
-              शॉर्ट न्यूज़
-            </Link>
+            <Link to="/shorts" className="nav-btn nav-shorts-btn">शॉर्ट न्यूज़</Link>
 
             {mainCategories.map((category) => (
               <Link key={category} to={`/search?q=${encodeURIComponent(category)}`} className="nav-btn">
@@ -240,7 +233,7 @@ const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [], loca
           <i className="fas fa-circle-play" />
           <span>वीडियो</span>
         </Link>
-        <Link className="mobile-bottom-link mobile-bottom-premium" to="/search?q=%E0%A4%B5%E0%A4%BF%E0%A4%B6%E0%A5%87%E0%A4%B7" aria-label="विशेष">
+        <Link className="mobile-bottom-link mobile-bottom-premium" to="/search?q=विशेष" aria-label="विशेष">
           <svg className="mobile-premium-badge" viewBox="0 0 64 64" role="img" aria-hidden="true">
             <defs>
               <linearGradient id="pgRing" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
@@ -265,13 +258,13 @@ const Header = ({ toggleSidebar, toggleCityDrawer, config, categories = [], loca
             </text>
           </svg>
         </Link>
-        <Link className="mobile-bottom-link" to="/search?q=%E0%A4%AB%E0%A5%8B%E0%A4%9F%E0%A5%8B%20%E0%A4%97%E0%A5%88%E0%A4%B2%E0%A4%B0%E0%A5%80">
-          <i className="fas fa-camera" />
-          <span>फोटो</span>
-        </Link>
-        <Link className="mobile-bottom-link" to="/search?q=%E0%A4%88-%E0%A4%AA%E0%A5%87%E0%A4%AA%E0%A4%B0">
+        <Link className="mobile-bottom-link" to="/epaper" aria-label="E-Paper">
           <i className="fas fa-newspaper" />
-          <span>ई-पेपर</span>
+          <span>E-Paper</span>
+        </Link>
+        <Link className="mobile-bottom-link" to="/our-team">
+          <i className="fas fa-users" />
+          <span>टीम</span>
         </Link>
       </nav>
     </>

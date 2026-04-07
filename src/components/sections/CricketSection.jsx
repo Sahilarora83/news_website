@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { resolveImageUrl } from '../../lib/media';
-
+import StoryActionButton from '../common/StoryActionButton';
 const CricketSection = ({ data }) => {
   if (!data?.hero) {
     return null;
@@ -22,6 +22,7 @@ const CricketSection = ({ data }) => {
 
   const heroBanner = String(data.hero.banner || '').trim();
   const isLive = heroBanner.toLowerCase() === 'live';
+  const storyPath = (item) => `/article/${encodeURIComponent(item?.slug || item?.id || '')}`;
 
   return (
     <section className="cricket-section container" aria-label="क्रिकेट">
@@ -35,30 +36,36 @@ const CricketSection = ({ data }) => {
 
       <div className="cricket-grid">
         <article className="cricket-hero">
-          <Link to={`/article/${data.hero.id}`}>
+          <Link to={storyPath(data.hero)}>
             <img className="cricket-hero-image" src={resolveImageUrl(data.hero.image)} alt={data.hero.title} />
           </Link>
           {isLive ? <span className="cricket-live-badge">LIVE</span> : null}
           <h3 className="cricket-hero-headline">
-            <Link to={`/article/${data.hero.id}`}>{data.hero.title}</Link>
+            <Link to={storyPath(data.hero)}>{data.hero.title}</Link>
           </h3>
-          <div className="story-meta">
-            <span className="story-category">{data.hero.category}</span>
+          <div className="cricket-hero-footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '10px' }}>
+            <div className="story-meta">
+              <span className="story-category">{data.hero.category}</span>
+            </div>
+            <StoryActionButton storyId={data.hero.id} action="bookmark" className="bookmark-btn" />
           </div>
         </article>
 
         <div className="cricket-side">
           {(data.stories || []).map((story) => (
             <article key={story.id} className="cricket-side-item">
-              <Link to={`/article/${story.id}`}>
+              <Link to={storyPath(story)}>
                 <img src={resolveImageUrl(story.image)} alt={story.title} />
               </Link>
-              <div>
-                <h3 className="story-title">
-                  <Link to={`/article/${story.id}`}>{story.title}</Link>
+              <div style={{ flex: 1 }}>
+                <h3 className="story-title" style={{ marginBottom: '8px' }}>
+                  <Link to={storyPath(story)}>{story.title}</Link>
                 </h3>
-                <div className="story-meta">
-                  <span className="story-category">{story.category}</span>
+                <div className="story-card-footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div className="story-meta">
+                    <span className="story-category">{story.category}</span>
+                  </div>
+                  <StoryActionButton storyId={story.id} action="bookmark" className="bookmark-btn" />
                 </div>
               </div>
             </article>

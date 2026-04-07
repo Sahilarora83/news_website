@@ -3,14 +3,16 @@ import { Link } from 'react-router-dom';
 import { resolveImageUrl } from '../../lib/media';
 import StoryActionButton from '../common/StoryActionButton';
 
-const NewsCard = ({ type, data }) => {
+const storyPath = (data) => `/article/${encodeURIComponent(data?.slug || data?.id || '')}`;
+
+const NewsCard = ({ type, data, hideActions = false }) => {
   const { id, title, category, time, image, isVideo } = data;
   const imageSrc = resolveImageUrl(image);
 
   if (type === 'list') {
     return (
       <article className="related-story-card">
-        <Link className="related-story-media" to={`/article/${id}`}>
+        <Link className="related-story-media" to={storyPath(data)}>
           <img className="related-story-image" src={imageSrc} alt={title} />
         </Link>
         <div className="related-story-body">
@@ -19,11 +21,13 @@ const NewsCard = ({ type, data }) => {
             {time ? <span className="story-time">{time}</span> : null}
           </div>
           <h3 className="related-story-title">
-            <Link to={`/article/${id}`}>{title}</Link>
+            <Link to={storyPath(data)}>{title}</Link>
           </h3>
-          <div className="related-story-footer">
-            <StoryActionButton storyId={id} className="bookmark-btn related-story-bookmark" />
-          </div>
+          {!hideActions && (
+            <div className="related-story-footer">
+              <StoryActionButton storyId={id} action="bookmark" className="bookmark-btn" />
+            </div>
+          )}
         </div>
       </article>
     );
@@ -32,13 +36,13 @@ const NewsCard = ({ type, data }) => {
   if (type === 'latest') {
     return (
       <article className="latest-item">
-        <h3 className="story-title"><Link to={`/article/${id}`}>{title}</Link></h3>
+        <h3 className="story-title"><Link to={storyPath(data)}>{title}</Link></h3>
         <div className="story-card-footer latest-item-footer">
           <div className="story-meta">
             <span className="story-category">{category}</span>
             <span className="story-time">{time}</span>
           </div>
-          <StoryActionButton storyId={id} className="bookmark-btn story-card-bookmark" />
+          <StoryActionButton storyId={id} action="bookmark" className="bookmark-btn" />
         </div>
       </article>
     );
@@ -47,17 +51,17 @@ const NewsCard = ({ type, data }) => {
   if (type === 'center') {
     return (
       <article className="center-list-item">
-        <Link to={`/article/${id}`} className="center-thumb-link" aria-label={title}>
+        <Link to={storyPath(data)} className="center-thumb-link" aria-label={title}>
           <img className="center-thumb" src={imageSrc} alt={title} />
         </Link>
         <div className="center-list-copy">
-          <h3 className="story-title"><Link to={`/article/${id}`}>{title}</Link></h3>
+          <h3 className="story-title"><Link to={storyPath(data)}>{title}</Link></h3>
           <div className="story-card-footer">
             <div className="story-meta">
               <span className="story-category">{category}</span>
               <span className="story-time">{time}</span>
             </div>
-            <StoryActionButton storyId={id} className="bookmark-btn story-card-bookmark" />
+            <StoryActionButton storyId={id} action="bookmark" className="bookmark-btn" />
           </div>
         </div>
       </article>
@@ -71,12 +75,12 @@ const NewsCard = ({ type, data }) => {
           <img className="breaking-thumb" src={imageSrc} alt={title} />
         </div>
         <div>
-          <h3 className="story-title"><Link to={`/article/${id}`}>{title}</Link></h3>
+          <h3 className="story-title"><Link to={storyPath(data)}>{title}</Link></h3>
           <div className="story-card-footer">
             <div className="story-meta">
               <span className="story-category">{category}</span>
             </div>
-            <StoryActionButton storyId={id} className="bookmark-btn story-card-bookmark" />
+            <StoryActionButton storyId={id} action="bookmark" className="bookmark-btn" />
           </div>
         </div>
       </article>
@@ -85,16 +89,16 @@ const NewsCard = ({ type, data }) => {
 
   return (
     <article className="city-news-card">
-      <Link to={`/article/${id}`} className="city-news-media-link" aria-label={title}>
+      <Link to={storyPath(data)} className="city-news-media-link" aria-label={title}>
         <img className="city-news-image" src={imageSrc} alt={title} />
       </Link>
       <div className="city-news-copy">
-        <h3 className="story-title"><Link to={`/article/${id}`}>{title}</Link></h3>
+        <h3 className="story-title"><Link to={storyPath(data)}>{title}</Link></h3>
         <div className="city-news-footer">
           <div className="story-meta">
             <span className="story-category">{category}</span>
           </div>
-          <StoryActionButton storyId={id} className="bookmark-btn city-news-bookmark" />
+          <StoryActionButton storyId={id} action="bookmark" className="bookmark-btn" />
         </div>
       </div>
     </article>

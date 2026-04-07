@@ -37,7 +37,7 @@ const AdminLogin = ({ error, username, setUsername, password, setPassword, handl
           <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#111827', margin: '0 0 8px 0', letterSpacing: '-0.025em' }}>
             Admin Login
           </h1>
-          <p style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>Panel access ke liye login karein.</p>
+          <p style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>Login to access the admin panel.</p>
         </div>
 
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>

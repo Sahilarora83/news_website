@@ -3,6 +3,7 @@ import { constants as fsConstants } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
+import pool from './db.js';
 import { createDefaultStoreData } from './default-data.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -63,12 +64,12 @@ const slotLabelToConfigKey = {
   election: 'election',
   business: 'business',
   editorial: 'editorial',
-  'cricket-hero': 'cricket',
-  'cricket-story': 'cricket',
   shorts: 'shorts',
 };
 
 let cache = null;
+let epaperTablesEnsured = false;
+let ourTeamTablesEnsured = false;
 
 function deepClone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -135,22 +136,6 @@ function normalizeNameList(items = []) {
     .filter((item) => item.name);
 }
 
-function normalizeCricketPointsTable(rows = []) {
-  return rows
-    .map((row, index) => ({
-      id: Number(row.id || index + 1),
-      team: String(row.team || '').trim(),
-      played: Number(row.played || 0),
-      won: Number(row.won || 0),
-      lost: Number(row.lost || 0),
-      tied: Number(row.tied || 0),
-      pts: Number(row.pts || 0),
-      rr: String(row.rr || '0.000').trim(),
-      badge: String(row.badge || '').trim(),
-    }))
-    .filter((row) => row.team);
-}
-
 function getLocationCollection(data, type) {
   const normalizedType = String(type || '').toLowerCase();
   if (normalizedType === 'state' || normalizedType === 'states') return data.locations.states;
@@ -209,6 +194,11 @@ function sanitizeLoadedData(data) {
     changed = true;
   }
 
+  if (!Array.isArray(data.ourTeam)) {
+    data.ourTeam = [];
+    changed = true;
+  }
+
   return { data, changed };
 }
 
@@ -236,7 +226,6 @@ function mapArticleForClient(article) {
     publishedAt: article.publishedAt,
     authorName: article.authorName || '',
     editorName: article.editorName || '',
-    banner: article.banner || '',
     showOnHomepage: article.showOnHomepage !== false,
     isSuggestion: article.isSuggestion !== false,
     tags: Array.isArray(article.tags) ? article.tags : [],
@@ -247,32 +236,36 @@ function mapArticleForClient(article) {
 function getPublishedHomepageArticles(data) {
   return sortByOrderThenDate(
     data.articles.filter((article) => {
-      if (article.status !== 'published' || article.showOnHomepage === false) {
-        return false;
-      }
-
-      if (Array.isArray(article.tags)) {
-        const hasExcludedTag = article.tags.some(tag => {
-          const t = String(tag).trim().toLowerCase();
-          return t === 'test' || t === 'draft' || t === 'dummy';
-        });
-        if (hasExcludedTag) {
-          return false;
-        }
-      }
-
-      const lowerTitle = String(article.title || '').toLowerCase();
-      if (lowerTitle.includes('dummy story') || lowerTitle.includes('test article')) {
-        return false;
-      }
-
-      return true;
+      return article.status === 'published' && article.showOnHomepage !== false;
     }),
   );
 }
 
 function getActiveTopicNames(items) {
   return items.filter((item) => item.isActive !== false).map((item) => item.name);
+}
+
+function deriveTagsFromArticles(articles = [], limit = 20) {
+  const seen = new Set();
+  const derived = [];
+
+  for (const article of articles) {
+    for (const tag of Array.isArray(article.tags) ? article.tags : []) {
+      const value = String(tag || '').trim();
+      if (!value) continue;
+
+      const normalized = value.toLowerCase();
+      if (seen.has(normalized)) continue;
+      seen.add(normalized);
+      derived.push(value);
+
+      if (derived.length >= limit) {
+        return derived;
+      }
+    }
+  }
+
+  return derived;
 }
 
 function deriveTrendingTopicsFromArticles(articles = [], limit = 8) {
@@ -381,18 +374,7 @@ function buildCoverageData(data) {
       required: true,
       items: bySlot('editorial'),
     },
-    {
-      key: 'cricket',
-      label: data.config.labels.cricket,
-      type: 'hero-table',
-      required: true,
-      items: [...bySlot('cricket-hero'), ...bySlot('cricket-story')],
-      extras: {
-        heroPresent: bySlot('cricket-hero').length > 0,
-        pointsRows: data.cricketPointsTable.length,
-      },
-    },
-    { key: 'shorts', label: data.config.labels.shorts, type: 'shorts-grid', required: true, items: (data.shorts || []).filter(s => s.status === 'published') },
+    { key: 'shorts', label: data.config.labels.shorts, type: 'shorts-grid', required: true, items: [] },
     {
       key: 'newsTrio',
       label: 'राष्ट्रीय न्यूज़ / पॉलिटिक्स / दुनिया',
@@ -517,7 +499,7 @@ async function updateData(mutator) {
   return result;
 }
 
-function buildHomePayload(data) {
+function buildHomePayload(data, shortsVideos = []) {
   const published = getPublishedHomepageArticles(data);
   const articlesBySlot = new Map();
   const slotDefinitionMap = new Map((data.slotDefinitions || []).map((slot) => [slot.slot, slot]));
@@ -544,8 +526,6 @@ function buildHomePayload(data) {
     'election',
     'business',
     'editorial',
-    'cricket-hero',
-    'cricket-story',
     'shorts',
     'trio-national',
     'trio-politics',
@@ -571,7 +551,11 @@ function buildHomePayload(data) {
     categories: [...data.categories]
       .sort((left, right) => Number(left.sortOrder || 0) - Number(right.sortOrder || 0))
       .map((category) => category.name),
-    tags: data.tags.map((tag) => tag.name),
+    tags: (() => {
+      const configuredTags = data.tags.map((tag) => tag.name).filter(Boolean);
+      const derivedTags = deriveTagsFromArticles(published);
+      return [...new Set([...configuredTags, ...derivedTags].map((tag) => String(tag).trim()).filter(Boolean))];
+    })(),
     trendingTopics: (() => {
       const configuredTopics = getActiveTopicNames(data.trendingTopics);
       return configuredTopics.length > 0
@@ -589,17 +573,7 @@ function buildHomePayload(data) {
       business: articlesBySlot.get('business') || [],
       editorial: articlesBySlot.get('editorial') || [],
     },
-    cricketSection: {
-      title: data.config.labels.cricket,
-      icon: 'https://www.jagranimages.com/images/cricball.svg',
-      tabs: ['शेड्यूल', 'रिजल्ट', 'टीम'],
-      hero: (articlesBySlot.get('cricket-hero') || [])[0] || null,
-      stories: articlesBySlot.get('cricket-story') || [],
-      pointsTable: deepClone(data.cricketPointsTable),
-    },
-    shortsVideos: (data.shorts || [])
-      .filter((s) => s.status === 'published')
-      .map((s) => ({ ...s, time: formatRelativeTime(s.publishedAt || s.updatedAt || s.createdAt) })),
+    shortsVideos,
     trioSections: trioColumns,
     customSections,
     items: published.map(mapArticleForClient),
@@ -607,7 +581,512 @@ function buildHomePayload(data) {
 }
 
 export async function getHomeAggregatedData() {
-  return buildHomePayload(deepClone(await loadData()));
+  const data = await loadData();
+  const shorts = await fetchPublicShorts();
+  return buildHomePayload(deepClone(data), shorts);
+}
+
+const EPAPER_TABLE_SETUP_SQL = [
+  `CREATE TABLE IF NOT EXISTS epaper_editions (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    slug VARCHAR(160) NOT NULL UNIQUE,
+    city_region VARCHAR(150) NOT NULL,
+    edition_name VARCHAR(150) NOT NULL DEFAULT 'Main',
+    issue_date DATE NOT NULL,
+    description TEXT DEFAULT NULL,
+    cover_image VARCHAR(500) DEFAULT NULL,
+    pdf_url VARCHAR(500) DEFAULT NULL,
+    page_count INT NOT NULL DEFAULT 1,
+    sort_order INT NOT NULL DEFAULT 0,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+  `CREATE TABLE IF NOT EXISTS epaper_pages (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    edition_id INT NOT NULL,
+    page_no INT NOT NULL,
+    title VARCHAR(180) DEFAULT NULL,
+    page_image VARCHAR(500) DEFAULT NULL,
+    pdf_url VARCHAR(500) DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_epaper_page_edition FOREIGN KEY (edition_id) REFERENCES epaper_editions(id) ON DELETE CASCADE,
+    UNIQUE KEY uniq_epaper_page (edition_id, page_no)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+  `CREATE TABLE IF NOT EXISTS epaper_magazines (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    slug VARCHAR(160) NOT NULL UNIQUE,
+    category VARCHAR(120) NOT NULL DEFAULT 'Magazine',
+    issue_date DATE DEFAULT NULL,
+    description TEXT DEFAULT NULL,
+    cover_image VARCHAR(500) DEFAULT NULL,
+    pdf_url VARCHAR(500) DEFAULT NULL,
+    sort_order INT NOT NULL DEFAULT 0,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+];
+
+async function ensureEpaperTables() {
+  if (epaperTablesEnsured) {
+    return;
+  }
+
+  for (const statement of EPAPER_TABLE_SETUP_SQL) {
+    await pool.execute(statement);
+  }
+
+  epaperTablesEnsured = true;
+}
+
+const OUR_TEAM_TABLE_SETUP_SQL = [
+  `CREATE TABLE IF NOT EXISTS our_team (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(160) NOT NULL,
+    slug VARCHAR(180) NOT NULL UNIQUE,
+    role VARCHAR(180) NOT NULL,
+    photo VARCHAR(500) DEFAULT NULL,
+    sort_order INT NOT NULL DEFAULT 0,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+];
+
+async function ensureOurTeamTables() {
+  if (ourTeamTablesEnsured) {
+    return;
+  }
+
+  for (const statement of OUR_TEAM_TABLE_SETUP_SQL) {
+    await pool.execute(statement);
+  }
+
+  ourTeamTablesEnsured = true;
+}
+
+function normalizeTeamMember(item = {}, index = 0) {
+  const name = String(item.name || '').trim();
+  return {
+    id: item.id || null,
+    name,
+    slug: slugify(item.slug || name || `team-member-${index + 1}`, `team-member-${Date.now()}-${index + 1}`),
+    role: String(item.role || '').trim(),
+    photo: String(item.photo || item.image || '').trim(),
+    sortOrder: Number(item.sortOrder ?? item.sort_order ?? index),
+    isActive: item.isActive !== false && item.is_active !== 0,
+  };
+}
+
+export async function getPublicTeam() {
+  try {
+    await ensureOurTeamTables();
+    const [rows] = await pool.execute(
+      `SELECT id, name, slug, role, photo, sort_order, is_active
+       FROM our_team
+       WHERE is_active = 1
+       ORDER BY sort_order ASC, id ASC`,
+    );
+
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      role: row.role,
+      photo: row.photo || '',
+      sortOrder: Number(row.sort_order || 0),
+      isActive: Boolean(row.is_active),
+    }));
+  } catch {
+    const data = await loadData();
+    return (data.ourTeam || [])
+      .map((item, index) => normalizeTeamMember(item, index))
+      .filter((item) => item.isActive)
+      .sort((left, right) => left.sortOrder - right.sortOrder || String(left.name).localeCompare(String(right.name)));
+  }
+}
+
+export async function getAdminTeam() {
+  try {
+    await ensureOurTeamTables();
+    const [rows] = await pool.execute(
+      `SELECT id, name, slug, role, photo, sort_order, is_active
+       FROM our_team
+       ORDER BY sort_order ASC, id ASC`,
+    );
+
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      role: row.role,
+      photo: row.photo || '',
+      sortOrder: Number(row.sort_order || 0),
+      isActive: Boolean(row.is_active),
+    }));
+  } catch {
+    const data = await loadData();
+    return (data.ourTeam || [])
+      .map((item, index) => normalizeTeamMember(item, index))
+      .sort((left, right) => left.sortOrder - right.sortOrder || String(left.name).localeCompare(String(right.name)));
+  }
+}
+
+export async function saveTeamData(payload = {}) {
+  const membersInput = Array.isArray(payload) ? payload : payload.members;
+  const members = Array.isArray(membersInput)
+    ? membersInput
+        .map((item, index) => normalizeTeamMember(item, index))
+        .filter((item) => item.name && item.role)
+    : [];
+
+  try {
+    await ensureOurTeamTables();
+    const connection = await pool.getConnection();
+
+    try {
+      await connection.beginTransaction();
+      await connection.execute('DELETE FROM our_team');
+
+      for (const member of members) {
+        await connection.execute(
+          `INSERT INTO our_team (name, slug, role, photo, sort_order, is_active)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [
+            member.name,
+            member.slug,
+            member.role,
+            member.photo || null,
+            member.sortOrder,
+            member.isActive ? 1 : 0,
+          ],
+        );
+      }
+
+      await connection.commit();
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+
+    return { members: await getAdminTeam() };
+  } catch {
+    return updateData(async (data) => {
+      data.ourTeam = deepClone(members);
+      return { members: deepClone(data.ourTeam) };
+    });
+  }
+}
+
+function normalizeEpaperPage(page = {}, index = 0) {
+  return {
+    id: page.id || null,
+    pageNumber: Math.max(1, Number(page.pageNumber || page.page_no || index + 1)),
+    title: String(page.title || `Page ${index + 1}`).trim(),
+    image: String(page.image || page.pageImage || page.page_image || page.url || '').trim(),
+    pdfUrl: String(page.pdfUrl || page.pdf_url || '').trim(),
+  };
+}
+
+function normalizeEpaperEdition(item = {}, index = 0) {
+  const normalizedPages = Array.isArray(item.pages)
+    ? item.pages.map((page, pageIndex) => normalizeEpaperPage(page, pageIndex))
+    : [];
+  const pageCount = Math.max(normalizedPages.length || 0, Number(item.pageCount || item.pagesCount || 0), 1);
+
+  return {
+    id: item.id || null,
+    name: String(item.name || item.title || '').trim(),
+    slug: slugify(item.slug || item.name || item.title || `edition-${index + 1}`, `edition-${Date.now()}-${index + 1}`),
+    cityRegion: String(item.cityRegion || item.city || '').trim(),
+    edition: String(item.edition || item.editionName || 'Main').trim() || 'Main',
+    date: String(item.date || item.issueDate || item.publishDate || '').trim(),
+    description: String(item.description || '').trim(),
+    image: String(item.image || item.coverImage || item.cover_image || '').trim(),
+    pdfUrl: String(item.pdfUrl || item.pdf_url || '').trim(),
+    pageCount,
+    sortOrder: Number(item.sortOrder ?? item.order ?? index + 1),
+    isActive: item.isActive !== false,
+    pages: normalizedPages.length > 0
+      ? normalizedPages
+      : Array.from({ length: pageCount }, (_, pageIndex) => normalizeEpaperPage({
+          pageNumber: pageIndex + 1,
+          title: `Page ${pageIndex + 1}`,
+          image: pageIndex === 0 ? (item.image || item.coverImage || item.cover_image || '') : '',
+          pdfUrl: item.pdfUrl || item.pdf_url || '',
+        }, pageIndex)),
+  };
+}
+
+function normalizeEpaperMagazine(item = {}, index = 0) {
+  return {
+    id: item.id || null,
+    name: String(item.name || item.title || '').trim(),
+    slug: slugify(item.slug || item.name || item.title || `magazine-${index + 1}`, `magazine-${Date.now()}-${index + 1}`),
+    category: String(item.category || 'Magazine').trim() || 'Magazine',
+    date: String(item.date || item.issueDate || item.publishDate || '').trim(),
+    description: String(item.description || '').trim(),
+    image: String(item.image || item.coverImage || item.cover_image || '').trim(),
+    pdfUrl: String(item.pdfUrl || item.pdf_url || '').trim(),
+    sortOrder: Number(item.sortOrder ?? item.order ?? index + 1),
+    isActive: item.isActive !== false,
+  };
+}
+
+function normalizeEpaperSocialLinks(value = {}) {
+  const normalizeEntry = (entry, fallback = '') => {
+    if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
+      return {
+        url: String(entry.url || '').trim(),
+        active: entry.active !== false,
+      };
+    }
+
+    const normalizedFallback = typeof fallback === 'string' ? fallback : '';
+    return {
+      url: String(entry || normalizedFallback || '').trim(),
+      active: true,
+    };
+  };
+
+  return {
+    whatsapp: normalizeEntry(value.whatsapp),
+    facebook: normalizeEntry(value.facebook),
+    twitter: normalizeEntry(value.twitter ?? value.x),
+    instagram: normalizeEntry(value.instagram),
+    youtube: normalizeEntry(value.youtube),
+  };
+}
+
+function mapDbEditionRow(row = {}, pages = []) {
+  const normalizedPages = [...pages].sort((left, right) => left.pageNumber - right.pageNumber);
+  const normalizedName = String(row.name || '').trim();
+  const displayName =
+    !normalizedName || normalizedName.toLowerCase() === 'untitled edition'
+      ? (String(row.city_region || '').trim() || String(row.slug || '').trim() || 'Edition')
+      : normalizedName;
+  const issueDate = typeof row.issue_date === 'string'
+    ? row.issue_date.slice(0, 10)
+    : (row.issue_date ? new Date(row.issue_date.getTime() - row.issue_date.getTimezoneOffset() * 60000).toISOString().slice(0, 10) : '');
+  return {
+    id: row.id,
+    name: displayName,
+    slug: row.slug,
+    cityRegion: row.city_region,
+    city: row.city_region,
+    edition: row.edition_name,
+    editionName: row.edition_name,
+    date: issueDate,
+    issueDate,
+    publishDate: issueDate,
+    description: row.description || '',
+    image: row.cover_image || '',
+    coverImage: row.cover_image || '',
+    pdfUrl: row.pdf_url || '',
+    pageCount: Number(row.page_count || normalizedPages.length || 1),
+    sortOrder: Number(row.sort_order || 0),
+    isActive: Boolean(row.is_active),
+    pages: normalizedPages,
+  };
+}
+
+function mapDbMagazineRow(row = {}) {
+  const normalizedName = String(row.name || '').trim();
+  const displayName =
+    !normalizedName || normalizedName.toLowerCase() === 'untitled magazine'
+      ? (String(row.slug || '').trim() || 'Magazine')
+      : normalizedName;
+  const issueDate = typeof row.issue_date === 'string'
+    ? row.issue_date.slice(0, 10)
+    : (row.issue_date ? new Date(row.issue_date.getTime() - row.issue_date.getTimezoneOffset() * 60000).toISOString().slice(0, 10) : '');
+  return {
+    id: row.id,
+    name: displayName,
+    slug: row.slug,
+    category: row.category || 'Magazine',
+    date: issueDate,
+    issueDate,
+    description: row.description || '',
+    image: row.cover_image || '',
+    coverImage: row.cover_image || '',
+    pdfUrl: row.pdf_url || '',
+    sortOrder: Number(row.sort_order || 0),
+    isActive: Boolean(row.is_active),
+  };
+}
+
+export async function getEpaperData() {
+  try {
+    await ensureEpaperTables();
+    const localData = await loadData();
+    const [editionRows] = await pool.execute(
+      `SELECT id, name, slug, city_region, edition_name, issue_date, description, cover_image, pdf_url, page_count, sort_order, is_active
+       FROM epaper_editions
+       ORDER BY sort_order ASC, issue_date DESC, id DESC`,
+    );
+    const [pageRows] = await pool.execute(
+      `SELECT id, edition_id, page_no, title, page_image, pdf_url
+       FROM epaper_pages
+       ORDER BY edition_id ASC, page_no ASC`,
+    );
+    const [magazineRows] = await pool.execute(
+      `SELECT id, name, slug, category, issue_date, description, cover_image, pdf_url, sort_order, is_active
+       FROM epaper_magazines
+       ORDER BY sort_order ASC, issue_date DESC, id DESC`,
+    );
+
+    const pagesByEditionId = new Map();
+    for (const row of pageRows) {
+      if (!pagesByEditionId.has(row.edition_id)) {
+        pagesByEditionId.set(row.edition_id, []);
+      }
+      pagesByEditionId.get(row.edition_id).push({
+        id: row.id,
+        pageNumber: Number(row.page_no || 0),
+        title: row.title || `Page ${row.page_no}`,
+        image: row.page_image || '',
+        url: row.page_image || '',
+        pdfUrl: row.pdf_url || '',
+      });
+    }
+
+    return {
+      generatedAt: new Date().toISOString(),
+      editions: editionRows.map((row) => mapDbEditionRow(row, pagesByEditionId.get(row.id) || [])),
+      magazines: magazineRows.map(mapDbMagazineRow),
+      socialLinks: normalizeEpaperSocialLinks(localData.config?.epaperSocialLinks),
+    };
+  } catch (error) {
+    const data = await loadData();
+    return {
+      generatedAt: new Date().toISOString(),
+      editions: deepClone(data.epaperEditions || []),
+      magazines: deepClone(data.epaperMagazines || []),
+      socialLinks: normalizeEpaperSocialLinks(data.config?.epaperSocialLinks),
+    };
+  }
+}
+
+export async function saveEpaperData(payload = {}) {
+  const editions = Array.isArray(payload.editions)
+    ? payload.editions.map((item, index) => normalizeEpaperEdition(item, index))
+    : [];
+  const magazines = Array.isArray(payload.magazines)
+    ? payload.magazines.map((item, index) => normalizeEpaperMagazine(item, index))
+    : [];
+  const socialLinks = normalizeEpaperSocialLinks(payload.socialLinks);
+
+  try {
+    await ensureEpaperTables();
+    const connection = await pool.getConnection();
+
+    try {
+      await connection.beginTransaction();
+      await connection.execute('DELETE FROM epaper_pages');
+      await connection.execute('DELETE FROM epaper_editions');
+      await connection.execute('DELETE FROM epaper_magazines');
+
+      for (const edition of editions) {
+        const [editionResult] = await connection.execute(
+          `INSERT INTO epaper_editions
+            (name, slug, city_region, edition_name, issue_date, description, cover_image, pdf_url, page_count, sort_order, is_active)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            edition.name || 'Untitled Edition',
+            edition.slug,
+            edition.cityRegion || 'General',
+            edition.edition || 'Main',
+            edition.date || new Date().toISOString().slice(0, 10),
+            edition.description || null,
+            edition.image || null,
+            edition.pdfUrl || null,
+            edition.pageCount,
+            edition.sortOrder,
+            edition.isActive ? 1 : 0,
+          ],
+        );
+
+        const editionId = editionResult.insertId;
+        for (const page of edition.pages) {
+          await connection.execute(
+            `INSERT INTO epaper_pages
+              (edition_id, page_no, title, page_image, pdf_url)
+             VALUES (?, ?, ?, ?, ?)`,
+            [
+              editionId,
+              page.pageNumber,
+              page.title || `Page ${page.pageNumber}`,
+              page.image || null,
+              page.pdfUrl || null,
+            ],
+          );
+        }
+      }
+
+      for (const magazine of magazines) {
+        await connection.execute(
+          `INSERT INTO epaper_magazines
+            (name, slug, category, issue_date, description, cover_image, pdf_url, sort_order, is_active)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            magazine.name || 'Untitled Magazine',
+            magazine.slug,
+            magazine.category || 'Magazine',
+            magazine.date || null,
+            magazine.description || null,
+            magazine.image || null,
+            magazine.pdfUrl || null,
+            magazine.sortOrder,
+            magazine.isActive ? 1 : 0,
+          ],
+        );
+      }
+
+      await connection.commit();
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+
+    await updateData(async (data) => {
+      data.epaperEditions = deepClone(editions);
+      data.epaperMagazines = deepClone(magazines);
+      data.config = {
+        ...(data.config || {}),
+        epaperSocialLinks: deepClone(socialLinks),
+      };
+      return null;
+    });
+
+    const result = await getEpaperData();
+    return {
+      ...result,
+      socialLinks,
+    };
+  } catch (error) {
+    return updateData(async (data) => {
+      data.epaperEditions = deepClone(editions);
+      data.epaperMagazines = deepClone(magazines);
+      data.config = {
+        ...(data.config || {}),
+        epaperSocialLinks: deepClone(socialLinks),
+      };
+      return {
+        generatedAt: new Date().toISOString(),
+        editions: deepClone(data.epaperEditions),
+        magazines: deepClone(data.epaperMagazines),
+        socialLinks,
+      };
+    });
+  }
 }
 
 export async function getArticleByIdOrSlug(idOrSlug) {
@@ -671,8 +1150,28 @@ export async function getNewsByCity(city) {
     .map(mapArticleForClient);
 }
 
+export async function fetchShorts() {
+  try {
+    const [rows] = await pool.execute('SELECT * FROM shorts ORDER BY createdAt DESC LIMIT 100');
+    return rows.map((s) => ({
+      ...s,
+      time: formatRelativeTime(s.publishedAt || s.updatedAt || s.createdAt),
+    }));
+  } catch (error) {
+    const data = await loadData();
+    return [...(data.shorts || [])]
+      .sort((left, right) => new Date(right.createdAt || 0).getTime() - new Date(left.createdAt || 0).getTime())
+      .slice(0, 100)
+      .map((s) => ({
+        ...s,
+        time: formatRelativeTime(s.publishedAt || s.updatedAt || s.createdAt),
+      }));
+  }
+}
+
 export async function fetchAdminDashboard() {
   const data = deepClone(await loadData());
+  const shorts = await fetchShorts();
   const coverage = buildCoverageData(data);
   const analytics = buildAnalytics(data);
 
@@ -685,7 +1184,7 @@ export async function fetchAdminDashboard() {
     tags: data.tags.map((tag) => tag.name),
     summary: {
       totalPosts: data.articles.length,
-      totalShorts: (data.shorts || []).length,
+      totalShorts: shorts.length,
       drafts: data.articles.filter((article) => article.status === 'draft').length,
       published: data.articles.filter((article) => article.status === 'published').length,
       featured: data.articles.filter((article) => article.featured).length,
@@ -715,16 +1214,10 @@ export async function fetchAdminDashboard() {
       tags: article.tags || [],
       breaking: article.slotKey === 'breaking',
     })),
-    shorts: sortByOrderThenDate(data.shorts || []),
+    shorts,
     slots: deepClone(data.slotDefinitions),
     trendingTopics: deepClone(data.trendingTopics),
     electionTabs: deepClone(data.electionTabs),
-    cricketSection: {
-      title: data.config.labels.cricket,
-      icon: 'https://www.jagranimages.com/images/cricball.svg',
-      tabs: ['शेड्यूल', 'रिजल्ट', 'टीम'],
-      pointsTable: deepClone(data.cricketPointsTable),
-    },
     locationOptions: deepClone(data.locations),
   };
 }
@@ -749,12 +1242,18 @@ export async function createLocation(type, payload = {}) {
     const slug = slugify(payload.slug || name, `${normalizedType}-${Date.now()}`);
 
     if (normalizedType === 'state') {
+      if (data.locations.states.some((s) => s.name === name || s.slug === slug)) {
+        throw new Error('State already exists.');
+      }
       const id = nextNumericId(data.locations.states);
       data.locations.states.push({ id, name, slug });
       return { id, name, slug };
     }
 
     if (normalizedType === 'district') {
+      if (data.locations.districts.some((d) => d.name === name || d.slug === slug)) {
+        throw new Error('District already exists.');
+      }
       const id = nextNumericId(data.locations.districts);
       const stateId = Number(payload.stateId || data.locations.states[0]?.id || 1);
       if (!data.locations.states.some((item) => Number(item.id) === stateId)) {
@@ -765,356 +1264,319 @@ export async function createLocation(type, payload = {}) {
     }
 
     if (normalizedType === 'city') {
+      if (data.locations.cities.some((c) => c.name === name || c.slug === slug)) {
+        throw new Error('City already exists.');
+      }
       const id = nextNumericId(data.locations.cities);
       const districtId = Number(payload.districtId || data.locations.districts[0]?.id || 1);
       if (!data.locations.districts.some((item) => Number(item.id) === districtId)) {
         throw new Error('District not found.');
       }
-      data.locations.cities.push({
-        id,
-        districtId,
-        name,
-        slug,
-        lat: Number(payload.lat || 0),
-        lng: Number(payload.lng || 0),
-      });
+      data.locations.cities.push({ id, districtId, name, slug });
       return { id, districtId, name, slug };
     }
 
-    throw new Error('Unsupported location type.');
+    throw new Error('Invalid location type.');
   });
 }
 
-export async function updateLocation(type, locationId, payload = {}) {
+export async function updateLocation(type, id, payload = {}) {
   const normalizedType = String(type || '').toLowerCase();
   return updateData(async (data) => {
     const collection = getLocationCollection(data, normalizedType);
-    const item = collection.find((entry) => Number(entry.id) === Number(locationId));
-    if (!item) {
+    const index = collection.findIndex((item) => String(item.id) === String(id));
+    if (index === -1) {
       throw new Error('Location not found.');
     }
 
-    const previousName = item.name;
-    const nextName = String(payload.name || item.name || '').trim();
-    if (!nextName) {
+    const name = String(payload.name || '').trim();
+    if (!name) {
       throw new Error('Location name is required.');
     }
 
-    item.name = nextName;
-    item.slug = slugify(payload.slug || nextName, `${normalizedType}-${item.id}`);
+    const slug = slugify(payload.slug || name, `${normalizedType}-${id}`);
+    const updated = { ...collection[index], name, slug };
 
-    if (normalizedType === 'district') {
-      const stateId = Number(payload.stateId || item.stateId || 0);
-      if (!data.locations.states.some((entry) => Number(entry.id) === stateId)) {
-        throw new Error('State not found.');
-      }
-      item.stateId = stateId;
+    if (normalizedType === 'district' && payload.stateId) {
+      updated.stateId = Number(payload.stateId);
+    }
+    if (normalizedType === 'city' && payload.districtId) {
+      updated.districtId = Number(payload.districtId);
     }
 
-    if (normalizedType === 'city') {
-      const districtId = Number(payload.districtId || item.districtId || 0);
-      if (!data.locations.districts.some((entry) => Number(entry.id) === districtId)) {
-        throw new Error('District not found.');
-      }
-      item.districtId = districtId;
-      item.lat = Number(payload.lat ?? item.lat ?? 0);
-      item.lng = Number(payload.lng ?? item.lng ?? 0);
-
-      for (const article of data.articles) {
-        if (String(article.city || '').toLowerCase() === String(previousName || '').toLowerCase()) {
-          article.city = nextName;
-          article.mainCityId = item.id;
-        }
-      }
-    }
-
-    return deepClone(item);
+    collection[index] = updated;
+    return updated;
   });
 }
 
-export async function deleteLocation(type, locationId) {
+export async function deleteLocation(type, id) {
   const normalizedType = String(type || '').toLowerCase();
   return updateData(async (data) => {
     const collection = getLocationCollection(data, normalizedType);
-    const item = collection.find((entry) => Number(entry.id) === Number(locationId));
-    if (!item) {
+    const index = collection.findIndex((item) => String(item.id) === String(id));
+    if (index === -1) {
       throw new Error('Location not found.');
     }
 
-    if (normalizedType === 'state') {
-      const hasDistricts = data.locations.districts.some((entry) => Number(entry.stateId) === Number(locationId));
-      if (hasDistricts) {
-        throw new Error('Delete districts under this state first.');
-      }
-    }
-
-    if (normalizedType === 'district') {
-      const hasCities = data.locations.cities.some((entry) => Number(entry.districtId) === Number(locationId));
-      if (hasCities) {
-        throw new Error('Delete cities under this district first.');
-      }
-    }
-
-    if (normalizedType === 'city') {
-      const cityInArticles = data.articles.some(
-        (article) =>
-          Number(article.mainCityId) === Number(locationId) ||
-          String(article.city || '').toLowerCase() === String(item.name || '').toLowerCase(),
-      );
-      if (cityInArticles) {
-        throw new Error('This city is linked to stories. Update those stories first.');
-      }
-
-      const cityInUsers = data.users.some((user) => Number(user.assignedCityId) === Number(locationId));
-      if (cityInUsers) {
-        throw new Error('This city is assigned to users. Reassign those users first.');
-      }
-    }
-
-    const nextItems = collection.filter((entry) => Number(entry.id) !== Number(locationId));
-    if (normalizedType === 'state') data.locations.states = nextItems;
-    if (normalizedType === 'district') data.locations.districts = nextItems;
-    if (normalizedType === 'city') data.locations.cities = nextItems;
-
-    return { id: Number(locationId) };
+    collection.splice(index, 1);
+    return { success: true };
   });
 }
 
 export async function listUsers() {
   const data = await loadData();
-  return data.users.map((user) => ({
-    id: user.id,
-    username: user.username,
-    email: user.email,
-    role: user.role,
-    assigned_city_id: user.assignedCityId ?? null,
-    assigned_city: data.locations.cities.find((city) => city.id === user.assignedCityId)?.name || '',
-  }));
-}
-
-export async function createUser(payload = {}) {
-  return updateData(async (data) => {
-    const username = String(payload.username || '').trim();
-    const email = String(payload.email || '').trim().toLowerCase();
-    const password = String(payload.password || '').trim();
-    const role = String(payload.role || 'reporter').trim().toLowerCase();
-    const assignedCityId = payload.assignedCityId ? Number(payload.assignedCityId) : null;
-
-    if (!username || !email || !password) {
-      throw new Error('Username, email, and password are required.');
-    }
-
-    const duplicate = data.users.find(
-      (user) => user.username.toLowerCase() === username.toLowerCase() || user.email.toLowerCase() === email,
-    );
-    if (duplicate) {
-      throw new Error('User with the same username or email already exists.');
-    }
-
-    if (assignedCityId && !data.locations.cities.some((city) => Number(city.id) === assignedCityId)) {
-      throw new Error('Assigned city not found.');
-    }
-
-    const nextUser = {
-      id: nextNumericId(data.users),
-      username,
-      email,
-      password: hashPassword(password),
-      role,
-      assignedCityId,
-    };
-
-    data.users.push(nextUser);
-    return deepClone(nextUser);
+  return data.users.map((user) => {
+    const { password, ...safeUser } = user;
+    return safeUser;
   });
 }
 
-export async function updateUser(userId, payload = {}) {
+export async function authenticateUserRecord(username, password) {
+  const data = await loadData();
+  const user = data.users.find(
+    (u) => String(u.username).toLowerCase() === String(username).toLowerCase(),
+  );
+
+  if (user && verifyPassword(user.password, password)) {
+    const { password: _, ...safeUser } = user;
+    return safeUser;
+  }
+
+  return null;
+}
+
+export async function createUser(payload) {
   return updateData(async (data) => {
-    const user = data.users.find((item) => Number(item.id) === Number(userId));
-    if (!user) {
+    const username = String(payload.username || '').trim();
+    if (!username) {
+      throw new Error('Username is required.');
+    }
+    if (data.users.some((u) => u.username === username)) {
+      throw new Error('Username already exists.');
+    }
+
+    const id = nextNumericId(data.users);
+    const newUser = {
+      id,
+      username,
+      email: String(payload.email || '').trim(),
+      password: hashPassword(payload.password || 'admin123'),
+      role: payload.role || 'reporter',
+      assignedCityId: payload.assignedCityId ? Number(payload.assignedCityId) : null,
+    };
+
+    data.users.push(newUser);
+    const { password: _, ...safeUser } = newUser;
+    return safeUser;
+  });
+}
+
+export async function updateUser(userId, payload) {
+  return updateData(async (data) => {
+    const index = data.users.findIndex((u) => String(u.id) === String(userId));
+    if (index === -1) {
       throw new Error('User not found.');
     }
 
-    const nextUsername = String(payload.username || user.username || '').trim();
-    const nextEmail = String(payload.email || user.email || '').trim().toLowerCase();
-    const nextRole = String(payload.role || user.role || '').trim().toLowerCase();
-    const nextAssignedCityId =
-      payload.assignedCityId === '' || payload.assignedCityId == null ? null : Number(payload.assignedCityId);
+    const { password, ...existing } = data.users[index];
+    const updatedUser = {
+      ...existing,
+      email: String(payload.email || existing.email).trim(),
+      assignedCityId: payload.assignedCityId ? Number(payload.assignedCityId) : existing.assignedCityId,
+      password,
+    };
 
-    if (!nextUsername || !nextEmail) {
-      throw new Error('Username and email are required.');
-    }
-
-    const duplicate = data.users.find(
-      (item) =>
-        Number(item.id) !== Number(userId) &&
-        (item.username.toLowerCase() === nextUsername.toLowerCase() || item.email.toLowerCase() === nextEmail),
-    );
-    if (duplicate) {
-      throw new Error('User with the same username or email already exists.');
-    }
-
-    if (nextAssignedCityId && !data.locations.cities.some((city) => Number(city.id) === nextAssignedCityId)) {
-      throw new Error('Assigned city not found.');
-    }
-
-    user.username = nextUsername;
-    user.email = nextEmail;
-    user.role = nextRole || user.role;
-    user.assignedCityId = nextAssignedCityId;
     if (payload.password) {
-      user.password = hashPassword(String(payload.password).trim());
+      updatedUser.password = hashPassword(payload.password);
     }
 
-    return deepClone(user);
+    data.users[index] = updatedUser;
+    const { password: _, ...safeUser } = updatedUser;
+    return safeUser;
   });
 }
 
 export async function updateUserRole(userId, role) {
   return updateData(async (data) => {
-    const user = data.users.find((item) => Number(item.id) === Number(userId));
-    if (!user) {
+    const index = data.users.findIndex((u) => String(u.id) === String(userId));
+    if (index === -1) {
       throw new Error('User not found.');
     }
 
-      user.role = String(role || '').trim().toLowerCase() || user.role;
-      return { id: user.id, role: user.role };
+    data.users[index].role = role;
+    const { password: _, ...safeUser } = data.users[index];
+    return safeUser;
   });
 }
 
 export async function deleteUser(userId) {
   return updateData(async (data) => {
-    const user = data.users.find((item) => Number(item.id) === Number(userId));
+    const index = data.users.findIndex((u) => String(u.id) === String(userId));
+    if (index === -1) {
+      throw new Error('User not found.');
+    }
+
+    data.users.splice(index, 1);
+    return { success: true };
+  });
+}
+
+export async function requestPasswordReset(usernameOrEmail) {
+  const normalized = String(usernameOrEmail || '').trim().toLowerCase();
+  return updateData(async (data) => {
+    const user = data.users.find(
+      (u) =>
+        u.username.toLowerCase() === normalized ||
+        u.email.toLowerCase() === normalized,
+    );
+
     if (!user) {
       throw new Error('User not found.');
     }
 
-    const remainingAdmins = data.users.filter(
-      (item) => Number(item.id) !== Number(userId) && String(item.role || '').toLowerCase() === 'admin',
-    );
-    if (String(user.role || '').toLowerCase() === 'admin' && remainingAdmins.length === 0) {
-      throw new Error('At least one admin user is required.');
-    }
+    const token = randomBytes(32).toString('hex');
+    const expiresAt = Date.now() + 3600000; // 1 hour
 
-    data.users = data.users.filter((item) => Number(item.id) !== Number(userId));
-    return { id: Number(userId) };
-  });
-}
-
-export async function requestPasswordReset(identity) {
-  return updateData(async (data) => {
-    const normalizedIdentity = String(identity || '').trim().toLowerCase();
-    const user = data.users.find(
-      (item) =>
-        item.username.toLowerCase() === normalizedIdentity || item.email.toLowerCase() === normalizedIdentity,
-    );
-
-    if (!user) {
-      return { message: 'If that account exists, password reset instructions have been sent.' };
-    }
-
-    data.passwordResetTokens = Array.isArray(data.passwordResetTokens) ? data.passwordResetTokens : [];
-    data.passwordResetTokens = data.passwordResetTokens.filter((entry) => Number(entry.userId) !== Number(user.id));
-
-    const token = randomBytes(24).toString('hex');
-    const expiresAt = Date.now() + 1000 * 60 * 60;
     data.passwordResetTokens.push({ token, userId: user.id, expiresAt });
-
-    return {
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      },
-    };
+    return { token };
   });
 }
 
-export async function resetPassword(token, password) {
+export async function resetPassword(token, newPassword) {
   return updateData(async (data) => {
-    const normalizedToken = String(token || '').trim();
-    const entry = (Array.isArray(data.passwordResetTokens) ? data.passwordResetTokens : []).find(
-      (item) => item.token === normalizedToken,
-    );
-
-    if (!entry || Number(entry.expiresAt) <= Date.now()) {
-      throw new Error('Invalid or expired password reset token.');
+    const entryIndex = data.passwordResetTokens.findIndex((e) => e.token === token);
+    if (entryIndex === -1) {
+      throw new Error('Invalid or expired token.');
     }
 
-    const user = data.users.find((item) => Number(item.id) === Number(entry.userId));
-    if (!user) {
-      throw new Error('Invalid password reset request.');
+    const entry = data.passwordResetTokens[entryIndex];
+    if (entry.expiresAt < Date.now()) {
+      data.passwordResetTokens.splice(entryIndex, 1);
+      throw new Error('Token expired.');
     }
 
-    user.password = hashPassword(String(password || '').trim());
-    data.passwordResetTokens = data.passwordResetTokens.filter((item) => item.token !== normalizedToken);
+    const userIndex = data.users.findIndex((u) => u.id === entry.userId);
+    if (userIndex === -1) {
+      throw new Error('User not found.');
+    }
 
-    return {
-      id: user.id,
-      username: user.username,
-      role: user.role,
+    data.users[userIndex].password = hashPassword(newPassword);
+    data.passwordResetTokens.splice(entryIndex, 1);
+    return { success: true };
+  });
+}
+
+export async function getConfig() {
+  const data = await loadData();
+  return deepClone(data.config);
+}
+
+export async function updateSiteConfig(payload) {
+  return updateData(async (data) => {
+    data.config = {
+      ...data.config,
+      ...(payload.config || {}),
     };
+    if (payload.slots) {
+      data.slotDefinitions = deepClone(payload.slots);
+    }
+    if (payload.trendingTopics) {
+      data.trendingTopics = deepClone(payload.trendingTopics);
+    }
+    if (payload.electionTabs) {
+      data.electionTabs = deepClone(payload.electionTabs);
+    }
+    return deepClone(data.config);
+  });
+}
+
+export async function updateTaxonomy(type, name, action) {
+  const normalizedType = String(type || '').toLowerCase();
+  return updateData(async (data) => {
+    if (normalizedType === 'category' || normalizedType === 'categories') {
+      if (action === 'delete' || action === 'remove') {
+        data.categories = data.categories.filter((c) => String(c.name) !== String(name));
+      } else {
+        ensureCategory(data, name);
+      }
+      return data.categories.map((c) => c.name);
+    }
+
+    if (normalizedType === 'tag' || normalizedType === 'tags') {
+      if (action === 'delete' || action === 'remove') {
+        data.tags = data.tags.filter((t) => String(t.name) !== String(name));
+      } else {
+        ensureTags(data, [name]);
+      }
+      return data.tags.map((t) => t.name);
+    }
+
+    throw new Error(`Invalid taxonomy type. Normalized: "${normalizedType}", Original: "${type}", Action: "${action}"`);
   });
 }
 
 export async function fetchWorkflowQueue() {
   const data = await loadData();
   return sortByOrderThenDate(
-    data.articles.filter((article) => ['pending', 'rejected'].includes(article.status)),
+    data.articles.filter(
+      (article) =>
+        article.status === 'draft' ||
+        article.status === 'review' ||
+        article.status === 'pending' ||
+        article.status === 'rejected',
+    ),
   ).map((article) => ({
-    id: article.id,
-    headline: article.title,
-    status: article.status,
-    city: article.city || '',
-    updated_at: article.updatedAt,
-    internal_comments: article.internalComments || '',
+    ...mapArticleForClient(article),
+    itemType: 'story',
   }));
 }
 
-export async function updatePostStatus(postId, payload = {}) {
+export async function updatePostStatus(postId, payload) {
   return updateData(async (data) => {
-    const article = data.articles.find((item) => String(item.id) === String(postId));
-    if (!article) {
-      throw new Error('Story not found.');
+    const index = data.articles.findIndex((article) => String(article.id) === String(postId));
+    if (index === -1) {
+      throw new Error('Post not found.');
     }
 
-    article.status = String(payload.status || article.status).trim().toLowerCase();
-    article.internalComments = String(payload.comments || '').trim();
-    article.updatedAt = new Date().toISOString();
-    if (article.status === 'published' && !article.publishedAt) {
-      article.publishedAt = article.updatedAt;
+      const status = payload.status || 'published';
+      data.articles[index].status = status;
+
+    if (status === 'published' && !data.articles[index].publishedAt) {
+      data.articles[index].publishedAt = new Date().toISOString();
     }
 
-    return { id: article.id, status: article.status };
+    return { id: postId, status };
   });
 }
 
-export async function upsertArticle(articleInput = {}, admin = null) {
+export async function upsertArticle(articleInput, admin) {
   return updateData(async (data) => {
-    const requestedStatus = String(articleInput.status || 'published').trim().toLowerCase();
-    const now = new Date().toISOString();
-    const body = splitBody(articleInput.body);
-    const requestedPublishedAt = String(articleInput.publishedAt || '').trim();
-    const normalizedPublishedAt =
-      requestedPublishedAt && !Number.isNaN(new Date(requestedPublishedAt).getTime())
-        ? new Date(requestedPublishedAt).toISOString()
-        : '';
-    const tags = Array.isArray(articleInput.tags)
-      ? articleInput.tags.filter(Boolean).map((tag) => String(tag).trim())
-      : [];
-    const slotKey = String(articleInput.slot || 'latest').trim();
+    const id = articleInput.id || nextNumericId(data.articles);
+    const existing = data.articles.find((article) => String(article.id) === String(id));
 
+    const title = String(articleInput.title || '').trim();
+    const slug = slugify(articleInput.slug || title, `story-${id}`);
+    const slotKey = String(articleInput.slot || articleInput.slotKey || 'latest').trim();
+    const requestedStatus = articleInput.status || 'published';
+    const now = new Date().toISOString();
+
+    let normalizedPublishedAt = null;
+    if (articleInput.publishedAt) {
+      try {
+        normalizedPublishedAt = new Date(articleInput.publishedAt).toISOString();
+      } catch (e) {}
+    }
+
+    const tags = Array.isArray(articleInput.tags) ? articleInput.tags : [];
     ensureCategory(data, articleInput.category);
     ensureTags(data, tags);
 
-    const existing = data.articles.find((item) => String(item.id) === String(articleInput.id));
-    const nextId = existing?.id || `story-${Date.now()}`;
-    const nextSlug = slugify(articleInput.slug || articleInput.title || nextId, nextId);
+    const body = splitBody(articleInput.body);
+
+    const nextId = existing?.id || id;
+    const nextSlug = existing?.slug || slug;
 
     const nextArticle = assignLocationIds(data, {
-      ...(existing || {}),
       id: nextId,
       slug: nextSlug,
       title: String(articleInput.title || existing?.title || '').trim(),
@@ -1167,196 +1629,116 @@ export async function deleteArticle(postId) {
   return updateData(async (data) => {
     const nextArticles = data.articles.filter((article) => String(article.id) !== String(postId));
     if (nextArticles.length === data.articles.length) {
-      throw new Error('Story not found.');
+      throw new Error('Article not found.');
     }
-
     data.articles = nextArticles;
-    return { id: postId };
+    return { success: true };
   });
-}
-
-export async function updateTaxonomy(type, name, action) {
-  const normalizedType = String(type || '').toLowerCase();
-  const normalizedAction = String(action || '').toLowerCase();
-  const cleanedName = String(name || '').trim();
-
-  if (!cleanedName) {
-    throw new Error('Taxonomy name is required.');
-  }
-
-  return updateData(async (data) => {
-    if (normalizedType === 'categories' || normalizedType === 'category') {
-      if (normalizedAction === 'remove') {
-        data.categories = data.categories.filter(
-          (category) => category.name.toLowerCase() !== cleanedName.toLowerCase(),
-        );
-      } else {
-        ensureCategory(data, cleanedName);
-      }
-
-      return data.categories.map((category) => category.name);
-    }
-
-    if (normalizedType === 'tags' || normalizedType === 'tag') {
-      if (normalizedAction === 'remove') {
-        data.tags = data.tags.filter((tag) => tag.name.toLowerCase() !== cleanedName.toLowerCase());
-        data.articles = data.articles.map((article) => ({
-          ...article,
-          tags: (article.tags || []).filter((tag) => tag.toLowerCase() !== cleanedName.toLowerCase()),
-        }));
-      } else {
-        ensureTags(data, [cleanedName]);
-      }
-
-      return data.tags.map((tag) => tag.name);
-    }
-
-    throw new Error('Unsupported taxonomy type.');
-  });
-}
-
-export async function updateSiteConfig(payload = {}) {
-  return updateData(async (data) => {
-    const nextConfig = payload.config || {};
-    data.config = {
-      ...data.config,
-      ...nextConfig,
-      labels: {
-        ...data.config.labels,
-        ...(nextConfig.labels || {}),
-      },
-    };
-
-    if (Array.isArray(payload.slots)) {
-      data.slotDefinitions = payload.slots.map((slot, index) => ({
-        ...slot,
-        slot: slot.slot,
-        label: slot.label,
-        section: slot.section || slot.sectionName || '',
-        single: Boolean(slot.single),
-        order: index + 1,
-      }));
-
-      for (const slot of data.slotDefinitions) {
-        const configKey = slotLabelToConfigKey[slot.slot];
-        if (configKey) {
-          data.config.labels[configKey] = slot.label;
-        }
-      }
-    }
-
-    if (Array.isArray(payload.trendingTopics)) {
-      data.trendingTopics = normalizeNameList(payload.trendingTopics);
-    }
-
-    if (Array.isArray(payload.electionTabs)) {
-      data.electionTabs = normalizeNameList(payload.electionTabs);
-    }
-
-    if (Array.isArray(payload.cricketPointsTable)) {
-      data.cricketPointsTable = normalizeCricketPointsTable(payload.cricketPointsTable);
-    }
-
-    return {
-      config: deepClone(data.config),
-      slots: deepClone(data.slotDefinitions),
-      trendingTopics: deepClone(data.trendingTopics),
-      electionTabs: deepClone(data.electionTabs),
-      cricketPointsTable: deepClone(data.cricketPointsTable),
-    };
-  });
-}
-
-export async function getConfig() {
-  const data = await loadData();
-  return deepClone(data.config);
-}
-
-export async function authenticateUserRecord(identity, password) {
-  const data = await loadData();
-  const normalizedIdentity = String(identity || '').trim().toLowerCase();
-  const normalizedPassword = String(password || '');
-  const user = data.users.find(
-    (item) =>
-      (item.username.toLowerCase() === normalizedIdentity || item.email.toLowerCase() === normalizedIdentity) &&
-      verifyPassword(item.password, normalizedPassword),
-  );
-
-  if (!user) return null;
-
-  if (!isHashedPassword(user.password)) {
-    user.password = hashPassword(normalizedPassword);
-    await persist(data);
-  }
-
-  return deepClone(user);
-}
-
-export async function fetchShorts() {
-  const data = await loadData();
-  return sortByOrderThenDate(data.shorts || []);
 }
 
 export async function fetchPublicShorts() {
-  const data = await loadData();
-  return (data.shorts || [])
-    .filter((s) => s.status === 'published')
-    .map((s) => ({
+  try {
+    const [rows] = await pool.execute(
+      'SELECT * FROM shorts WHERE status = "published" ORDER BY publishedAt DESC LIMIT 50',
+    );
+    return rows.map((s) => ({
       ...s,
       time: formatRelativeTime(s.publishedAt || s.updatedAt || s.createdAt),
-    }))
-    .sort((left, right) => new Date(right.publishedAt).getTime() - new Date(left.publishedAt).getTime());
+    }));
+  } catch (error) {
+    const data = await loadData();
+    return [...(data.shorts || [])]
+      .filter((short) => short.status === 'published')
+      .sort((left, right) => new Date(right.publishedAt || right.updatedAt || 0).getTime() - new Date(left.publishedAt || left.updatedAt || 0).getTime())
+      .slice(0, 50)
+      .map((s) => ({
+        ...s,
+        time: formatRelativeTime(s.publishedAt || s.updatedAt || s.createdAt),
+      }));
+  }
 }
 
-export async function fetchShortById(id) {
-  const data = await loadData();
-  const short = (data.shorts || []).find((s) => String(s.id) === String(id));
-  if (!short) return null;
+export async function fetchShortById(idOrSlug) {
+  try {
+    const [rows] = await pool.execute(
+      'SELECT * FROM shorts WHERE id = ? OR slug = ?',
+      [idOrSlug, idOrSlug],
+    );
+    const short = rows[0];
+    if (!short) return null;
 
-  return {
-    ...short,
-    time: formatRelativeTime(short.publishedAt || short.updatedAt || short.createdAt),
-  };
+    return {
+      ...short,
+      time: formatRelativeTime(short.publishedAt || short.updatedAt || short.createdAt),
+    };
+  } catch (error) {
+    const data = await loadData();
+    const short = (data.shorts || []).find(
+      (item) => String(item.id) === String(idOrSlug) || String(item.slug) === String(idOrSlug),
+    );
+    if (!short) return null;
+
+    return {
+      ...short,
+      time: formatRelativeTime(short.publishedAt || short.updatedAt || short.createdAt),
+    };
+  }
 }
 
 export async function upsertShort(payload) {
-  return updateData(async (data) => {
-    if (!Array.isArray(data.shorts)) data.shorts = [];
+  console.log('[DB] Preparing to upsert short:', payload.id || 'new short');
+  try {
+    const id = payload.id || `short-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const title = String(payload.title || 'Untitled Short').trim();
+    const slug = payload.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const videoUrl = String(payload.videoUrl || '').trim();
+    let image = String(payload.image || '').trim();
 
-    const existingIndex = payload.id
-      ? data.shorts.findIndex((s) => String(s.id) === String(payload.id))
-      : -1;
-
-    const now = new Date().toISOString();
-    const shortData = {
-      id: payload.id || `short-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      title: String(payload.title || 'Untitled Short').trim(),
-      videoUrl: String(payload.videoUrl || '').trim(),
-      city: String(payload.city || '').trim(),
-      status: payload.status || 'published',
-      createdAt: existingIndex >= 0 ? data.shorts[existingIndex].createdAt : now,
-      updatedAt: now,
-      publishedAt: payload.status === 'published' ? now : (existingIndex >= 0 ? data.shorts[existingIndex].publishedAt : null),
-    };
-
-    if (existingIndex >= 0) {
-      data.shorts[existingIndex] = shortData;
-    } else {
-      data.shorts.push(shortData);
+    // Auto-generate thumbnail for YouTube if none provided
+    if (!image && videoUrl) {
+      const ytIdMatch = videoUrl.match(/(?:youtube\.com\/(?:shorts\/|watch\?v=)|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+      if (ytIdMatch) {
+        image = `https://img.youtube.com/vi/${ytIdMatch[1]}/maxresdefault.jpg`;
+      }
     }
 
-    return shortData;
-  });
+    const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const status = payload.status || 'published';
+
+    // Check if exists
+    const [existing] = await pool.execute('SELECT createdAt, publishedAt FROM shorts WHERE id = ?', [id]);
+    
+    if (existing && existing.length > 0) {
+      const prev = existing[0];
+      const pubAt = status === 'published' ? (prev.publishedAt || now) : prev.publishedAt;
+      
+      console.log('[DB] Updating existing short:', id);
+      await pool.execute(
+        `UPDATE shorts SET slug = ?, title = ?, description = ?, videoUrl = ?, image = ?, city = ?, status = ?, updatedAt = ?, publishedAt = ? WHERE id = ?`,
+        [slug, title, payload.description || '', videoUrl, image, payload.city || '', status, now, pubAt, id]
+      );
+    } else {
+      const pubAt = status === 'published' ? now : null;
+      console.log('[DB] Inserting new short:', id);
+      await pool.execute(
+        `INSERT INTO shorts (id, slug, title, description, videoUrl, image, city, status, createdAt, updatedAt, publishedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [id, slug, title, payload.description || '', videoUrl, image, payload.city || '', status, now, now, pubAt]
+      );
+    }
+
+    console.log('[DB] Upsert successful for:', id);
+    return { id, title, slug, videoUrl, image, status };
+  } catch (error) {
+    console.error('[DB Error] upsertShort failed:', error);
+    throw error;
+  }
 }
 
 export async function deleteShort(id) {
-  return updateData(async (data) => {
-    if (!Array.isArray(data.shorts)) return;
-    const index = data.shorts.findIndex((s) => String(s.id) === String(id));
-    if (index >= 0) {
-      data.shorts.splice(index, 1);
-      return { success: true };
-    }
+  const [result] = await pool.execute('DELETE FROM shorts WHERE id = ?', [id]);
+  if (result.affectedRows === 0) {
     throw new Error('Short not found.');
-  });
+  }
+  return { success: true };
 }
+

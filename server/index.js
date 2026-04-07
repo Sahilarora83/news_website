@@ -39,17 +39,22 @@ import {
   fetchShortById,
   fetchShorts,
   fetchWorkflowQueue,
+  getEpaperData,
+  getAdminTeam,
   getArticleByIdOrSlug,
   getConfig,
   getHomeAggregatedData,
   getNewsByCity,
+  getPublicTeam,
   listLocationsRepo,
   listUsers,
   requestPasswordReset,
   resetPassword,
+  saveTeamData,
   searchArticles,
   updateLocation,
   updatePostStatus,
+  saveEpaperData,
   updateSiteConfig,
   updateTaxonomy,
   updateUser,
@@ -57,7 +62,7 @@ import {
   upsertArticle,
   upsertShort,
 } from './sql-store.js';
-import { getUploadsDirectory, saveBase64ImageUpload } from './media-store.js';
+import { getUploadsDirectory, saveBase64DocumentUpload, saveBase64ImageUpload } from './media-store.js';
 
 const app = express();
 const PORT = Number(process.env.PORT || 3001);
@@ -79,6 +84,14 @@ app.get('/api/health', (req, res) => {
     service: 'pratham-genda-unified-api',
     date: new Date().toISOString(),
   });
+});
+
+app.get('/api/team', async (req, res) => {
+  try {
+    return res.json({ members: await getPublicTeam() });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
 });
 
 app.post('/api/admin/login', async (req, res) => {
@@ -115,7 +128,6 @@ app.post('/api/admin/password-reset-request', async (req, res) => {
 
     if (result && process.env.NODE_ENV !== 'production') {
       response.token = result.token;
-      response.username = result.user.username;
     }
 
     return res.json(response);
@@ -174,6 +186,22 @@ app.put('/api/admin/config', requireRole(['super_admin', 'admin']), async (req, 
     return res.json(await updateSiteConfig(req.body || {}));
   } catch (error) {
     return res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/admin/team', requireRole(['super_admin', 'editor', 'reporter', 'admin']), async (req, res) => {
+  try {
+    return res.json(await getAdminTeam());
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/admin/team', requireRole(['super_admin', 'editor', 'reporter', 'admin']), async (req, res) => {
+  try {
+    return res.json(await saveTeamData(req.body || {}));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
 });
 
@@ -336,11 +364,15 @@ app.delete('/api/admin/shorts/:shortId', requireRole(['super_admin', 'editor', '
 });
 
 app.post('/api/admin/taxonomy/:type', requireRole(['super_admin', 'editor', 'admin']), async (req, res) => {
+  const { type } = req.params;
+  const { name, action } = req.body;
+  console.log(`[API] Taxonomy request: type=${type}, name=${name}, action=${action}`);
   try {
-    const names = await updateTaxonomy(req.params.type, req.body?.name, req.body?.action);
-    return res.json({ items: names });
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
+    const result = await updateTaxonomy(type, name, action);
+    res.json({ success: true, items: result });
+  } catch (err) {
+    console.error('[API] Taxonomy error:', err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -349,6 +381,36 @@ app.get('/api/home', async (req, res) => {
     return res.json(await getHomeAggregatedData());
   } catch (error) {
     return res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/admin/uploads/documents', requireRole(['super_admin', 'editor', 'reporter', 'city_manager', 'admin']), async (req, res) => {
+  try {
+    const uploaded = await saveBase64DocumentUpload(req.body || {});
+    const origin = `${req.protocol}://${req.get('host')}`;
+
+    return res.status(201).json({
+      ...uploaded,
+      url: `${origin}${uploaded.relativeUrl}`,
+    });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+app.get('/api/epaper', async (req, res) => {
+  try {
+    return res.json(await getEpaperData());
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/api/admin/epaper', requireRole(['super_admin', 'editor', 'admin']), async (req, res) => {
+  try {
+    return res.json(await saveEpaperData(req.body || {}));
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
 });
 
@@ -465,11 +527,11 @@ app.get('/api/article/:id', async (req, res) => {
 
 app.get('/api/search', async (req, res) => {
   try {
-    const homeData = await getHomeAggregatedData();
+    const config = await getConfig();
     return res.json({
       query: String(req.query.q || ''),
       items: await searchArticles(req.query.q),
-      trendingTopics: homeData.trendingTopics || [],
+      trendingTopics: [],
     });
   } catch (error) {
     return res.status(500).json({ error: error.message });

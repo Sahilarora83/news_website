@@ -2,15 +2,18 @@ import React from 'react';
 
 const AdminSidebar = ({ activeTab, setActiveTab, handleLogout, user = { role: 'reporter' }, mobileOpen = false, onClose }) => {
   const navItems = [
-    { id: 'dashboard', label: 'Overview', icon: 'fa-chart-line', roles: ['super_admin', 'editor', 'reporter', 'city_manager', 'admin'] },
+    { id: 'dashboard', label: 'Dashboard', icon: 'fa-chart-line', roles: ['super_admin', 'editor', 'reporter', 'city_manager', 'admin'] },
     { id: 'workflow', label: 'Workflow', icon: 'fa-tasks', roles: ['super_admin', 'editor', 'admin'] },
     { id: 'editor', label: 'Story Editor', icon: 'fa-pen-nib', roles: ['super_admin', 'editor', 'reporter', 'city_manager', 'admin'] },
     { id: 'posts', label: 'Stories', icon: 'fa-file-alt', roles: ['super_admin', 'editor', 'admin'] },
     { id: 'shorts', label: 'Shorts', icon: 'fa-play-circle', roles: ['super_admin', 'editor', 'reporter', 'city_manager', 'admin'] },
+    { id: 'epaper', label: 'E-Paper', icon: 'fa-newspaper', roles: ['super_admin', 'editor', 'admin'] },
+    { id: 'team', label: 'Our Team', icon: 'fa-user-group', roles: ['super_admin', 'editor', 'reporter', 'admin'] },
     { id: 'locations', label: 'Locations', icon: 'fa-map-marked-alt', roles: ['super_admin', 'city_manager', 'admin'] },
-    { id: 'taxonomy', label: 'Taxonomy', icon: 'fa-folder-open', roles: ['super_admin', 'editor', 'admin'] },
+    { id: 'taxonomy', label: 'Categories & Tags', icon: 'fa-folder-open', roles: ['super_admin', 'editor', 'admin'] },
+    { id: 'home_sections', label: 'Homepage Sections', icon: 'fa-home', roles: ['super_admin', 'admin'] },
     { id: 'users', label: 'Users', icon: 'fa-users-cog', roles: ['super_admin', 'admin'] },
-    { id: 'settings', label: 'Settings', icon: 'fa-cog', roles: ['super_admin', 'admin'] },
+    { id: 'settings', label: 'Site Settings', icon: 'fa-cog', roles: ['super_admin', 'admin'] },
   ];
 
   const visibleItems = navItems.filter((item) => item.roles.includes(String(user.role || '').toLowerCase()));
@@ -25,7 +28,7 @@ const AdminSidebar = ({ activeTab, setActiveTab, handleLogout, user = { role: 'r
           <i className="fas fa-newspaper" />
         </div>
         <div className="admin-logo-text" style={{ fontSize: '16px', fontWeight: 800, color: '#111827', letterSpacing: '-0.02em', marginLeft: 12 }}>
-          Agenda News
+          प्रथम एजेंडा न्यूज़
         </div>
         <button
           type="button"
